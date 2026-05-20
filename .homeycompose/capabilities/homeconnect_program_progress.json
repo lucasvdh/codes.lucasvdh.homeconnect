@@ -1,0 +1,20 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Program progress",
+    "nl": "Programmavoortgang",
+    "de": "Programmfortschritt"
+  },
+  "units": {
+    "en": "%",
+    "de": "%",
+    "nl": "%"
+  },
+  "decimals": 0,
+  "min": 0,
+  "max": 100,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capability/homeconnect_program_progress.svg"
+}

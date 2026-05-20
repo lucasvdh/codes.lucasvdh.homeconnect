@@ -1,0 +1,78 @@
+{
+  "name": {
+    "en": "Dishwasher",
+    "nl": "Vaatwasser",
+    "de": "Geschirrspüler"
+  },
+  "class": "dishwasher",
+  "capabilities": [
+    "onoff",
+    "homeconnect_operation_state",
+    "homeconnect_door_state",
+    "homeconnect_program",
+    "homeconnect_selected_program",
+    "homeconnect_program_progress",
+    "homeconnect_remaining_time",
+    "homeconnect_elapsed_time",
+    "homeconnect_start_in_relative",
+    "homeconnect_remote_start",
+    "homeconnect_remote_control_active",
+    "homeconnect_local_control_active",
+    "homeconnect_program_count_started",
+    "homeconnect_child_lock",
+    "homeconnect_program_phase",
+    "homeconnect_energy_forecast",
+    "homeconnect_water_forecast",
+    "homeconnect_eco_dry_active",
+    "homeconnect_machine_care_runs_left",
+    "homeconnect_silence_remaining",
+    "homeconnect_half_load",
+    "homeconnect_silence_on_demand",
+    "homeconnect_intensiv_zone",
+    "homeconnect_vario_speed_plus",
+    "homeconnect_hygiene_plus",
+    "homeconnect_brilliance_dry",
+    "homeconnect_extra_dry",
+    "homeconnect_eco_as_default",
+    "homeconnect_drying_assistant",
+    "homeconnect_gap_illumination",
+    "homeconnect_rinse_aid_level",
+    "homeconnect_water_hardness",
+    "homeconnect_hot_water_connection",
+    "homeconnect_sensitivity_turbidity",
+    "homeconnect_sound_level_signal",
+    "homeconnect_silence_default_time"
+  ],
+  "discovery": "homeconnect-mdns",
+  "images": {
+    "small": "/drivers/dishwasher/assets/images/small.png",
+    "large": "/drivers/dishwasher/assets/images/large.png",
+    "xlarge": "/drivers/dishwasher/assets/images/xlarge.png"
+  },
+  "platforms": [
+    "local"
+  ],
+  "connectivity": [
+    "lan"
+  ],
+  "pair": [
+    {
+      "id": "list_devices",
+      "template": "list_devices",
+      "navigation": {
+        "next": "add_devices"
+      },
+      "options": {
+        "title": {
+          "en": "Select the dishwashers to add",
+          "nl": "Selecteer de vaatwassers om toe te voegen",
+          "de": "Wähle die Geschirrspüler aus, die hinzugefügt werden sollen"
+        }
+      }
+    },
+    {
+      "id": "add_devices",
+      "template": "add_devices"
+    }
+  ]
+}

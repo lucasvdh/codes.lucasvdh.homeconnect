@@ -1,0 +1,12 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Gap illumination",
+    "nl": "Voegverlichting",
+    "de": "Spaltbeleuchtung"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle",
+  "icon": "/assets/capability/homeconnect_gap_illumination.svg"
+}

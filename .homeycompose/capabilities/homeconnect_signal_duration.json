@@ -1,0 +1,46 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Signal duration",
+    "nl": "Signaalduur",
+    "de": "Signaldauer"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "values": [
+    {
+      "id": "Short",
+      "title": {
+        "en": "Short",
+        "nl": "Kort",
+        "de": "Kurz"
+      }
+    },
+    {
+      "id": "Medium",
+      "title": {
+        "en": "Medium",
+        "nl": "Gemiddeld",
+        "de": "Mittel"
+      }
+    },
+    {
+      "id": "Long",
+      "title": {
+        "en": "Long",
+        "nl": "Lang",
+        "de": "Lang"
+      }
+    },
+    {
+      "id": "OnlyOneTime",
+      "title": {
+        "en": "Once",
+        "nl": "Eénmalig",
+        "de": "Einmal"
+      }
+    }
+  ],
+  "icon": "/assets/capability/homeconnect_signal_duration.svg"
+}

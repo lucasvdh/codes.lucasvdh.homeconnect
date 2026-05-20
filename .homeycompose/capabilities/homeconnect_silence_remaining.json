@@ -1,0 +1,19 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Silence time remaining",
+    "nl": "Stiltemodus resterend",
+    "de": "Restzeit Stillemodus"
+  },
+  "units": {
+    "en": "min",
+    "de": "min",
+    "nl": "min"
+  },
+  "decimals": 0,
+  "min": 0,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capability/homeconnect_silence_remaining.svg"
+}

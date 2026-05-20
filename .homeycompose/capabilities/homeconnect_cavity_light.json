@@ -1,0 +1,12 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Oven light",
+    "nl": "Ovenverlichting",
+    "de": "Backofenbeleuchtung"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle",
+  "icon": "/assets/capability/homeconnect_cavity_light.svg"
+}

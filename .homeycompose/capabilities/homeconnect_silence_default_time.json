@@ -1,0 +1,21 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Silence default time",
+    "nl": "Standaardstilteduur",
+    "de": "Standarddauer Stillemodus"
+  },
+  "units": {
+    "en": "min",
+    "de": "min",
+    "nl": "min"
+  },
+  "decimals": 0,
+  "min": 1,
+  "max": 30,
+  "step": 1,
+  "getable": true,
+  "setable": true,
+  "uiComponent": "slider",
+  "icon": "/assets/capability/homeconnect_silence_default_time.svg"
+}

@@ -1,0 +1,12 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Remote control active",
+    "nl": "Bediening op afstand actief",
+    "de": "Fernsteuerung aktiv"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capability/homeconnect_remote_control_active.svg"
+}

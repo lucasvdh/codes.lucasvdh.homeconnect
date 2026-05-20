@@ -1,0 +1,29 @@
+# Editors / local agent state
+/.idea/
+/.vscode/
+/.agents/
+/.claude/
+/.codex/
+
+# Dependencies
+/node_modules/
+
+# Homey CLI / Compose generated output
+/.homeybuild/
+/app.json
+
+# Local secrets and appliance exports
+/env.json
+/devices.json
+/auth-roundtrip-har.json
+*.har
+
+# External/local helper checkout
+/hcpy/
+
+# TypeScript
+*.tsbuildinfo
+
+# Logs / OS noise
+*.log
+.DS_Store

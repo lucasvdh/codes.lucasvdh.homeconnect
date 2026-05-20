@@ -1,0 +1,28 @@
+{
+  "name": "homeconnect",
+  "version": "1.0.0",
+  "private": true,
+  "main": "app.js",
+  "engines": {
+    "node": "22"
+  },
+  "scripts": {
+    "build": "tsc",
+    "homey-validate": "homey app validate --level verified",
+    "homey-build": "homey app build",
+    "homey-run": "homey app run"
+  },
+  "dependencies": {
+    "fast-xml-parser": "^4.5.0",
+    "fflate": "^0.8.2",
+    "ws": "^8.20.1"
+  },
+  "devDependencies": {
+    "@tsconfig/node22": "^22.0.0",
+    "@types/homey": "npm:homey-apps-sdk-v3-types@^0.3.12",
+    "@types/node": "^22.10.0",
+    "@types/ws": "^8.5.13",
+    "homey": "^4.2.1",
+    "typescript": "^5.9.0"
+  }
+}

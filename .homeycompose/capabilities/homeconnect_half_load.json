@@ -1,0 +1,12 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Half load",
+    "nl": "Halve belading",
+    "de": "Halbe Beladung"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle",
+  "icon": "/assets/capability/homeconnect_half_load.svg"
+}

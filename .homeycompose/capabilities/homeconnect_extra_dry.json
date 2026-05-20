@@ -1,0 +1,12 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Extra drying",
+    "nl": "Extra drogen",
+    "de": "Extra Trocknen"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle",
+  "icon": "/assets/capability/homeconnect_extra_dry.svg"
+}

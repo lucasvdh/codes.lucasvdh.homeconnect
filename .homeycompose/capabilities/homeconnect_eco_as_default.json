@@ -1,0 +1,30 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Default program",
+    "nl": "Standaardprogramma",
+    "de": "Standardprogramm"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "values": [
+    {
+      "id": "LastProgram",
+      "title": {
+        "en": "Last used",
+        "nl": "Laatst gebruikt",
+        "de": "Zuletzt verwendet"
+      }
+    },
+    {
+      "id": "EcoAsDefault",
+      "title": {
+        "en": "Eco",
+        "nl": "Eco",
+        "de": "Eco"
+      }
+    }
+  ],
+  "icon": "/assets/capability/homeconnect_eco_as_default.svg"
+}

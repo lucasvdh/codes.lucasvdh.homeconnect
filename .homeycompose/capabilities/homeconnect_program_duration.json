@@ -1,0 +1,19 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Program duration",
+    "nl": "Programmaduur",
+    "de": "Programmdauer"
+  },
+  "units": {
+    "en": "min",
+    "de": "min",
+    "nl": "min"
+  },
+  "decimals": 0,
+  "min": 0,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capability/homeconnect_program_duration.svg"
+}

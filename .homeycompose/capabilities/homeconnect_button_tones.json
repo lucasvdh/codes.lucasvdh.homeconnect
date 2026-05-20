@@ -1,0 +1,12 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Button tones",
+    "nl": "Toetstonen",
+    "de": "Tastentöne"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle",
+  "icon": "/assets/capability/homeconnect_button_tones.svg"
+}

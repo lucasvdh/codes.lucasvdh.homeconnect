@@ -1,0 +1,30 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Water connection",
+    "nl": "Wateraansluiting",
+    "de": "Wasseranschluss"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "values": [
+    {
+      "id": "ColdWater",
+      "title": {
+        "en": "Cold water",
+        "nl": "Koud water",
+        "de": "Kaltwasser"
+      }
+    },
+    {
+      "id": "HotWater",
+      "title": {
+        "en": "Hot water",
+        "nl": "Warm water",
+        "de": "Warmwasser"
+      }
+    }
+  ],
+  "icon": "/assets/capability/homeconnect_hot_water_connection.svg"
+}

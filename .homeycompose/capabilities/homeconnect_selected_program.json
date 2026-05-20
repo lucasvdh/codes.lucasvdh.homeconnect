@@ -1,0 +1,12 @@
+{
+  "type": "string",
+  "title": {
+    "en": "Selected program",
+    "nl": "Geselecteerd programma",
+    "de": "Ausgewähltes Programm"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capability/homeconnect_selected_program.svg"
+}

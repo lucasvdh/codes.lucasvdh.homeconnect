@@ -1,0 +1,12 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Operated locally",
+    "nl": "Lokaal bediend",
+    "de": "Lokal bedient"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capability/homeconnect_local_control_active.svg"
+}

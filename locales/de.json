@@ -1,0 +1,59 @@
+{
+  "pair": {
+    "no_devices": "Noch keine Geräte gefunden. Öffne zuerst die App-Einstellungen und führe die einmalige Home Connect-Anmeldung aus."
+  },
+  "device": {
+    "error": {
+      "no_keys": "Für dieses Gerät wurden keine lokalen Schlüssel gefunden. Kopple die App erneut.",
+      "unreachable": "Das Gerät ist im lokalen Netzwerk nicht erreichbar.",
+      "unknown_program": "Dieses Programm ist für dieses Gerät nicht gültig.",
+      "remote_start_not_allowed": "Fernstart ist am Gerät nicht aktiviert. Aktiviere ihn zuerst am Gerät.",
+      "feature_not_supported": "Dieses Gerät unterstützt diese Einstellung nicht.",
+      "feature_not_available": "Diese Einstellung ist am Gerät derzeit nicht verfügbar.",
+      "invalid_value": "Das Gerät hat diesen Wert abgelehnt."
+    }
+  },
+  "settings": {
+    "title": "Home Connect - Geräte koppeln",
+    "lead": "Nutze die einmalige Cloud-Anmeldung, um die lokalen Schlüssel deiner Bosch/Siemens-Geräte abzurufen. Danach kommuniziert die App lokal und du kannst die Geräte vom Internet trennen. Gefundene Geräte fügst du anschließend über Gerät hinzufügen > Home Connect hinzu.",
+    "tab_login": "Anmelden",
+    "tab_import": "devices.json importieren",
+    "login_hint": "Die SingleKey ID-Anmeldung kann nicht in der App ausgeführt werden, weil die Anmeldeseite mit hCaptcha geschützt ist. Melde dich deshalb in deinem eigenen Browser an.",
+    "login_step_generate": "Erzeuge den Anmeldelink und öffne ihn in deinem Browser, oder kopiere ihn.",
+    "login_step_signin": "Melde dich mit SingleKey ID an. Dein Browser versucht danach hcauth://auth/prod?code=... zu öffnen und zeigt einen Fehler. Das ist normal.",
+    "login_step_paste": "Kopiere die vollständige hcauth:// URL aus der Adresszeile oder dem Netzwerk-Inspector und füge sie unten ein.",
+    "generate_login_link": "Anmeldelink erzeugen",
+    "copy": "Kopieren",
+    "open": "Öffnen",
+    "submit_and_fetch": "Absenden und Geräte abrufen",
+    "import_hint": "Hast du bereits eine devices.json, zum Beispiel von hcpy? Füge den Inhalt ein oder wähle eine Datei aus.",
+    "import_placeholder": "[ { \"name\": \"oven\", \"host\": \"...\", \"key\": \"...\", \"description\": {...}, \"features\": {...} } ]",
+    "import_devices": "Geräte importieren",
+    "found_devices": "Gefundene Geräte",
+    "no_devices": "Noch keine Geräte. Melde dich an oder importiere eine devices.json.",
+    "refresh_devices": "Geräte aktualisieren",
+    "clear_all": "Alles löschen",
+    "refresh_hint": "Geräte aktualisieren ruft die Liste mit der gespeicherten Sitzung erneut ab. Nützlich nach dem Hinzufügen eines neuen Geräts.",
+    "table_name": "Name",
+    "table_brand_type": "Marke/Typ",
+    "table_model": "Modell",
+    "table_protocol": "Protokoll",
+    "done_found": "__count__ Gerät(e) gefunden und gespeichert. Füge sie über Gerät hinzufügen > Home Connect hinzu.",
+    "import_done": "__count__ Gerät(e) importiert. Füge sie über Gerät hinzufügen > Home Connect hinzu.",
+    "error_prefix": "Fehlgeschlagen: __message__",
+    "login_link_failed": "Anmeldelink konnte nicht erstellt werden: __message__",
+    "link_copied": "Anmeldelink kopiert.",
+    "copy_manually": "Wähle den Link aus und kopiere ihn manuell.",
+    "paste_url_first": "Füge zuerst die hcauth:// URL ein.",
+    "processing_code": "Code wird verarbeitet...",
+    "import_empty": "Füge zuerst eine devices.json ein oder wähle sie aus.",
+    "import_failed": "Import fehlgeschlagen: __message__",
+    "refreshing": "Geräte werden aktualisiert...",
+    "refresh_failed": "Aktualisieren fehlgeschlagen: __message__",
+    "clear_done": "Alle gespeicherten Geräte und die Sitzung wurden gelöscht.",
+    "clear_failed": "Löschen fehlgeschlagen: __message__",
+    "progress_lookup": "Home Connect-Konto wird gesucht...",
+    "progress_fetch_keys": "Schlüssel für __appliance__ werden abgerufen...",
+    "progress_fetch_map": "Funktionskarte für __appliance__ wird abgerufen..."
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Meat probe target",
+    "nl": "Vleesthermometer streefwaarde",
+    "de": "Zieltemperatur Bratenthermometer"
+  },
+  "units": {
+    "en": "°C",
+    "de": "°C",
+    "nl": "°C"
+  },
+  "decimals": 0,
+  "min": 0,
+  "max": 99,
+  "step": 1,
+  "getable": true,
+  "setable": true,
+  "uiComponent": "slider",
+  "icon": "/assets/capability/homeconnect_meat_probe_target.svg"
+}

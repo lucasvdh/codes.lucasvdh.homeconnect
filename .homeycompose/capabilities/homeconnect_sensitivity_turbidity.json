@@ -1,0 +1,38 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Turbidity sensitivity",
+    "nl": "Vervuilingsgevoeligheid",
+    "de": "Trübungsempfindlichkeit"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "values": [
+    {
+      "id": "Standard",
+      "title": {
+        "en": "Standard",
+        "nl": "Standaard",
+        "de": "Standard"
+      }
+    },
+    {
+      "id": "Sensitive",
+      "title": {
+        "en": "Sensitive",
+        "nl": "Gevoelig",
+        "de": "Empfindlich"
+      }
+    },
+    {
+      "id": "VerySensitive",
+      "title": {
+        "en": "Very sensitive",
+        "nl": "Zeer gevoelig",
+        "de": "Sehr empfindlich"
+      }
+    }
+  ],
+  "icon": "/assets/capability/homeconnect_sensitivity_turbidity.svg"
+}

@@ -1,0 +1,19 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Starts in",
+    "nl": "Start over",
+    "de": "Startet in"
+  },
+  "units": {
+    "en": "min",
+    "de": "min",
+    "nl": "min"
+  },
+  "decimals": 0,
+  "min": 0,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capability/homeconnect_start_in_relative.svg"
+}

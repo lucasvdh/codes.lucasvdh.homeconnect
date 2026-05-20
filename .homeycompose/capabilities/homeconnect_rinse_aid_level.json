@@ -1,0 +1,70 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Rinse aid level",
+    "nl": "Glansspoelmiddel",
+    "de": "Klarspülerstand"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "values": [
+    {
+      "id": "Off",
+      "title": {
+        "en": "Off",
+        "nl": "Uit",
+        "de": "Aus"
+      }
+    },
+    {
+      "id": "R01",
+      "title": {
+        "en": "Level 1",
+        "nl": "Niveau 1",
+        "de": "Stufe 1"
+      }
+    },
+    {
+      "id": "R02",
+      "title": {
+        "en": "Level 2",
+        "nl": "Niveau 2",
+        "de": "Stufe 2"
+      }
+    },
+    {
+      "id": "R03",
+      "title": {
+        "en": "Level 3",
+        "nl": "Niveau 3",
+        "de": "Stufe 3"
+      }
+    },
+    {
+      "id": "R04",
+      "title": {
+        "en": "Level 4",
+        "nl": "Niveau 4",
+        "de": "Stufe 4"
+      }
+    },
+    {
+      "id": "R05",
+      "title": {
+        "en": "Level 5",
+        "nl": "Niveau 5",
+        "de": "Stufe 5"
+      }
+    },
+    {
+      "id": "R06",
+      "title": {
+        "en": "Level 6",
+        "nl": "Niveau 6",
+        "de": "Stufe 6"
+      }
+    }
+  ],
+  "icon": "/assets/capability/homeconnect_rinse_aid_level.svg"
+}

@@ -1,0 +1,86 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Operation state",
+    "nl": "Bedrijfstoestand",
+    "de": "Betriebszustand"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capability/homeconnect_operation_state.svg",
+  "values": [
+    {
+      "id": "Inactive",
+      "title": {
+        "en": "Inactive",
+        "nl": "Inactief",
+        "de": "Inaktiv"
+      }
+    },
+    {
+      "id": "Ready",
+      "title": {
+        "en": "Ready",
+        "nl": "Gereed",
+        "de": "Bereit"
+      }
+    },
+    {
+      "id": "DelayedStart",
+      "title": {
+        "en": "Delayed start",
+        "nl": "Uitgestelde start",
+        "de": "Startzeitvorwahl"
+      }
+    },
+    {
+      "id": "Run",
+      "title": {
+        "en": "Running",
+        "nl": "Bezig",
+        "de": "Läuft"
+      }
+    },
+    {
+      "id": "Pause",
+      "title": {
+        "en": "Paused",
+        "nl": "Gepauzeerd",
+        "de": "Pausiert"
+      }
+    },
+    {
+      "id": "ActionRequired",
+      "title": {
+        "en": "Action required",
+        "nl": "Actie vereist",
+        "de": "Aktion erforderlich"
+      }
+    },
+    {
+      "id": "Finished",
+      "title": {
+        "en": "Finished",
+        "nl": "Klaar",
+        "de": "Fertig"
+      }
+    },
+    {
+      "id": "Error",
+      "title": {
+        "en": "Error",
+        "nl": "Fout",
+        "de": "Fehler"
+      }
+    },
+    {
+      "id": "Aborting",
+      "title": {
+        "en": "Aborting",
+        "nl": "Afbreken",
+        "de": "Abbrechen"
+      }
+    }
+  ]
+}

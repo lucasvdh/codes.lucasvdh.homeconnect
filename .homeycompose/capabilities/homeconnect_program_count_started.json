@@ -1,0 +1,14 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Programs started",
+    "nl": "Programma's gestart",
+    "de": "Gestartete Programme"
+  },
+  "decimals": 0,
+  "min": 0,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capability/homeconnect_program_count_started.svg"
+}

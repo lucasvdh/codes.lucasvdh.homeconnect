@@ -1,0 +1,12 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Eco-dry active",
+    "nl": "Eco-drogen actief",
+    "de": "Eco-Trocknen aktiv"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capability/homeconnect_eco_dry_active.svg"
+}

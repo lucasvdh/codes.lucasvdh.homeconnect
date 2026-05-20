@@ -1,0 +1,12 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Count-up timer",
+    "nl": "Stopwatch",
+    "de": "Stoppuhr"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle",
+  "icon": "/assets/capability/homeconnect_count_up_timer.svg"
+}

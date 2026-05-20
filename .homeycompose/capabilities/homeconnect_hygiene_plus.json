@@ -1,0 +1,12 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "HygienePlus",
+    "nl": "HygiënePlus",
+    "de": "HygienePlus"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle",
+  "icon": "/assets/capability/homeconnect_hygiene_plus.svg"
+}

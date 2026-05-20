@@ -1,0 +1,12 @@
+{
+  "type": "string",
+  "title": {
+    "en": "Active program",
+    "nl": "Actief programma",
+    "de": "Aktives Programm"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capability/homeconnect_program.svg"
+}

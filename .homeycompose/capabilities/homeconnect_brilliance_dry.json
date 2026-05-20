@@ -1,0 +1,12 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Brilliance dry",
+    "nl": "Glansdrogen",
+    "de": "Brilliance Dry"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle",
+  "icon": "/assets/capability/homeconnect_brilliance_dry.svg"
+}

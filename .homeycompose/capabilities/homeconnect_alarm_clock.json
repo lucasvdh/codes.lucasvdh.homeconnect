@@ -1,0 +1,21 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Kitchen timer",
+    "nl": "Kookwekker",
+    "de": "Kurzzeitwecker"
+  },
+  "units": {
+    "en": "min",
+    "de": "min",
+    "nl": "min"
+  },
+  "decimals": 0,
+  "min": 0,
+  "max": 1440,
+  "step": 1,
+  "getable": true,
+  "setable": true,
+  "uiComponent": "slider",
+  "icon": "/assets/capability/homeconnect_alarm_clock.svg"
+}

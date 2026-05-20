@@ -1,0 +1,20 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Energy forecast",
+    "nl": "Verwacht energieverbruik",
+    "de": "Energieprognose"
+  },
+  "units": {
+    "en": "%",
+    "de": "%",
+    "nl": "%"
+  },
+  "decimals": 0,
+  "min": 0,
+  "max": 100,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capability/homeconnect_energy_forecast.svg"
+}

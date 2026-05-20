@@ -1,0 +1,38 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Drying assistant",
+    "nl": "Droogassistent",
+    "de": "Trocknungsassistent"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "values": [
+    {
+      "id": "Off",
+      "title": {
+        "en": "Off",
+        "nl": "Uit",
+        "de": "Aus"
+      }
+    },
+    {
+      "id": "AllPrograms",
+      "title": {
+        "en": "All programs",
+        "nl": "Alle programma's",
+        "de": "Alle Programme"
+      }
+    },
+    {
+      "id": "EcoAsDefault",
+      "title": {
+        "en": "Eco programs",
+        "nl": "Eco-programma's",
+        "de": "Eco-Programme"
+      }
+    }
+  ],
+  "icon": "/assets/capability/homeconnect_drying_assistant.svg"
+}

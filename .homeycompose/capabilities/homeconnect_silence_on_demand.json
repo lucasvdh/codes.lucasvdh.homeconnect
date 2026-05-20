@@ -1,0 +1,12 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Silence on demand",
+    "nl": "Stiltemodus",
+    "de": "Stillemodus"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle",
+  "icon": "/assets/capability/homeconnect_silence_on_demand.svg"
+}

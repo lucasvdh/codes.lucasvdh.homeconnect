@@ -1,0 +1,12 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "IntensiveZone",
+    "nl": "IntensiefZone",
+    "de": "IntensivZone"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle",
+  "icon": "/assets/capability/homeconnect_intensiv_zone.svg"
+}

@@ -1,0 +1,12 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Fast preheat",
+    "nl": "Snelvoorverwarmen",
+    "de": "Schnellaufheizen"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle",
+  "icon": "/assets/capability/homeconnect_fast_preheat.svg"
+}

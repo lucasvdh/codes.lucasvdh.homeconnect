@@ -1,0 +1,38 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Door",
+    "nl": "Deur",
+    "de": "Tür"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capability/homeconnect_door_state.svg",
+  "values": [
+    {
+      "id": "Open",
+      "title": {
+        "en": "Open",
+        "nl": "Open",
+        "de": "Offen"
+      }
+    },
+    {
+      "id": "Closed",
+      "title": {
+        "en": "Closed",
+        "nl": "Gesloten",
+        "de": "Geschlossen"
+      }
+    },
+    {
+      "id": "Locked",
+      "title": {
+        "en": "Locked",
+        "nl": "Vergrendeld",
+        "de": "Verriegelt"
+      }
+    }
+  ]
+}

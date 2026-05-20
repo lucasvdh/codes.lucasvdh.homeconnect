@@ -1,0 +1,46 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Signal volume",
+    "nl": "Signaalvolume",
+    "de": "Signaltonlautstärke"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "values": [
+    {
+      "id": "Off",
+      "title": {
+        "en": "Off",
+        "nl": "Uit",
+        "de": "Aus"
+      }
+    },
+    {
+      "id": "Low",
+      "title": {
+        "en": "Low",
+        "nl": "Laag",
+        "de": "Niedrig"
+      }
+    },
+    {
+      "id": "Medium",
+      "title": {
+        "en": "Medium",
+        "nl": "Gemiddeld",
+        "de": "Mittel"
+      }
+    },
+    {
+      "id": "High",
+      "title": {
+        "en": "High",
+        "nl": "Hoog",
+        "de": "Hoch"
+      }
+    }
+  ],
+  "icon": "/assets/capability/homeconnect_sound_level_signal.svg"
+}

@@ -1,0 +1,14 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Programs until machine care",
+    "nl": "Programma's tot machineverzorging",
+    "de": "Programme bis zur Maschinenpflege"
+  },
+  "decimals": 0,
+  "min": 0,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capability/homeconnect_machine_care_runs_left.svg"
+}

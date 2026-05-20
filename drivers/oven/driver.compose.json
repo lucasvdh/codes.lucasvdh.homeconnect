@@ -1,0 +1,69 @@
+{
+  "name": {
+    "en": "Oven",
+    "nl": "Oven",
+    "de": "Backofen"
+  },
+  "class": "oven",
+  "capabilities": [
+    "onoff",
+    "homeconnect_operation_state",
+    "homeconnect_door_state",
+    "homeconnect_program",
+    "homeconnect_selected_program",
+    "homeconnect_program_progress",
+    "homeconnect_remaining_time",
+    "homeconnect_elapsed_time",
+    "homeconnect_start_in_relative",
+    "homeconnect_remote_start",
+    "homeconnect_remote_control_active",
+    "homeconnect_local_control_active",
+    "homeconnect_program_count_started",
+    "homeconnect_child_lock",
+    "measure_temperature",
+    "homeconnect_program_duration",
+    "homeconnect_meat_probe_plugged",
+    "homeconnect_meat_probe_temp",
+    "homeconnect_meat_probe_target",
+    "homeconnect_cavity_light",
+    "homeconnect_fast_preheat",
+    "homeconnect_alarm_clock",
+    "homeconnect_pyrolysis_level",
+    "homeconnect_count_up_timer",
+    "homeconnect_display_brightness",
+    "homeconnect_button_tones",
+    "homeconnect_signal_duration"
+  ],
+  "discovery": "homeconnect-mdns",
+  "images": {
+    "small": "/drivers/oven/assets/images/small.png",
+    "large": "/drivers/oven/assets/images/large.png",
+    "xlarge": "/drivers/oven/assets/images/xlarge.png"
+  },
+  "platforms": [
+    "local"
+  ],
+  "connectivity": [
+    "lan"
+  ],
+  "pair": [
+    {
+      "id": "list_devices",
+      "template": "list_devices",
+      "navigation": {
+        "next": "add_devices"
+      },
+      "options": {
+        "title": {
+          "en": "Select the ovens to add",
+          "nl": "Selecteer de ovens om toe te voegen",
+          "de": "Wähle die Backöfen aus, die hinzugefügt werden sollen"
+        }
+      }
+    },
+    {
+      "id": "add_devices",
+      "template": "add_devices"
+    }
+  ]
+}

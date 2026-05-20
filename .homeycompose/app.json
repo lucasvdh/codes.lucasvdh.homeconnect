@@ -1,0 +1,79 @@
+{
+  "id": "codes.lucasvdh.homeconnect",
+  "version": "1.0.0",
+  "compatibility": ">=12.9.0",
+  "sdk": 3,
+  "platforms": [
+    "local"
+  ],
+  "brandColor": "#EA0016",
+  "name": {
+    "en": "Home Connect (Local)",
+    "nl": "Home Connect (Lokaal)",
+    "de": "Home Connect (Lokal)"
+  },
+  "description": {
+    "en": "Control and monitor your Bosch and Siemens appliances locally",
+    "nl": "Beheer en monitor je Bosch- en Siemens-apparaten lokaal",
+    "de": "Steuere und überwache deine Bosch- und Siemens-Geräte lokal"
+  },
+  "category": [
+    "appliances"
+  ],
+  "author": {
+    "name": "Lucas van der Have",
+    "email": "lucasvdhave@gmail.com"
+  },
+  "permissions": [],
+  "api": {
+    "getStatus": {
+      "method": "get",
+      "path": "/status",
+      "public": false
+    },
+    "startManualAuth": {
+      "method": "post",
+      "path": "/manual/start",
+      "public": false
+    },
+    "submitRedirectUrl": {
+      "method": "post",
+      "path": "/manual/submit",
+      "public": false
+    },
+    "importDevices": {
+      "method": "post",
+      "path": "/import",
+      "public": false
+    },
+    "refreshDevices": {
+      "method": "post",
+      "path": "/refresh",
+      "public": false
+    },
+    "clearDevices": {
+      "method": "post",
+      "path": "/clear",
+      "public": false
+    }
+  },
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "contributing": {
+    "donate": {
+      "paypal": {
+        "username": "lucasvdh"
+      },
+      "githubSponsors": {
+        "username": "lucasvdh"
+      }
+    }
+  },
+  "bugs": {
+    "url": "https://github.com/lucasvdh/codes.lucasvdh.homeconnect/issues"
+  },
+  "source": "https://github.com/lucasvdh/codes.lucasvdh.homeconnect"
+}

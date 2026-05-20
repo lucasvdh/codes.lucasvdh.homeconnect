@@ -1,0 +1,38 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Pyrolysis level",
+    "nl": "Pyrolyse-niveau",
+    "de": "Pyrolysestufe"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "values": [
+    {
+      "id": "Level01",
+      "title": {
+        "en": "Level 1",
+        "nl": "Niveau 1",
+        "de": "Stufe 1"
+      }
+    },
+    {
+      "id": "Level02",
+      "title": {
+        "en": "Level 2",
+        "nl": "Niveau 2",
+        "de": "Stufe 2"
+      }
+    },
+    {
+      "id": "Level03",
+      "title": {
+        "en": "Level 3",
+        "nl": "Niveau 3",
+        "de": "Stufe 3"
+      }
+    }
+  ],
+  "icon": "/assets/capability/homeconnect_pyrolysis_level.svg"
+}

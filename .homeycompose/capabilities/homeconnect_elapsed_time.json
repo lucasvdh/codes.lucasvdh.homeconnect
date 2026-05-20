@@ -1,0 +1,19 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Elapsed time",
+    "nl": "Verstreken tijd",
+    "de": "Verstrichene Zeit"
+  },
+  "units": {
+    "en": "min",
+    "de": "min",
+    "nl": "min"
+  },
+  "decimals": 0,
+  "min": 0,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capability/homeconnect_elapsed_time.svg"
+}

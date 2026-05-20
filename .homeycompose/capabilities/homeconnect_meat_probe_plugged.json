@@ -1,0 +1,12 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Meat probe plugged in",
+    "nl": "Vleesthermometer geplaatst",
+    "de": "Bratenthermometer eingesteckt"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capability/homeconnect_meat_probe_plugged.svg"
+}

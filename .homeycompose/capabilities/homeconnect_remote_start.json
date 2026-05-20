@@ -1,0 +1,12 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Remote start allowed",
+    "nl": "Op afstand starten toegestaan",
+    "de": "Fernstart erlaubt"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capability/homeconnect_remote_start.svg"
+}

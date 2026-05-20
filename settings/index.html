@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_parent"/>
+  <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
+  <style>
+    html, body { height: 100%; margin: 0; }
+    body { padding: 1rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #18181b; }
+    h1 { font-size: 1.2rem; margin: 0 0 0.25rem 0; }
+    h2 { font-size: 1rem; margin: 1.25rem 0 0.5rem 0; }
+    p.lead { color: #555; margin: 0 0 1rem 0; line-height: 1.45; font-size: 0.92rem; }
+    ol.steps { margin: 0 0 0.75rem 1.1rem; padding: 0; color: #555; font-size: 0.86rem; line-height: 1.5; }
+    .tabs { display: flex; gap: 0.25rem; margin-bottom: 1rem; border-bottom: 1px solid #ddd; }
+    .tab { padding: 0.5rem 0.9rem; cursor: pointer; border: 1px solid transparent; border-bottom: none; border-radius: 4px 4px 0 0; font-size: 0.9rem; color: #555; background: transparent; }
+    .tab.active { background: white; border-color: #ddd; color: #EA0016; margin-bottom: -1px; font-weight: 600; }
+    .pane { display: none; }
+    .pane.active { display: block; }
+    .row { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; }
+    input[type="text"] { flex: 1 1 220px; min-width: 0; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem; }
+    input[readonly] { background: #f4f4f5; color: #555; }
+    button { padding: 0.5rem 1rem; border-radius: 4px; border: 1px solid #EA0016; background: #EA0016; color: white; cursor: pointer; font-size: 0.92rem; }
+    button.secondary { background: white; color: #EA0016; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    textarea { width: 100%; height: 180px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.78rem; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+    .hint { color: #666; font-size: 0.82rem; margin: -0.25rem 0 0.75rem 0; line-height: 1.4; }
+    .status { margin-top: 0.5rem; padding: 0.5rem 0.75rem; border-radius: 4px; font-size: 0.86rem; display: none; }
+    .status.show { display: block; }
+    .status.ok { background: #e6f4ea; color: #1e6c33; }
+    .status.err { background: #fce8e8; color: #9b2222; }
+    .status.info { background: #eef2fb; color: #2a4a8b; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+    th, td { text-align: left; padding: 0.4rem 0.5rem; border-bottom: 1px solid #eee; }
+    th { color: #777; font-weight: 600; }
+    .muted { color: #888; font-size: 0.82rem; }
+    a { color: #EA0016; word-break: break-all; }
+  </style>
+</head>
+<body>
+  <h1 data-i18n="settings.title">Home Connect - pair appliances</h1>
+  <p class="lead" data-i18n="settings.lead">Use the one-time cloud login to retrieve the local keys for your Bosch/Siemens appliances. After that, the app talks locally and you can block the appliances from the internet. Add discovered appliances via Add device > Home Connect.</p>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="manual" data-i18n="settings.tab_login">Login</button>
+    <button class="tab" data-tab="import" data-i18n="settings.tab_import">Import devices.json</button>
+  </div>
+
+  <div class="pane active" id="pane-manual">
+    <p class="hint" data-i18n="settings.login_hint">The SingleKey ID login cannot run inside the app because the login page is protected by hCaptcha. Log in with your own browser instead.</p>
+    <ol class="steps">
+      <li data-i18n="settings.login_step_generate">Generate the login link and open it in your browser, or copy it.</li>
+      <li data-i18n="settings.login_step_signin">Log in with SingleKey ID. Your browser will try to open hcauth://auth/prod?code=... and show an error. That is expected.</li>
+      <li data-i18n="settings.login_step_paste">Copy the full hcauth:// URL from the address bar or network inspector and paste it below.</li>
+    </ol>
+    <div class="row">
+      <button id="manual-generate" data-i18n="settings.generate_login_link">Generate login link</button>
+    </div>
+    <div id="manual-link-block" style="display:none">
+      <div class="row">
+        <input type="text" id="manual-link-field" readonly />
+        <button id="manual-copy" class="secondary" data-i18n="settings.copy">Copy</button>
+        <a id="manual-link" href="#" rel="noopener" data-i18n="settings.open">Open</a>
+      </div>
+      <input type="text" id="manual-url" placeholder="hcauth://auth/prod?code=...&state=..." />
+      <div class="row" style="margin-top:0.5rem">
+        <button id="manual-submit" data-i18n="settings.submit_and_fetch">Submit and fetch appliances</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="pane" id="pane-import">
+    <p class="hint" data-i18n="settings.import_hint">Already have a devices.json, for example from hcpy? Paste its contents or choose a file.</p>
+    <div class="row">
+      <input type="file" id="import-file" accept=".json,application/json" />
+    </div>
+    <textarea id="import-text" placeholder='[ { "name": "oven", "host": "...", "key": "...", "description": {...}, "features": {...} } ]'></textarea>
+    <div class="row" style="margin-top:0.5rem">
+      <button id="import-submit" data-i18n="settings.import_devices">Import appliances</button>
+    </div>
+  </div>
+
+  <div class="status" id="status"></div>
+
+  <h2 data-i18n="settings.found_devices">Discovered appliances</h2>
+  <div id="device-list"></div>
+  <div class="row" style="margin-top:0.75rem">
+    <button id="refresh-devices" class="secondary" disabled data-i18n="settings.refresh_devices">Refresh appliances</button>
+    <button id="clear-devices" class="secondary" disabled data-i18n="settings.clear_all">Clear all</button>
+  </div>
+  <p class="hint" data-i18n="settings.refresh_hint">Refresh appliances fetches the list again with the saved session. Useful after adding a new appliance.</p>
+
+  <script type="text/javascript">
+    function onHomeyReady(Homey) {
+    function __(key, tags) {
+      return Homey.__(key, tags || {});
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+      }[char]));
+    }
+
+    function api(method, path, body) {
+      return new Promise((resolve, reject) => {
+        Homey.api(method, path, body || {}, (err, result) => (err ? reject(err) : resolve(result)));
+      });
+    }
+
+    function localizeRuntimeMessage(message) {
+      if (message === 'Looking up your Home Connect account…') {
+        return __('settings.progress_lookup');
+      }
+      const keysMatch = message.match(/^Fetching keys for (.+)…$/);
+      if (keysMatch) {
+        return __('settings.progress_fetch_keys', { appliance: keysMatch[1] });
+      }
+      const mapMatch = message.match(/^Fetching feature map for (.+)…$/);
+      if (mapMatch) {
+        return __('settings.progress_fetch_map', { appliance: mapMatch[1] });
+      }
+      return message;
+    }
+
+    const $ = (id) => document.getElementById(id);
+    const statusEl = $('status');
+    let currentRunId = null;
+
+    $('import-text').setAttribute('placeholder', __('settings.import_placeholder'));
+
+    function setStatus(kind, message) {
+      statusEl.className = 'status show ' + kind;
+      statusEl.textContent = message;
+    }
+    function clearStatus() {
+      statusEl.className = 'status';
+    }
+
+    document.querySelectorAll('.tab').forEach((tab) => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach((t) => t.classList.remove('active'));
+        document.querySelectorAll('.pane').forEach((p) => p.classList.remove('active'));
+        tab.classList.add('active');
+        $('pane-' + tab.dataset.tab).classList.add('active');
+      });
+    });
+
+    async function refreshStatus() {
+      const status = await api('GET', '/status');
+      const list = $('device-list');
+      if (!status.devices.length) {
+        list.innerHTML = '<p class="muted">' + __('settings.no_devices') + '</p>';
+      } else {
+        const rows = status.devices.map((d) =>
+          '<tr><td>' + escapeHtml(d.name) + '</td><td>' + escapeHtml(d.brand + ' ' + d.type) + '</td>' +
+          '<td>' + escapeHtml(d.model) + '</td><td><span class="muted">' + escapeHtml(d.protocol) + '</span></td></tr>'
+        ).join('');
+        list.innerHTML = '<table><thead><tr><th>' + __('settings.table_name') + '</th><th>' +
+          __('settings.table_brand_type') + '</th><th>' + __('settings.table_model') + '</th><th>' +
+          __('settings.table_protocol') + '</th></tr></thead><tbody>' + rows + '</tbody></table>';
+      }
+      $('refresh-devices').disabled = !status.hasRefreshToken;
+      $('clear-devices').disabled = status.devices.length === 0 && !status.hasRefreshToken;
+    }
+
+    Homey.on('homeconnect:run:progress', (p) => {
+      if (p.runId === currentRunId) setStatus('info', localizeRuntimeMessage(p.message));
+    });
+    Homey.on('homeconnect:run:done', (p) => {
+      if (p.runId !== currentRunId) return;
+      currentRunId = null;
+      setStatus('ok', __('settings.done_found', { count: p.deviceCount }));
+      refreshStatus();
+    });
+    Homey.on('homeconnect:run:error', (p) => {
+      if (p.runId !== currentRunId) return;
+      currentRunId = null;
+      setStatus('err', __('settings.error_prefix', { message: p.message }));
+    });
+
+    let manualPkceId = null;
+    $('manual-generate').addEventListener('click', async () => {
+      clearStatus();
+      try {
+        const res = await api('POST', '/manual/start');
+        manualPkceId = res.pkceId;
+        $('manual-link-field').value = res.authorizeUrl;
+        $('manual-link').href = res.authorizeUrl;
+        $('manual-link-block').style.display = 'block';
+      } catch (err) {
+        setStatus('err', __('settings.login_link_failed', { message: err.message || err }));
+      }
+    });
+    $('manual-copy').addEventListener('click', () => {
+      const field = $('manual-link-field');
+      field.select();
+      let copied = false;
+      try { copied = document.execCommand('copy'); } catch (e) { copied = false; }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(field.value).then(
+          () => setStatus('info', __('settings.link_copied')),
+          () => { if (!copied) setStatus('info', __('settings.copy_manually')); },
+        );
+      } else {
+        setStatus('info', copied ? __('settings.link_copied') : __('settings.copy_manually'));
+      }
+    });
+    $('manual-submit').addEventListener('click', async () => {
+      const url = $('manual-url').value.trim();
+      if (!url) { setStatus('err', __('settings.paste_url_first')); return; }
+      try {
+        setStatus('info', __('settings.processing_code'));
+        const res = await api('POST', '/manual/submit', { pkceId: manualPkceId, url });
+        currentRunId = res.runId;
+      } catch (err) {
+        setStatus('err', __('settings.error_prefix', { message: err.message || err }));
+      }
+    });
+
+    $('import-file').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => { $('import-text').value = reader.result; };
+      reader.readAsText(file);
+    });
+    $('import-submit').addEventListener('click', async () => {
+      const json = $('import-text').value.trim();
+      if (!json) { setStatus('err', __('settings.import_empty')); return; }
+      try {
+        const res = await api('POST', '/import', { json });
+        setStatus('ok', __('settings.import_done', { count: res.deviceCount }));
+        refreshStatus();
+      } catch (err) {
+        setStatus('err', __('settings.import_failed', { message: err.message || err }));
+      }
+    });
+
+    $('refresh-devices').addEventListener('click', async () => {
+      try {
+        setStatus('info', __('settings.refreshing'));
+        const res = await api('POST', '/refresh');
+        currentRunId = res.runId;
+      } catch (err) {
+        setStatus('err', __('settings.refresh_failed', { message: err.message || err }));
+      }
+    });
+    $('clear-devices').addEventListener('click', async () => {
+      try {
+        await api('POST', '/clear');
+        setStatus('ok', __('settings.clear_done'));
+        refreshStatus();
+      } catch (err) {
+        setStatus('err', __('settings.clear_failed', { message: err.message || err }));
+      }
+    });
+
+    Homey.ready();
+    refreshStatus();
+    }
+  </script>
+</body>
+</html>

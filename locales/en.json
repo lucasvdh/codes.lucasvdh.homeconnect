@@ -1,0 +1,59 @@
+{
+  "pair": {
+    "no_devices": "No appliances found yet. Open the app settings and run the one-time Home Connect login first."
+  },
+  "device": {
+    "error": {
+      "no_keys": "No local keys found for this appliance. Re-pair the app.",
+      "unreachable": "Appliance is unreachable on the local network.",
+      "unknown_program": "That program is not valid for this appliance.",
+      "remote_start_not_allowed": "Remote start is not enabled on the appliance. Enable it on the appliance first.",
+      "feature_not_supported": "This appliance does not support that setting.",
+      "feature_not_available": "That setting is not currently available on the appliance.",
+      "invalid_value": "The appliance rejected that value."
+    }
+  },
+  "settings": {
+    "title": "Home Connect - pair appliances",
+    "lead": "Use the one-time cloud login to retrieve the local keys for your Bosch/Siemens appliances. After that, the app talks locally and you can block the appliances from the internet. Add discovered appliances via Add device > Home Connect.",
+    "tab_login": "Login",
+    "tab_import": "Import devices.json",
+    "login_hint": "The SingleKey ID login cannot run inside the app because the login page is protected by hCaptcha. Log in with your own browser instead.",
+    "login_step_generate": "Generate the login link and open it in your browser, or copy it.",
+    "login_step_signin": "Log in with SingleKey ID. Your browser will try to open hcauth://auth/prod?code=... and show an error. That is expected.",
+    "login_step_paste": "Copy the full hcauth:// URL from the address bar or network inspector and paste it below.",
+    "generate_login_link": "Generate login link",
+    "copy": "Copy",
+    "open": "Open",
+    "submit_and_fetch": "Submit and fetch appliances",
+    "import_hint": "Already have a devices.json, for example from hcpy? Paste its contents or choose a file.",
+    "import_placeholder": "[ { \"name\": \"oven\", \"host\": \"...\", \"key\": \"...\", \"description\": {...}, \"features\": {...} } ]",
+    "import_devices": "Import appliances",
+    "found_devices": "Discovered appliances",
+    "no_devices": "No appliances yet. Log in or import a devices.json.",
+    "refresh_devices": "Refresh appliances",
+    "clear_all": "Clear all",
+    "refresh_hint": "Refresh appliances fetches the list again with the saved session. Useful after adding a new appliance.",
+    "table_name": "Name",
+    "table_brand_type": "Brand/Type",
+    "table_model": "Model",
+    "table_protocol": "Protocol",
+    "done_found": "__count__ appliance(s) found and saved. Add them via Add device > Home Connect.",
+    "import_done": "__count__ appliance(s) imported. Add them via Add device > Home Connect.",
+    "error_prefix": "Failed: __message__",
+    "login_link_failed": "Could not create login link: __message__",
+    "link_copied": "Login link copied.",
+    "copy_manually": "Select and copy the link manually.",
+    "paste_url_first": "Paste the hcauth:// URL first.",
+    "processing_code": "Processing code...",
+    "import_empty": "Paste or choose a devices.json first.",
+    "import_failed": "Import failed: __message__",
+    "refreshing": "Refreshing appliances...",
+    "refresh_failed": "Refresh failed: __message__",
+    "clear_done": "All saved appliances and the session have been cleared.",
+    "clear_failed": "Clear failed: __message__",
+    "progress_lookup": "Looking up your Home Connect account...",
+    "progress_fetch_keys": "Fetching keys for __appliance__...",
+    "progress_fetch_map": "Fetching feature map for __appliance__..."
+  }
+}

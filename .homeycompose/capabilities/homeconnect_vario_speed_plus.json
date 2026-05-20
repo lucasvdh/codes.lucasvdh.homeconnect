@@ -1,0 +1,12 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "VarioSpeed+",
+    "nl": "VarioSpeed+",
+    "de": "VarioSpeed+"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle",
+  "icon": "/assets/capability/homeconnect_vario_speed_plus.svg"
+}

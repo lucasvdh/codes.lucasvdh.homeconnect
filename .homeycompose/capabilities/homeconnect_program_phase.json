@@ -1,0 +1,54 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Program phase",
+    "nl": "Programmafase",
+    "de": "Programmphase"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capability/homeconnect_program_phase.svg",
+  "values": [
+    {
+      "id": "None",
+      "title": {
+        "en": "None",
+        "nl": "Geen",
+        "de": "Keine"
+      }
+    },
+    {
+      "id": "PreRinse",
+      "title": {
+        "en": "Pre-rinse",
+        "nl": "Voorspoelen",
+        "de": "Vorspülen"
+      }
+    },
+    {
+      "id": "MainWash",
+      "title": {
+        "en": "Main wash",
+        "nl": "Hoofdwas",
+        "de": "Hauptwäsche"
+      }
+    },
+    {
+      "id": "FinalRinse",
+      "title": {
+        "en": "Final rinse",
+        "nl": "Naspoelen",
+        "de": "Klarspülen"
+      }
+    },
+    {
+      "id": "Drying",
+      "title": {
+        "en": "Drying",
+        "nl": "Drogen",
+        "de": "Trocknen"
+      }
+    }
+  ]
+}

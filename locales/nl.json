@@ -1,0 +1,59 @@
+{
+  "pair": {
+    "no_devices": "Nog geen apparaten gevonden. Open de app-instellingen en doorloop eerst de eenmalige Home Connect-login."
+  },
+  "device": {
+    "error": {
+      "no_keys": "Geen lokale sleutels gevonden voor dit apparaat. Koppel de app opnieuw.",
+      "unreachable": "Apparaat is niet bereikbaar op het lokale netwerk.",
+      "unknown_program": "Dat programma is niet geldig voor dit apparaat.",
+      "remote_start_not_allowed": "Op afstand starten staat niet aan op het apparaat. Schakel dit eerst in op het apparaat zelf.",
+      "feature_not_supported": "Dit apparaat ondersteunt die instelling niet.",
+      "feature_not_available": "Die instelling is momenteel niet beschikbaar op het apparaat.",
+      "invalid_value": "Het apparaat heeft die waarde geweigerd."
+    }
+  },
+  "settings": {
+    "title": "Home Connect - apparaten koppelen",
+    "lead": "Eenmalige cloud-login om de lokale sleutels van je Bosch/Siemens-apparaten op te halen. Daarna praat de app puur lokaal en mag je de apparaten van het internet afsluiten. De gevonden apparaten voeg je daarna toe via Apparaat toevoegen > Home Connect.",
+    "tab_login": "Inloggen",
+    "tab_import": "devices.json importeren",
+    "login_hint": "De SingleKey ID-login kan niet in de app: de loginpagina is met hCaptcha beveiligd. Je logt daarom in je eigen browser in.",
+    "login_step_generate": "Genereer de login-link en open die in je browser, of kopieer hem.",
+    "login_step_signin": "Log in bij SingleKey ID. Je browser probeert daarna hcauth://auth/prod?code=... te openen en toont een foutmelding. Dat is normaal.",
+    "login_step_paste": "Kopieer die volledige hcauth:// URL uit de adresbalk of netwerk-inspector en plak hem hieronder.",
+    "generate_login_link": "Genereer login-link",
+    "copy": "Kopieer",
+    "open": "Open",
+    "submit_and_fetch": "Verstuur en haal apparaten op",
+    "import_hint": "Heb je al een devices.json, bijvoorbeeld van hcpy? Plak de inhoud of kies een bestand.",
+    "import_placeholder": "[ { \"name\": \"oven\", \"host\": \"...\", \"key\": \"...\", \"description\": {...}, \"features\": {...} } ]",
+    "import_devices": "Importeer apparaten",
+    "found_devices": "Gevonden apparaten",
+    "no_devices": "Nog geen apparaten. Log in of importeer een devices.json.",
+    "refresh_devices": "Ververs apparaten",
+    "clear_all": "Wis alles",
+    "refresh_hint": "Ververs apparaten haalt de lijst opnieuw op met de bewaarde sessie. Handig na het toevoegen van een nieuw apparaat.",
+    "table_name": "Naam",
+    "table_brand_type": "Merk/Type",
+    "table_model": "Model",
+    "table_protocol": "Protocol",
+    "done_found": "__count__ apparaat(en) gevonden en opgeslagen. Voeg ze toe via Apparaat toevoegen > Home Connect.",
+    "import_done": "__count__ apparaat(en) geïmporteerd. Voeg ze toe via Apparaat toevoegen > Home Connect.",
+    "error_prefix": "Mislukt: __message__",
+    "login_link_failed": "Kon geen login-link maken: __message__",
+    "link_copied": "Login-link gekopieerd.",
+    "copy_manually": "Selecteer en kopieer de link handmatig.",
+    "paste_url_first": "Plak eerst de hcauth:// URL.",
+    "processing_code": "Code wordt verwerkt...",
+    "import_empty": "Plak of kies eerst een devices.json.",
+    "import_failed": "Import mislukt: __message__",
+    "refreshing": "Apparaten verversen...",
+    "refresh_failed": "Verversen mislukt: __message__",
+    "clear_done": "Alle opgeslagen apparaten en de sessie zijn gewist.",
+    "clear_failed": "Wissen mislukt: __message__",
+    "progress_lookup": "Home Connect-account opzoeken...",
+    "progress_fetch_keys": "Sleutels ophalen voor __appliance__...",
+    "progress_fetch_map": "Functiekaart ophalen voor __appliance__..."
+  }
+}

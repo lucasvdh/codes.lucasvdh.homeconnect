@@ -1,18 +1,25 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
-  <!-- Body: built-in oven, near-square proportions -->
-  <rect x="28" y="44" width="200" height="184" rx="14" fill="none" stroke="#000" stroke-width="12"/>
-  <!-- Control panel divider -->
-  <line x1="28" y1="96" x2="228" y2="96" stroke="#000" stroke-width="12"/>
-  <!-- Knobs -->
-  <circle cx="58" cy="70" r="9" fill="#000"/>
-  <circle cx="86" cy="70" r="9" fill="#000"/>
-  <!-- Digital display -->
-  <rect x="138" y="60" width="74" height="20" rx="4" fill="none" stroke="#000" stroke-width="8"/>
-  <!-- Horizontal door handle -->
-  <rect x="50" y="110" width="156" height="12" rx="6" fill="#000"/>
-  <!-- Door window -->
-  <rect x="50" y="138" width="156" height="78" rx="6" fill="none" stroke="#000" stroke-width="12"/>
-  <!-- Heating-element coil -->
-  <path d="M 70 158 Q 80 170 90 158 Q 100 146 110 158 Q 120 170 130 158 Q 140 146 150 158 Q 160 170 170 158 Q 180 146 190 158" fill="none" stroke="#000" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+<svg height="960" viewBox="0 0 960 960" width="960" xmlns="http://www.w3.org/2000/svg">
+    <g fill="none" fill-rule="evenodd">
+        <g stroke="#000" stroke-linejoin="round">
+            <path d="m81.5892816 36.4685298 797.5952024 17.1099459v838.3249463l-797.5952024 31.812356z"
+                  stroke-width="40"/>
+            <path d="m101 161 359 7m70 2 329 7" stroke-linecap="round" stroke-width="20"/>
+            <path d="m101.589282 208.385771 757.595202 11.149452" stroke-linecap="round" stroke-width="20"/>
+            <path d="m230.644793 245.056568 603.745058 10.376576v44.123463l-604.074303-9.25432-54.149514-1.806418v-43.439301z"
+                  stroke-linecap="round" stroke-width="20"/>
+            <path d="m230.558864 255.056568v25.248273" stroke-linecap="round" stroke-width="20"/>
+            <path d="m191.076686 357.664826v392.742452l587.415105-19.529057v-373.213395z" stroke-linecap="round"
+                  stroke-width="20"/>
+            <path d="m403 83 179 5.9074611v57.0925389l-55.717502-1.498762c-5.310866-8.72244-14.589393-14.501238-25.147577-14.501238h-11.269842l-.493873.00422c-9.683884.165605-18.247333 5.192665-23.592204 12.868176l-62.779002-1.689108z"
+                  stroke-linecap="round" stroke-width="20"/>
+            <ellipse cx="500.858299" cy="161.296788" rx="29.950258" ry="31.645555" stroke-linecap="round"
+                     stroke-width="20"/>
+            <path d="m490 193c-16.568542 0-30-14.10303-30-31.5s13.431458-31.5 30-31.5h11c16.568542 0 30 14.10303 30 31.5s-13.431458 31.5-30 31.5z"
+                  stroke-linecap="round" stroke-width="20"/>
+        </g>
+        <path d="m242.653975 571.767346 428.453563-5.427749h8.210848c4.637312 0 9.775629-6.926315 15.41495-20.778945h-452.079361z"
+              fill="#000"/>
+        <path d="m242.653975 653.141631 428.453563-5.427749h8.210848c4.637312 0 9.775629-6.926315 15.41495-20.778945l-452.079361 4.986064z"
+              fill="#000"/>
+    </g>
 </svg>

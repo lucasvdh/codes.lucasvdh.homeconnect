@@ -1,0 +1,11 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "EcoPerfect",
+    "nl": "EcoPerfect",
+    "de": "EcoPerfect"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle"
+}

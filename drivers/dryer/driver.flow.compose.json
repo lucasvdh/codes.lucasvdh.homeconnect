@@ -1,0 +1,716 @@
+{
+  "triggers": [
+    {
+      "id": "dryer_program_finished",
+      "title": {
+        "en": "A program finished",
+        "nl": "Een programma is klaar",
+        "de": "Ein Programm ist fertig"
+      },
+      "hint": {
+        "en": "Triggers when the dryer's operation state becomes Finished.",
+        "nl": "Wordt geactiveerd wanneer de bedrijfstoestand Klaar wordt.",
+        "de": "Wird ausgelöst, wenn der Betriebszustand des Wäschetrockners Fertig wird."
+      }
+    },
+    {
+      "id": "dryer_program_started",
+      "title": {
+        "en": "A program started",
+        "nl": "Een programma is gestart",
+        "de": "Ein Programm wurde gestartet"
+      }
+    },
+    {
+      "id": "dryer_program_aborted",
+      "title": {
+        "en": "A program was aborted",
+        "nl": "Een programma is afgebroken",
+        "de": "Ein Programm wurde abgebrochen"
+      }
+    },
+    {
+      "id": "dryer_door_changed",
+      "title": {
+        "en": "The door state changed",
+        "nl": "De deurstatus is veranderd",
+        "de": "Der Türstatus wurde geändert"
+      },
+      "tokens": [
+        {
+          "name": "door_state",
+          "type": "string",
+          "title": {
+            "en": "Door state",
+            "nl": "Deurstatus",
+            "de": "Türstatus"
+          },
+          "example": {
+            "en": "Open",
+            "nl": "Open",
+            "de": "Offen"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dryer_door_opened",
+      "title": {
+        "en": "The door was opened",
+        "nl": "De deur is geopend",
+        "de": "Die Tür wurde geöffnet"
+      }
+    },
+    {
+      "id": "dryer_door_closed",
+      "title": {
+        "en": "The door was closed",
+        "nl": "De deur is gesloten",
+        "de": "Die Tür wurde geschlossen"
+      }
+    },
+    {
+      "id": "dryer_operation_state_changed",
+      "title": {
+        "en": "The operation state changed",
+        "nl": "De bedrijfstoestand is veranderd",
+        "de": "Der Betriebszustand wurde geändert"
+      },
+      "tokens": [
+        {
+          "name": "operation_state",
+          "type": "string",
+          "title": {
+            "en": "Operation state",
+            "nl": "Bedrijfstoestand",
+            "de": "Betriebszustand"
+          },
+          "example": {
+            "en": "Run",
+            "nl": "Run",
+            "de": "Run"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dryer_program_progress_changed",
+      "title": {
+        "en": "The program progress changed",
+        "nl": "De programmavoortgang is veranderd",
+        "de": "Der Programmfortschritt wurde geändert"
+      },
+      "tokens": [
+        {
+          "name": "progress",
+          "type": "number",
+          "title": {
+            "en": "Progress (%)",
+            "nl": "Voortgang (%)",
+            "de": "Fortschritt (%)"
+          },
+          "example": 50
+        }
+      ]
+    },
+    {
+      "id": "dryer_remaining_time_changed",
+      "title": {
+        "en": "Remaining time changed",
+        "nl": "Resterende tijd is veranderd",
+        "de": "Restzeit wurde geändert"
+      },
+      "tokens": [
+        {
+          "name": "minutes",
+          "type": "number",
+          "title": {
+            "en": "Minutes",
+            "nl": "Minuten",
+            "de": "Minuten"
+          },
+          "example": 25
+        }
+      ]
+    },
+    {
+      "id": "dryer_elapsed_time_changed",
+      "title": {
+        "en": "Elapsed time changed",
+        "nl": "Verstreken tijd is veranderd",
+        "de": "Verstrichene Zeit wurde geändert"
+      },
+      "tokens": [
+        {
+          "name": "minutes",
+          "type": "number",
+          "title": {
+            "en": "Minutes",
+            "nl": "Minuten",
+            "de": "Minuten"
+          },
+          "example": 5
+        }
+      ]
+    },
+    {
+      "id": "dryer_remote_start_allowed_changed",
+      "title": {
+        "en": "Remote start allowed changed",
+        "nl": "Op afstand starten toegestaan is veranderd",
+        "de": "Fernstart erlaubt wurde geändert"
+      },
+      "tokens": [
+        {
+          "name": "allowed",
+          "type": "boolean",
+          "title": {
+            "en": "Allowed",
+            "nl": "Toegestaan",
+            "de": "Erlaubt"
+          },
+          "example": {
+            "en": "true",
+            "nl": "true",
+            "de": "true"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dryer_remote_control_active_changed",
+      "title": {
+        "en": "Remote control active changed",
+        "nl": "Bediening op afstand actief is veranderd",
+        "de": "Fernsteuerung aktiv wurde geändert"
+      },
+      "tokens": [
+        {
+          "name": "active",
+          "type": "boolean",
+          "title": {
+            "en": "Active",
+            "nl": "Actief",
+            "de": "Aktiv"
+          },
+          "example": {
+            "en": "true",
+            "nl": "true",
+            "de": "true"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dryer_local_control_changed",
+      "title": {
+        "en": "Local control changed",
+        "nl": "Lokale bediening is veranderd",
+        "de": "Lokale Bedienung wurde geändert"
+      },
+      "tokens": [
+        {
+          "name": "active",
+          "type": "boolean",
+          "title": {
+            "en": "Active",
+            "nl": "Actief",
+            "de": "Aktiv"
+          },
+          "example": {
+            "en": "true",
+            "nl": "true",
+            "de": "true"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dryer_child_lock_changed",
+      "title": {
+        "en": "Child lock changed",
+        "nl": "Kinderslot is veranderd",
+        "de": "Kindersicherung wurde geändert"
+      },
+      "tokens": [
+        {
+          "name": "enabled",
+          "type": "boolean",
+          "title": {
+            "en": "Enabled",
+            "nl": "Ingeschakeld",
+            "de": "Aktiviert"
+          },
+          "example": {
+            "en": "true",
+            "nl": "true",
+            "de": "true"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dryer_error_occurred",
+      "title": {
+        "en": "An error occurred",
+        "nl": "Er is een fout opgetreden",
+        "de": "Ein Fehler ist aufgetreten"
+      },
+      "tokens": [
+        {
+          "name": "error_code",
+          "type": "string",
+          "title": {
+            "en": "Error code",
+            "nl": "Foutcode",
+            "de": "Fehlercode"
+          },
+          "example": {
+            "en": "InternalError",
+            "nl": "InternalError",
+            "de": "InternalError"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dryer_aqua_stop_occurred",
+      "title": {
+        "en": "AquaStop occurred",
+        "nl": "AquaStop is geactiveerd",
+        "de": "AquaStop wurde ausgelöst"
+      }
+    },
+    {
+      "id": "dryer_low_water_pressure",
+      "title": {
+        "en": "Low water pressure",
+        "nl": "Lage waterdruk",
+        "de": "Niedriger Wasserdruck"
+      }
+    },
+    {
+      "id": "dryer_software_update_available",
+      "title": {
+        "en": "A software update is available",
+        "nl": "Er is een software-update beschikbaar",
+        "de": "Ein Software-Update ist verfügbar"
+      }
+    }
+  ],
+  "conditions": [
+    {
+      "id": "dryer_is_running",
+      "title": {
+        "en": "!{{Is|Is not}} running",
+        "nl": "!{{Is|Is niet}} bezig",
+        "de": "!{{Läuft|Läuft nicht}}"
+      }
+    },
+    {
+      "id": "dryer_is_finished",
+      "title": {
+        "en": "!{{Is|Is not}} finished",
+        "nl": "!{{Is|Is niet}} klaar",
+        "de": "!{{Ist|Ist nicht}} fertig"
+      }
+    },
+    {
+      "id": "dryer_is_paused",
+      "title": {
+        "en": "!{{Is|Is not}} paused",
+        "nl": "!{{Is|Is niet}} gepauzeerd",
+        "de": "!{{Ist|Ist nicht}} pausiert"
+      }
+    },
+    {
+      "id": "dryer_is_inactive",
+      "title": {
+        "en": "!{{Is|Is not}} idle",
+        "nl": "!{{Is|Is niet}} inactief",
+        "de": "!{{Ist|Ist nicht}} inaktiv"
+      }
+    },
+    {
+      "id": "dryer_is_in_delayed_start",
+      "title": {
+        "en": "Delayed start !{{is|is not}} active",
+        "nl": "Uitgestelde start !{{is|is niet}} actief",
+        "de": "Startzeitvorwahl !{{ist|ist nicht}} aktiv"
+      }
+    },
+    {
+      "id": "dryer_has_error",
+      "title": {
+        "en": "There !{{is|is not}} an error",
+        "nl": "Er !{{is|is niet}} een fout",
+        "de": "Es !{{liegt|liegt kein}} Fehler vor"
+      }
+    },
+    {
+      "id": "dryer_door_is_open",
+      "title": {
+        "en": "The door !{{is|is not}} open",
+        "nl": "De deur !{{is|is niet}} open",
+        "de": "Die Tür !{{ist|ist nicht}} offen"
+      }
+    },
+    {
+      "id": "dryer_remote_start_allowed",
+      "title": {
+        "en": "Remote start !{{is|is not}} allowed",
+        "nl": "Op afstand starten !{{is|is niet}} toegestaan",
+        "de": "Fernstart !{{ist|ist nicht}} erlaubt"
+      }
+    },
+    {
+      "id": "dryer_remote_control_is_active",
+      "title": {
+        "en": "Remote control !{{is|is not}} active",
+        "nl": "Bediening op afstand !{{is|is niet}} actief",
+        "de": "Fernsteuerung !{{ist|ist nicht}} aktiv"
+      }
+    },
+    {
+      "id": "dryer_local_control_is_active",
+      "title": {
+        "en": "Local control !{{is|is not}} active",
+        "nl": "Lokale bediening !{{is|is niet}} actief",
+        "de": "Lokale Bedienung !{{ist|ist nicht}} aktiv"
+      }
+    },
+    {
+      "id": "dryer_child_lock_is_on",
+      "title": {
+        "en": "The child lock !{{is|is not}} on",
+        "nl": "Het kinderslot !{{is|is niet}} aan",
+        "de": "Die Kindersicherung !{{ist|ist nicht}} eingeschaltet"
+      }
+    },
+    {
+      "id": "dryer_remaining_time_below",
+      "title": {
+        "en": "Remaining time !{{is|is not}} below ...",
+        "nl": "Resterende tijd !{{is|is niet}} minder dan ...",
+        "de": "Restzeit !{{ist|ist nicht}} unter ..."
+      },
+      "titleFormatted": {
+        "en": "Remaining time !{{is|is not}} below [[minutes]] min",
+        "nl": "Resterende tijd !{{is|is niet}} minder dan [[minutes]] min",
+        "de": "Restzeit !{{ist|ist nicht}} unter [[minutes]] Min."
+      },
+      "args": [
+        {
+          "name": "minutes",
+          "type": "number",
+          "title": {
+            "en": "Minutes",
+            "nl": "Minuten",
+            "de": "Minuten"
+          },
+          "min": 0,
+          "max": 1440,
+          "step": 1
+        }
+      ]
+    },
+    {
+      "id": "dryer_program_progress_above",
+      "title": {
+        "en": "Program progress !{{is|is not}} above ...",
+        "nl": "Programmavoortgang !{{is|is niet}} hoger dan ...",
+        "de": "Programmfortschritt !{{ist|ist nicht}} über ..."
+      },
+      "titleFormatted": {
+        "en": "Program progress !{{is|is not}} above [[percent]] %",
+        "nl": "Programmavoortgang !{{is|is niet}} hoger dan [[percent]] %",
+        "de": "Programmfortschritt !{{ist|ist nicht}} über [[percent]] %"
+      },
+      "args": [
+        {
+          "name": "percent",
+          "type": "number",
+          "title": {
+            "en": "Percent",
+            "nl": "Percentage",
+            "de": "Prozent"
+          },
+          "min": 0,
+          "max": 100,
+          "step": 1
+        }
+      ]
+    },
+    {
+      "id": "dryer_current_program_is",
+      "title": {
+        "en": "The active program !{{is|is not}} ...",
+        "nl": "Het actieve programma !{{is|is niet}} ...",
+        "de": "Das aktive Programm !{{ist|ist nicht}} ..."
+      },
+      "titleFormatted": {
+        "en": "The active program !{{is|is not}} [[program]]",
+        "nl": "Het actieve programma !{{is|is niet}} [[program]]",
+        "de": "Das aktive Programm !{{ist|ist nicht}} [[program]]"
+      },
+      "args": [
+        {
+          "name": "program",
+          "type": "autocomplete",
+          "title": {
+            "en": "Program",
+            "nl": "Programma",
+            "de": "Programm"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dryer_selected_program_is",
+      "title": {
+        "en": "The selected program !{{is|is not}} ...",
+        "nl": "Het geselecteerde programma !{{is|is niet}} ...",
+        "de": "Das ausgewählte Programm !{{ist|ist nicht}} ..."
+      },
+      "titleFormatted": {
+        "en": "The selected program !{{is|is not}} [[program]]",
+        "nl": "Het geselecteerde programma !{{is|is niet}} [[program]]",
+        "de": "Das ausgewählte Programm !{{ist|ist nicht}} [[program]]"
+      },
+      "args": [
+        {
+          "name": "program",
+          "type": "autocomplete",
+          "title": {
+            "en": "Program",
+            "nl": "Programma",
+            "de": "Programm"
+          }
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "id": "dryer_start_program",
+      "title": {
+        "en": "Start a program",
+        "nl": "Start een programma",
+        "de": "Programm starten"
+      },
+      "titleFormatted": {
+        "en": "Start [[program]]",
+        "nl": "Start [[program]]",
+        "de": "[[program]] starten"
+      },
+      "hint": {
+        "en": "Requires remote start to be enabled on the dryer first.",
+        "nl": "Vereist dat op afstand starten eerst op de dryer is ingeschakeld.",
+        "de": "Erfordert, dass Fernstart zuerst am Wäschetrockner aktiviert ist."
+      },
+      "args": [
+        {
+          "name": "program",
+          "type": "autocomplete",
+          "title": {
+            "en": "Program",
+            "nl": "Programma",
+            "de": "Programm"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dryer_select_program",
+      "title": {
+        "en": "Select a program",
+        "nl": "Selecteer een programma",
+        "de": "Programm auswählen"
+      },
+      "titleFormatted": {
+        "en": "Select [[program]]",
+        "nl": "Selecteer [[program]]",
+        "de": "[[program]] auswählen"
+      },
+      "hint": {
+        "en": "Queues the program without starting it.",
+        "nl": "Selecteert het programma zonder het te starten.",
+        "de": "Wählt das Programm aus, ohne es zu starten."
+      },
+      "args": [
+        {
+          "name": "program",
+          "type": "autocomplete",
+          "title": {
+            "en": "Program",
+            "nl": "Programma",
+            "de": "Programm"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dryer_start_program_delayed",
+      "title": {
+        "en": "Start a program with a delay",
+        "nl": "Start een programma met uitstel",
+        "de": "Programm mit Verzögerung starten"
+      },
+      "titleFormatted": {
+        "en": "Start [[program]] in [[delay_minutes]] min",
+        "nl": "Start [[program]] over [[delay_minutes]] min",
+        "de": "[[program]] in [[delay_minutes]] Min. starten"
+      },
+      "args": [
+        {
+          "name": "program",
+          "type": "autocomplete",
+          "title": {
+            "en": "Program",
+            "nl": "Programma",
+            "de": "Programm"
+          }
+        },
+        {
+          "name": "delay_minutes",
+          "type": "number",
+          "title": {
+            "en": "Delay (min)",
+            "nl": "Uitstel (min)",
+            "de": "Verzögerung (Min.)"
+          },
+          "min": 1,
+          "max": 1440,
+          "step": 1
+        }
+      ]
+    },
+    {
+      "id": "dryer_stop_program",
+      "title": {
+        "en": "Stop the program",
+        "nl": "Stop het programma",
+        "de": "Programm stoppen"
+      }
+    },
+    {
+      "id": "dryer_pause_program",
+      "title": {
+        "en": "Pause the program",
+        "nl": "Pauzeer het programma",
+        "de": "Programm pausieren"
+      }
+    },
+    {
+      "id": "dryer_resume_program",
+      "title": {
+        "en": "Resume the program",
+        "nl": "Hervat het programma",
+        "de": "Programm fortsetzen"
+      }
+    },
+    {
+      "id": "dryer_set_child_lock",
+      "title": {
+        "en": "Set child lock",
+        "nl": "Zet kinderslot",
+        "de": "Kindersicherung setzen"
+      },
+      "titleFormatted": {
+        "en": "Set child lock to [[enabled]]",
+        "nl": "Zet kinderslot op [[enabled]]",
+        "de": "Kindersicherung auf [[enabled]] setzen"
+      },
+      "args": [
+        {
+          "name": "enabled",
+          "type": "checkbox",
+          "title": {
+            "en": "Enabled",
+            "nl": "Ingeschakeld",
+            "de": "Aktiviert"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dryer_acknowledge_event",
+      "title": {
+        "en": "Acknowledge event",
+        "nl": "Bevestig melding",
+        "de": "Meldung bestätigen"
+      },
+      "hint": {
+        "en": "Clears whatever event is currently signalled on the appliance.",
+        "nl": "Wist de melding die op het apparaat actief is.",
+        "de": "Löscht die aktuell am Gerät angezeigte Meldung."
+      }
+    },
+    {
+      "id": "dryer_power_off",
+      "title": {
+        "en": "Turn off (standby)",
+        "nl": "Uitschakelen (stand-by)",
+        "de": "Ausschalten (Standby)"
+      }
+    },
+    {
+      "id": "dryer_set_drying_target",
+      "title": {
+        "en": "Set drying target",
+        "nl": "Stel droogdoel in",
+        "de": "Trockenziel einstellen"
+      },
+      "titleFormatted": {
+        "en": "Set drying target to [[value]]",
+        "nl": "Stel droogdoel in op [[value]]",
+        "de": "Trockenziel auf [[value]] einstellen"
+      },
+      "args": [
+        {
+          "name": "value",
+          "type": "dropdown",
+          "title": {
+            "en": "Drying target",
+            "nl": "Droogdoel",
+            "de": "Trockenziel"
+          },
+          "values": [
+            {
+              "id": "IronDry",
+              "label": {
+                "en": "Iron dry",
+                "nl": "Strijkdroog",
+                "de": "Bügeltrocken"
+              }
+            },
+            {
+              "id": "CupboardDry",
+              "label": {
+                "en": "Cupboard dry",
+                "nl": "Kastdroog",
+                "de": "Schranktrocken"
+              }
+            },
+            {
+              "id": "CupboardDryPlus",
+              "label": {
+                "en": "Cupboard dry plus",
+                "nl": "Kastdroog plus",
+                "de": "Schranktrocken plus"
+              }
+            },
+            {
+              "id": "ExtraDry",
+              "label": {
+                "en": "Extra dry",
+                "nl": "Extra droog",
+                "de": "Extratrocken"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

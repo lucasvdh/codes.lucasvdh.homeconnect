@@ -1,0 +1,10 @@
+{
+  "1.0.0": {
+    "en": "Initial version"
+  },
+  "1.1.0": {
+    "en": "Added washing machine and tumble dryer support: program start/select/stop/pause/resume, options (wash temperature, spin speed, i-Dos, drying target) and full Flow cards.",
+    "nl": "Ondersteuning toegevoegd voor wasmachines en wasdrogers: programma starten/selecteren/stoppen/pauzeren/hervatten, opties (wastemperatuur, centrifugetoerental, i-Dos, droogdoel) en volledige Flow-kaarten.",
+    "de": "Unterstützung für Waschmaschinen und Wäschetrockner hinzugefügt: Programm starten/auswählen/stoppen/pausieren/fortsetzen, Optionen (Waschtemperatur, Schleuderdrehzahl, i-Dos, Trockenziel) und vollständige Flow-Karten."
+  }
+}

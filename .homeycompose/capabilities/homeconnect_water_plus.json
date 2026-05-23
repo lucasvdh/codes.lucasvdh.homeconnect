@@ -1,0 +1,11 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Water Plus",
+    "nl": "Water Plus",
+    "de": "Wasser Plus"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle"
+}

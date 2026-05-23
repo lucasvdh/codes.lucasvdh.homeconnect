@@ -1,0 +1,64 @@
+{
+  "name": {
+    "en": "Washing machine",
+    "nl": "Wasmachine",
+    "de": "Waschmaschine"
+  },
+  "class": "washer",
+  "capabilities": [
+    "onoff",
+    "homeconnect_operation_state",
+    "homeconnect_door_state",
+    "homeconnect_program",
+    "homeconnect_selected_program",
+    "homeconnect_program_progress",
+    "homeconnect_remaining_time",
+    "homeconnect_elapsed_time",
+    "homeconnect_start_in_relative",
+    "homeconnect_remote_start",
+    "homeconnect_remote_control_active",
+    "homeconnect_local_control_active",
+    "homeconnect_program_count_started",
+    "homeconnect_child_lock",
+    "homeconnect_wash_temperature",
+    "homeconnect_spin_speed",
+    "homeconnect_vario_perfect",
+    "homeconnect_speed_perfect",
+    "homeconnect_eco_perfect",
+    "homeconnect_water_plus",
+    "homeconnect_prewash",
+    "homeconnect_idos1_active",
+    "homeconnect_idos2_active"
+  ],
+  "discovery": "homeconnect-mdns",
+  "images": {
+    "small": "/drivers/washer/assets/images/small.png",
+    "large": "/drivers/washer/assets/images/large.png"
+  },
+  "platforms": [
+    "local"
+  ],
+  "connectivity": [
+    "lan"
+  ],
+  "pair": [
+    {
+      "id": "list_devices",
+      "template": "list_devices",
+      "navigation": {
+        "next": "add_devices"
+      },
+      "options": {
+        "title": {
+          "en": "Select the washing machines to add",
+          "nl": "Selecteer de wasmachines om toe te voegen",
+          "de": "Wähle die Waschmaschinen aus, die hinzugefügt werden sollen"
+        }
+      }
+    },
+    {
+      "id": "add_devices",
+      "template": "add_devices"
+    }
+  ]
+}

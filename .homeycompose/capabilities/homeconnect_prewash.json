@@ -1,0 +1,11 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Prewash",
+    "nl": "Voorwas",
+    "de": "Vorwäsche"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle"
+}

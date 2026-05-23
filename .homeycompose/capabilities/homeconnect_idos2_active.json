@@ -1,0 +1,11 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "i-Dos 2 active",
+    "nl": "i-Dos 2 actief",
+    "de": "i-Dos 2 aktiv"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle"
+}

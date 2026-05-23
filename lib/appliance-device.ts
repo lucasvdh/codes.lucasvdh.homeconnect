@@ -372,6 +372,58 @@ const CAPABILITY_MAP: Record<string, CapabilityMapEntry> = {
     decode: decodeSecondsToMinutes,
     encode: encodeMinutesToSeconds,
   },
+  // ===== Washer (LaundryCare.Washer) =======================================
+  "LaundryCare.Washer.Option.Temperature": {
+    capability: "homeconnect_wash_temperature",
+    decode: decodeLastSegment,
+    encode: encodeEnumIndex,
+  },
+  "LaundryCare.Washer.Option.SpinSpeed": {
+    capability: "homeconnect_spin_speed",
+    decode: decodeLastSegment,
+    encode: encodeEnumIndex,
+  },
+  "LaundryCare.Washer.Option.VarioPerfect": {
+    capability: "homeconnect_vario_perfect",
+    decode: decodeLastSegment,
+    encode: encodeEnumIndex,
+  },
+  "LaundryCare.Washer.Option.SpeedPerfect": {
+    capability: "homeconnect_speed_perfect",
+    decode: decodeBool,
+    encode: encodeBool,
+  },
+  "LaundryCare.Washer.Option.EcoPerfect": {
+    capability: "homeconnect_eco_perfect",
+    decode: decodeBool,
+    encode: encodeBool,
+  },
+  "LaundryCare.Washer.Option.WaterPlus": {
+    capability: "homeconnect_water_plus",
+    decode: decodeBool,
+    encode: encodeBool,
+  },
+  "LaundryCare.Washer.Option.Prewash": {
+    capability: "homeconnect_prewash",
+    decode: decodeBool,
+    encode: encodeBool,
+  },
+  "LaundryCare.Washer.Option.IDos1Active": {
+    capability: "homeconnect_idos1_active",
+    decode: decodeBool,
+    encode: encodeBool,
+  },
+  "LaundryCare.Washer.Option.IDos2Active": {
+    capability: "homeconnect_idos2_active",
+    decode: decodeBool,
+    encode: encodeBool,
+  },
+  // ===== Dryer (LaundryCare.Dryer) =========================================
+  "LaundryCare.Dryer.Option.DryingTarget": {
+    capability: "homeconnect_drying_target",
+    decode: decodeLastSegment,
+    encode: encodeEnumIndex,
+  },
 };
 
 /** Insert spaces so a program's last segment reads nicely in the UI. */

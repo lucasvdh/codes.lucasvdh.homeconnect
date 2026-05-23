@@ -1,0 +1,45 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Drying target",
+    "nl": "Droogdoel",
+    "de": "Trockenziel"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "values": [
+    {
+      "id": "IronDry",
+      "title": {
+        "en": "Iron dry",
+        "nl": "Strijkdroog",
+        "de": "Bügeltrocken"
+      }
+    },
+    {
+      "id": "CupboardDry",
+      "title": {
+        "en": "Cupboard dry",
+        "nl": "Kastdroog",
+        "de": "Schranktrocken"
+      }
+    },
+    {
+      "id": "CupboardDryPlus",
+      "title": {
+        "en": "Cupboard dry plus",
+        "nl": "Kastdroog plus",
+        "de": "Schranktrocken plus"
+      }
+    },
+    {
+      "id": "ExtraDry",
+      "title": {
+        "en": "Extra dry",
+        "nl": "Extra droog",
+        "de": "Extratrocken"
+      }
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Wash temperature",
+    "nl": "Wastemperatuur",
+    "de": "Waschtemperatur"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "values": [
+    {
+      "id": "Cold",
+      "title": {
+        "en": "Cold",
+        "nl": "Koud",
+        "de": "Kalt"
+      }
+    },
+    {
+      "id": "GC20",
+      "title": {
+        "en": "20 °C",
+        "nl": "20 °C",
+        "de": "20 °C"
+      }
+    },
+    {
+      "id": "GC30",
+      "title": {
+        "en": "30 °C",
+        "nl": "30 °C",
+        "de": "30 °C"
+      }
+    },
+    {
+      "id": "GC40",
+      "title": {
+        "en": "40 °C",
+        "nl": "40 °C",
+        "de": "40 °C"
+      }
+    },
+    {
+      "id": "GC50",
+      "title": {
+        "en": "50 °C",
+        "nl": "50 °C",
+        "de": "50 °C"
+      }
+    },
+    {
+      "id": "GC60",
+      "title": {
+        "en": "60 °C",
+        "nl": "60 °C",
+        "de": "60 °C"
+      }
+    },
+    {
+      "id": "GC70",
+      "title": {
+        "en": "70 °C",
+        "nl": "70 °C",
+        "de": "70 °C"
+      }
+    },
+    {
+      "id": "GC80",
+      "title": {
+        "en": "80 °C",
+        "nl": "80 °C",
+        "de": "80 °C"
+      }
+    },
+    {
+      "id": "GC90",
+      "title": {
+        "en": "90 °C",
+        "nl": "90 °C",
+        "de": "90 °C"
+      }
+    }
+  ]
+}

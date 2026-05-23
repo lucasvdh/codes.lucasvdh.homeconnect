@@ -1,0 +1,9 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "SpeedPerfect"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle"
+}

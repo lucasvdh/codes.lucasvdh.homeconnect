@@ -307,6 +307,61 @@ const CAPABILITY_MAP: Record<string, CapabilityMapEntry> = {
     decode: decodeBool,
     encode: encodeBool,
   },
+  "LaundryCare.Washer.Option.SpinSpeed": {
+    capability: "homeconnect_spin_speed",
+    decode: decodeNumber,
+    encode: encodeEnumIndex,
+  },
+  "LaundryCare.Washer.Option.Temperature": {
+    capability: "homeconnect_temperature",
+    decode: decodeNumber,
+    encode: encodeEnumIndex,
+  },
+  "LaundryCare.Washer.Option.SpeedPerfect": {
+    capability: "homeconnect_speed_perfect",
+    decode: decodeBool,
+    encode: encodeBool,
+  },
+  "LaundryCare.Washer.Option.RinsePlus": {
+    capability: "homeconnect_rinse_plus",
+    decode: decodeBool,
+    encode: encodeBool,
+  },
+  "LaundryCare.Washer.Option.Prewash": {
+    capability: "homeconnect_prewash",
+    decode: decodeBool,
+    encode: encodeBool,
+  },
+  "LaundryCare.Washer.Option.IDos1.Active": {
+    capability: "homeconnect_idos1_active",
+    decode: decodeBool,
+    encode: encodeBool,
+  },
+  "LaundryCare.Washer.Option.IDos2.Active": {
+    capability: "homeconnect_idos2_active",
+    decode: decodeBool,
+    encode: encodeBool,
+  },
+  "LaundryCare.Washer.Option.LessIroning": {
+    capability: "homeconnect_less_ironing",
+    decode: decodeBool,
+    encode: encodeBool,
+  },
+  "LaundryCare.Washer.Option.Soak": {
+    capability: "homeconnect_soak",
+    decode: decodeBool,
+    encode: encodeBool,
+  },
+  "LaundryCare.Washer.Option.MultipleSoak": {
+    capability: "homeconnect_multiple_soak",
+    decode: decodeBool,
+    encode: encodeBool,
+  },
+  "LaundryCare.Washer.Option.RinseHold": {
+    capability: "homeconnect_rinse_hold",
+    decode: decodeBool,
+    encode: encodeBool,
+  },
   "Dishcare.Dishwasher.Option.VarioSpeedPlus": {
     capability: "homeconnect_vario_speed_plus",
     decode: decodeBool,

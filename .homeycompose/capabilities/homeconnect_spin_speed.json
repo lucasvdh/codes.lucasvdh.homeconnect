@@ -1,0 +1,20 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Spin speed",
+    "nl": "Centrifugesnelheid",
+    "de": "Schleuderdrehzahl"
+  },
+  "getable": true,
+  "setable": true,
+  "values": [
+    { "id": "RPM400", "title": { "en": "400 rpm" } },
+    { "id": "RPM600", "title": { "en": "600 rpm" } },
+    { "id": "RPM800", "title": { "en": "800 rpm" } },
+    { "id": "RPM1000", "title": { "en": "1000 rpm" } },
+    { "id": "RPM1200", "title": { "en": "1200 rpm" } },
+    { "id": "RPM1400", "title": { "en": "1400 rpm" } },
+    { "id": "RPM1600", "title": { "en": "1600 rpm" } }
+  ],
+  "uiComponent": "picker"
+}

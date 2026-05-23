@@ -1,0 +1,9 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Rinse Hold"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle"
+}

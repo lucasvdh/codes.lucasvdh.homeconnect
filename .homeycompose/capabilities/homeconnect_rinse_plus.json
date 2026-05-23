@@ -1,0 +1,9 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Rinse Plus"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle"
+}

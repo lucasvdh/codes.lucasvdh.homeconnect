@@ -1,0 +1,62 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Microwave power",
+    "nl": "Magnetronvermogen",
+    "de": "Mikrowellenleistung"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "values": [
+    {
+      "id": "Off",
+      "title": {
+        "en": "Off",
+        "nl": "Uit",
+        "de": "Aus"
+      }
+    },
+    {
+      "id": "90Watt",
+      "title": {
+        "en": "90 W",
+        "nl": "90 W",
+        "de": "90 W"
+      }
+    },
+    {
+      "id": "180Watt",
+      "title": {
+        "en": "180 W",
+        "nl": "180 W",
+        "de": "180 W"
+      }
+    },
+    {
+      "id": "360Watt",
+      "title": {
+        "en": "360 W",
+        "nl": "360 W",
+        "de": "360 W"
+      }
+    },
+    {
+      "id": "600Watt",
+      "title": {
+        "en": "600 W",
+        "nl": "600 W",
+        "de": "600 W"
+      }
+    },
+    {
+      "id": "Max",
+      "title": {
+        "en": "Max",
+        "nl": "Max",
+        "de": "Max"
+      }
+    }
+  ],
+  "icon": "/assets/capability/homeconnect_fast_preheat.svg"
+}

@@ -1,0 +1,12 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Salt low",
+    "nl": "Zout bijna op",
+    "de": "Salzmangel"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capability/homeconnect_water_hardness.svg"
+}

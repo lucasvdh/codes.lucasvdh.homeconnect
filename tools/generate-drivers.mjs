@@ -44,6 +44,11 @@ const OVEN_CAPS = [
   "homeconnect_display_brightness",
   "homeconnect_button_tones",
   "homeconnect_signal_duration",
+  "homeconnect_microwave_power",
+  "homeconnect_oven_program_name",
+  "homeconnect_interior_light_active",
+  "homeconnect_oven_temp_too_high",
+  "homeconnect_software_update_available",
 ];
 
 const DISHWASHER_CAPS = [
@@ -70,6 +75,12 @@ const DISHWASHER_CAPS = [
   "homeconnect_sensitivity_turbidity",
   "homeconnect_sound_level_signal",
   "homeconnect_silence_default_time",
+  "homeconnect_remaining_time_estimated",
+  "homeconnect_salt_lack",
+  "homeconnect_rinse_aid_lack",
+  "homeconnect_filter_check_required",
+  "homeconnect_drain_pump_blocked",
+  "homeconnect_software_update_available",
 ];
 
 // ---------------------------------------------------------------------------

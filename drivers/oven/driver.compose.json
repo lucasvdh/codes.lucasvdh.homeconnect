@@ -21,6 +21,7 @@
     "homeconnect_program_count_started",
     "homeconnect_child_lock",
     "measure_temperature",
+    "target_temperature",
     "homeconnect_program_duration",
     "homeconnect_meat_probe_plugged",
     "homeconnect_meat_probe_temp",
@@ -32,7 +33,12 @@
     "homeconnect_count_up_timer",
     "homeconnect_display_brightness",
     "homeconnect_button_tones",
-    "homeconnect_signal_duration"
+    "homeconnect_signal_duration",
+    "homeconnect_microwave_power",
+    "homeconnect_oven_program_name",
+    "homeconnect_interior_light_active",
+    "homeconnect_oven_temp_too_high",
+    "homeconnect_software_update_available"
   ],
   "discovery": "homeconnect-mdns",
   "images": {

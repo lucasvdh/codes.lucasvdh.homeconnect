@@ -1,0 +1,12 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Filter check required",
+    "nl": "Filtercontrole vereist",
+    "de": "Filterprüfung erforderlich"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capability/homeconnect_machine_care_runs_left.svg"
+}

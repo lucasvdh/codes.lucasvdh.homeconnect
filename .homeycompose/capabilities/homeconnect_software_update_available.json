@@ -1,0 +1,12 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Software update available",
+    "nl": "Software-update beschikbaar",
+    "de": "Software-Update verfügbar"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capability/homeconnect_operation_state.svg"
+}

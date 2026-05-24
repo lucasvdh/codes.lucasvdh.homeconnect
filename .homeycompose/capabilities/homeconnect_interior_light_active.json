@@ -1,0 +1,12 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Interior light active",
+    "nl": "Binnenverlichting actief",
+    "de": "Innenbeleuchtung aktiv"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capability/homeconnect_cavity_light.svg"
+}

@@ -139,7 +139,7 @@ class OvenDriver extends ApplianceDriver {
     );
     cond("target_temperature_above").registerRunListener(
       async ({ device, celsius }: { device: Homey.Device; celsius: number }) => {
-        const v = device.getCapabilityValue("target_temperature");
+        const v = device.getCapabilityValue("homeconnect_oven_target_temperature");
         return typeof v === "number" && v > celsius;
       },
     );

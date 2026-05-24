@@ -41,7 +41,13 @@
     "homeconnect_hot_water_connection",
     "homeconnect_sensitivity_turbidity",
     "homeconnect_sound_level_signal",
-    "homeconnect_silence_default_time"
+    "homeconnect_silence_default_time",
+    "homeconnect_remaining_time_estimated",
+    "homeconnect_salt_lack",
+    "homeconnect_rinse_aid_lack",
+    "homeconnect_filter_check_required",
+    "homeconnect_drain_pump_blocked",
+    "homeconnect_software_update_available"
   ],
   "discovery": "homeconnect-mdns",
   "images": {

@@ -1,0 +1,12 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Drain pump blocked",
+    "nl": "Afvoerpomp geblokkeerd",
+    "de": "Laugenpumpe blockiert"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capability/homeconnect_water_hardness.svg"
+}

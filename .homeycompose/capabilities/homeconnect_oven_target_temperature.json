@@ -1,0 +1,20 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Target temperature",
+    "nl": "Insteltemperatuur",
+    "de": "Zieltemperatur"
+  },
+  "units": {
+    "en": "°C",
+    "de": "°C",
+    "nl": "°C"
+  },
+  "decimals": 0,
+  "min": 0,
+  "max": 300,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capability/homeconnect_meat_probe_target.svg"
+}

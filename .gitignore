@@ -15,6 +15,7 @@
 # Local secrets and appliance exports
 /env.json
 /devices.json
+/devices_check.json
 /auth-roundtrip-har.json
 *.har
 

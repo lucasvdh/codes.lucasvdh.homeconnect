@@ -1,0 +1,12 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Rinse aid low",
+    "nl": "Glansspoelmiddel bijna op",
+    "de": "Klarspülermangel"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capability/homeconnect_rinse_aid_level.svg"
+}

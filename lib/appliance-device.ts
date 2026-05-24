@@ -102,6 +102,87 @@ const encodePowerState: Encoder = (v, feature) => {
   return null;
 };
 
+const PROGRAM_TRANSLATIONS: Record<string, Record<string, string>> = {
+  en: {
+    HotAir: "4D Hot Air",
+    TopBottomHeating: "Top/Bottom Heating",
+    TopBottomHeatingEco: "Top/Bottom Heating Eco",
+    HotAirGrilling: "Hot Air Grilling",
+    PizzaSetting: "Pizza Setting",
+    PreHeating: "Preheating",
+    HotAirGentle: "Hot Air Gentle",
+    GrillLargeArea: "Grill Large Area",
+    GrillSmallArea: "Grill Small Area",
+    SlowCook: "Slow Cooking",
+    BottomHeating: "Bottom Heating",
+    KeepWarm: "Keep Warm",
+    PreheatOvenware: "Preheat Ovenware",
+    Defrost: "Defrost",
+    LetRest: "Let Rest",
+    AirFry: "Air Fry",
+    Microwave: "Microwave",
+  },
+  nl: {
+    HotAir: "4D Hete Lucht",
+    TopBottomHeating: "Boven-/Onderwarmte",
+    TopBottomHeatingEco: "Boven-/Onderwarmte Eco",
+    HotAirGrilling: "Circulatiegrillen",
+    PizzaSetting: "Pizzastand",
+    PreHeating: "Voorverwarmen",
+    HotAirGentle: "Hete Lucht Mild",
+    GrillLargeArea: "Grote Grill",
+    GrillSmallArea: "Kleine Grill",
+    SlowCook: "Langzaam Garen",
+    BottomHeating: "Onderwarmte",
+    KeepWarm: "Warmhouden",
+    PreheatOvenware: "Servies Voorverwarmen",
+    Defrost: "Ontdooien",
+    LetRest: "Laten Rusten",
+    AirFry: "Airfry",
+    Microwave: "Magnetron",
+  },
+  de: {
+    HotAir: "4D Heißluft",
+    TopBottomHeating: "Ober-/Unterhitze",
+    TopBottomHeatingEco: "Ober-/Unterhitze Eco",
+    HotAirGrilling: "Umluftgrillen",
+    PizzaSetting: "Pizzastufe",
+    PreHeating: "Vorwärmen",
+    HeißluftSanft: "Heißluft Sanft",
+    HotAirGentle: "Heißluft Sanft",
+    GrillLargeArea: "Großflächengrill",
+    GrillSmallArea: "Kleinflächengrill",
+    SlowCook: "Sanftgaren",
+    BottomHeating: "Unterhitze",
+    KeepWarm: "Warmhalten",
+    PreheatOvenware: "Geschirr Vorwärmen",
+    Defrost: "Auftauen",
+    LetRest: "Ruhen Lassen",
+    AirFry: "Air Fry",
+    Microwave: "Mikrowelle",
+  }
+};
+
+const decodeMicrowavePower: Decoder = (v) => {
+  if (v == null) return null;
+  const s = String(v).split(".").pop();
+  const map: Record<string, string> = {
+    "0": "Off",
+    "9": "90Watt",
+    "18": "180Watt",
+    "36": "360Watt",
+    "60": "600Watt",
+    "255": "Max",
+    "Off": "Off",
+    "90Watt": "90Watt",
+    "180Watt": "180Watt",
+    "360Watt": "360Watt",
+    "600Watt": "600Watt",
+    "Max": "Max",
+  };
+  return map[s ?? ""] ?? v;
+};
+
 const decodePowerState: Decoder = (v) =>
   v === "On" || v === 2 || v === "BSH.Common.EnumType.PowerState.On";
 
@@ -148,9 +229,17 @@ const CAPABILITY_MAP: Record<string, CapabilityMapEntry> = {
     capability: "homeconnect_program_count_started",
     decode: decodeNumber,
   },
+  "BSH.Common.Status.InteriorIlluminationActive": {
+    capability: "homeconnect_interior_light_active",
+    decode: decodeBool,
+  },
   "BSH.Common.Option.RemainingProgramTime": {
     capability: "homeconnect_remaining_time",
     decode: decodeSecondsToMinutes,
+  },
+  "BSH.Common.Option.RemainingProgramTimeIsEstimated": {
+    capability: "homeconnect_remaining_time_estimated",
+    decode: decodeBool,
   },
   "BSH.Common.Option.ElapsedProgramTime": {
     capability: "homeconnect_elapsed_time",
@@ -190,9 +279,11 @@ const CAPABILITY_MAP: Record<string, CapabilityMapEntry> = {
     capability: "measure_temperature",
     decode: decodeNumber,
   },
-  // Cooking.Oven.Option.SetpointTemperature is intentionally not a capability:
-  // the Homey thermostat UI doesn't match oven semantics (setpoint is only
-  // meaningful while a program is selected). Exposed as a Flow action instead
+  "Cooking.Oven.Option.SetpointTemperature": {
+    capability: "homeconnect_oven_target_temperature",
+    decode: decodeNumber,
+  },
+  // Cooking.Oven.Option.SetpointTemperature is also exposed as a Flow action instead
   // - see drivers/oven/driver.ts → oven_set_target_temperature.
   "Cooking.Oven.Status.Cavity.001.MeatprobePlugged": {
     capability: "homeconnect_meat_probe_plugged",
@@ -274,6 +365,14 @@ const CAPABILITY_MAP: Record<string, CapabilityMapEntry> = {
     capability: "homeconnect_signal_duration",
     decode: passthrough,
     encode: encodeEnumIndex,
+  },
+  "Cooking.Oven.Status.Cavity.001.MicrowavePower": {
+    capability: "homeconnect_microwave_power",
+    decode: decodeMicrowavePower,
+  },
+  "Cooking.Oven.Option.MicrowavePower": {
+    capability: "homeconnect_microwave_power",
+    decode: decodeMicrowavePower,
   },
   // ===== Dishwasher (Dishcare.Dishwasher) ==================================
   "Dishcare.Dishwasher.Status.ProgramPhase": {
@@ -682,6 +781,19 @@ export class ApplianceDevice extends Homey.Device {
         continue;
       }
       this.fireTriggers(mapping.capability, value);
+
+      if (
+        (mapping.capability === "homeconnect_program" || mapping.capability === "homeconnect_selected_program") &&
+        this.hasCapability("homeconnect_oven_program_name")
+      ) {
+        const active = mapping.capability === "homeconnect_program" ? value : this.getCapabilityValue("homeconnect_program");
+        const selected = mapping.capability === "homeconnect_selected_program" ? value : this.getCapabilityValue("homeconnect_selected_program");
+        const targetProgram = active || selected;
+        const friendlyName = targetProgram ? this.getFriendlyProgramName(String(targetProgram)) : null;
+        if (friendlyName !== this.getCapabilityValue("homeconnect_oven_program_name")) {
+          this.setCapabilityValue("homeconnect_oven_program_name", friendlyName as never).catch(this.error);
+        }
+      }
     }
     this.reconcileDerivedState();
   }
@@ -695,6 +807,65 @@ export class ApplianceDevice extends Homey.Device {
   private handleEvent(featureName: string, raw: unknown): void {
     const previous = this.eventStates.get(featureName);
     this.eventStates.set(featureName, raw);
+
+    if (
+      featureName === "Dishcare.Dishwasher.Event.SaltLack" ||
+      featureName === "Dishcare.Dishwasher.Event.SaltNearlyEmpty"
+    ) {
+      if (this.hasCapability("homeconnect_salt_lack")) {
+        const isLack = raw === "Present";
+        if (isLack !== this.getCapabilityValue("homeconnect_salt_lack")) {
+          this.setCapabilityValue("homeconnect_salt_lack", isLack).catch(this.error);
+        }
+      }
+    }
+    if (
+      featureName === "Dishcare.Dishwasher.Event.RinseAidLack" ||
+      featureName === "Dishcare.Dishwasher.Event.RinseAidNearlyEmpty"
+    ) {
+      if (this.hasCapability("homeconnect_rinse_aid_lack")) {
+        const isLack = raw === "Present";
+        if (isLack !== this.getCapabilityValue("homeconnect_rinse_aid_lack")) {
+          this.setCapabilityValue("homeconnect_rinse_aid_lack", isLack).catch(this.error);
+        }
+      }
+    }
+    if (
+      featureName === "Dishcare.Dishwasher.Event.CheckFilterSystem" ||
+      featureName === "Dishcare.Dishwasher.Event.SmartFilterCleaningReminder"
+    ) {
+      if (this.hasCapability("homeconnect_filter_check_required")) {
+        const isAlert = raw === "Present";
+        if (isAlert !== this.getCapabilityValue("homeconnect_filter_check_required")) {
+          this.setCapabilityValue("homeconnect_filter_check_required", isAlert).catch(this.error);
+        }
+      }
+    }
+    if (featureName === "Dishcare.Dishwasher.Event.DrainPumpBlocked") {
+      if (this.hasCapability("homeconnect_drain_pump_blocked")) {
+        const isAlert = raw === "Present";
+        if (isAlert !== this.getCapabilityValue("homeconnect_drain_pump_blocked")) {
+          this.setCapabilityValue("homeconnect_drain_pump_blocked", isAlert).catch(this.error);
+        }
+      }
+    }
+    if (featureName === "Cooking.Oven.Event.Cavity.001.CavityTemperatureTooHigh") {
+      if (this.hasCapability("homeconnect_oven_temp_too_high")) {
+        const isAlert = raw === "Present";
+        if (isAlert !== this.getCapabilityValue("homeconnect_oven_temp_too_high")) {
+          this.setCapabilityValue("homeconnect_oven_temp_too_high", isAlert).catch(this.error);
+        }
+      }
+    }
+    if (featureName === "BSH.Common.Event.SoftwareUpdateAvailable") {
+      if (this.hasCapability("homeconnect_software_update_available")) {
+        const isAlert = raw === "Present";
+        if (isAlert !== this.getCapabilityValue("homeconnect_software_update_available")) {
+          this.setCapabilityValue("homeconnect_software_update_available", isAlert).catch(this.error);
+        }
+      }
+    }
+
     if (raw !== "Present" || previous === "Present") return;
     const driver = this.driver as TriggerDriver;
     const spec = this.eventMap()[featureName];
@@ -821,7 +992,11 @@ export class ApplianceDevice extends Homey.Device {
     clear("homeconnect_start_in_relative", null);
     clear("homeconnect_program_phase", "None");
     // Keep the program name on "Finished" so the user can still see what ran.
-    if (state !== "Finished") clear("homeconnect_program", null);
+    if (state !== "Finished") {
+      clear("homeconnect_program", null);
+      clear("homeconnect_oven_program_name", null);
+      clear("homeconnect_oven_target_temperature", null);
+    }
   }
 
   // --- program control (delegated to from the driver's Flow cards) ---------
@@ -1000,6 +1175,15 @@ export class ApplianceDevice extends Homey.Device {
     if (!this.isFeatureWritableNow(feature)) {
       throw new Error(this.homey.__("device.error.feature_not_available"));
     }
+  }
+
+  private getFriendlyProgramName(programId: string): string {
+    const lang = this.homey.i18n.getLanguage() || "en";
+    const dict = PROGRAM_TRANSLATIONS[lang] ?? PROGRAM_TRANSLATIONS.en;
+    if (dict[programId]) return dict[programId];
+    return programId
+      .replace(/([A-Z])/g, " $1")
+      .trim();
   }
 
   /** Reverse-resolve an enum member name to its numeric value for a feature. */

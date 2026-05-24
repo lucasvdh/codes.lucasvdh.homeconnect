@@ -737,7 +737,6 @@
     },
     {
       "id": "oven_target_temperature_above",
-      "deprecated": true,
       "title": {
         "en": "Target temperature !{{is|is not}} above ...",
         "nl": "Insteltemperatuur !{{is|is niet}} hoger dan ...",
@@ -1068,7 +1067,7 @@
           "title": {
             "en": "Enabled",
             "nl": "Aan",
-            "de": "Ein"
+            "de": "Aktiviert"
           }
         }
       ]
@@ -1092,7 +1091,7 @@
           "title": {
             "en": "Enabled",
             "nl": "Aan",
-            "de": "Ein"
+            "de": "Aktiviert"
           }
         }
       ]

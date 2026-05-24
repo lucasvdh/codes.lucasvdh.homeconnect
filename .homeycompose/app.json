@@ -24,6 +24,13 @@
     "name": "Lucas van der Have",
     "email": "lucasvdhave@gmail.com"
   },
+  "contributors": {
+    "developers": [
+      {
+        "name": "Techniman"
+      }
+    ]
+  },
   "permissions": [],
   "api": {
     "getStatus": {
@@ -75,5 +82,6 @@
   "bugs": {
     "url": "https://github.com/lucasvdh/codes.lucasvdh.homeconnect/issues"
   },
+  "support": "https://github.com/lucasvdh/codes.lucasvdh.homeconnect/issues",
   "source": "https://github.com/lucasvdh/codes.lucasvdh.homeconnect"
 }

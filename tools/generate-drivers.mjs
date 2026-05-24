@@ -5,6 +5,181 @@
 
 import { readFileSync, writeFileSync } from "node:fs";
 
+const DE_TRANSLATIONS = {
+  "A program finished": "Ein Programm ist fertig",
+  "Triggers when the oven's operation state becomes Finished.": "Wird ausgelöst, wenn der Betriebszustand des Backofens Fertig wird.",
+  "A program started": "Ein Programm wurde gestartet",
+  "A program was aborted": "Ein Programm wurde abgebrochen",
+  "The door state changed": "Der Türstatus wurde geändert",
+  "Door state": "Türstatus",
+  "Open": "Offen",
+  "The door was opened": "Die Tür wurde geöffnet",
+  "The door was closed": "Die Tür wurde geschlossen",
+  "The operation state changed": "Der Betriebszustand wurde geändert",
+  "Operation state": "Betriebszustand",
+  "Run": "Run",
+  "The program progress changed": "Der Programmfortschritt wurde geändert",
+  "Progress (%)": "Fortschritt (%)",
+  "Remaining time changed": "Restzeit wurde geändert",
+  "Minutes": "Minuten",
+  "Elapsed time changed": "Verstrichene Zeit wurde geändert",
+  "Remote start allowed changed": "Fernstart erlaubt wurde geändert",
+  "Allowed": "Erlaubt",
+  "true": "true",
+  "Remote control active changed": "Fernsteuerung aktiv wurde geändert",
+  "Active": "Aktiv",
+  "Local control changed": "Lokale Bedienung wurde geändert",
+  "Child lock changed": "Kindersicherung wurde geändert",
+  "Enabled": "Aktiviert",
+  "An error occurred": "Ein Fehler ist aufgetreten",
+  "Error code": "Fehlercode",
+  "InternalError": "InternalError",
+  "AquaStop occurred": "AquaStop wurde ausgelöst",
+  "Low water pressure": "Niedriger Wasserdruck",
+  "A software update is available": "Ein Software-Update ist verfügbar",
+  "Preheat finished": "Vorheizen abgeschlossen",
+  "Preheat mode": "Vorheizmodus",
+  "regular": "regular",
+  "Kitchen timer elapsed": "Kurzzeitwecker abgelaufen",
+  "Meat probe target reached": "Zieltemperatur des Bratenthermometers erreicht",
+  "Meat probe needs attention": "Bratenthermometer erfordert Aufmerksamkeit",
+  "Reason": "Grund",
+  "necessary": "necessary",
+  "Insert food": "Lebensmittel einlegen",
+  "When": "Wann",
+  "now": "now",
+  "Turn food": "Lebensmittel wenden",
+  "Door needs attention": "Tür erfordert Aufmerksamkeit",
+  "open": "open",
+  "Cavity temperature too high": "Garraumtemperatur zu hoch",
+  "EasyClean required": "EasyClean erforderlich",
+  "Remove pyrolysis tank": "Pyrolysebehälter entfernen",
+  "Subsequent cooking suggested": "Nachgaren vorgeschlagen",
+  "Operating time limit reached": "Maximale Betriebsdauer erreicht",
+  "Door locked while cooling": "Tür während des Abkühlens verriegelt",
+  "!{{Is|Is not}} running": "!{{Läuft|Läuft nicht}}",
+  "!{{Is|Is not}} finished": "!{{Ist|Ist nicht}} fertig",
+  "!{{Is|Is not}} paused": "!{{Ist|Ist nicht}} pausiert",
+  "!{{Is|Is not}} idle": "!{{Ist|Ist nicht}} inaktiv",
+  "Delayed start !{{is|is not}} active": "Startzeitvorwahl !{{ist|ist nicht}} aktiv",
+  "There !{{is|is not}} an error": "Es !{{liegt|liegt kein}} Fehler vor",
+  "The door !{{is|is not}} open": "Die Tür !{{ist|ist nicht}} offen",
+  "Remote start !{{is|is not}} allowed": "Fernstart !{{ist|ist nicht}} erlaubt",
+  "Remote control !{{is|is not}} active": "Fernsteuerung !{{ist|ist nicht}} aktiv",
+  "Local control !{{is|is not}} active": "Lokale Bedienung !{{ist|ist nicht}} aktiv",
+  "The child lock !{{is|is not}} on": "Die Kindersicherung !{{ist|ist nicht}} eingeschaltet",
+  "Remaining time !{{is|is not}} below ...": "Restzeit !{{ist|ist nicht}} unter ...",
+  "Remaining time !{{is|is not}} below [[minutes]] min": "Restzeit !{{ist|ist nicht}} unter [[minutes]] Min.",
+  "Program progress !{{is|is not}} above ...": "Programmfortschritt !{{ist|ist nicht}} über ...",
+  "Program progress !{{is|is not}} above [[percent]] %": "Programmfortschritt !{{ist|ist nicht}} über [[percent]] %",
+  "Percent": "Prozent",
+  "The active program !{{is|is not}} ...": "Das aktive Programm !{{ist|ist nicht}} ...",
+  "The active program !{{is|is not}} [[program]]": "Das aktive Programm !{{ist|ist nicht}} [[program]]",
+  "Program": "Programm",
+  "The selected program !{{is|is not}} ...": "Das ausgewählte Programm !{{ist|ist nicht}} ...",
+  "The selected program !{{is|is not}} [[program]]": "Das ausgewählte Programm !{{ist|ist nicht}} [[program]]",
+  "Meat probe !{{is|is not}} plugged in": "Bratenthermometer !{{ist|ist nicht}} eingesteckt",
+  "Cavity temperature !{{is|is not}} above ...": "Garraumtemperatur !{{ist|ist nicht}} über ...",
+  "Cavity temperature !{{is|is not}} above [[celsius]] °C": "Garraumtemperatur !{{ist|ist nicht}} über [[celsius]] °C",
+  "°C": "°C",
+  "Meat probe temperature !{{is|is not}} above ...": "Bratenthermometer-Temperatur !{{ist|ist nicht}} über ...",
+  "Meat probe !{{is|is not}} above [[celsius]] °C": "Bratenthermometer !{{ist|ist nicht}} über [[celsius]] °C",
+  "Target temperature !{{is|is not}} above ...": "Zieltemperatur !{{ist|ist nicht}} über ...",
+  "Target !{{is|is not}} above [[celsius]] °C": "Zieltemperatur !{{ist|ist nicht}} über [[celsius]] °C",
+  "Fast preheat !{{is|is not}} on": "Schnellaufheizen !{{ist|ist nicht}} eingeschaltet",
+  "Oven light !{{is|is not}} on": "Backofenbeleuchtung !{{ist|ist nicht}} eingeschaltet",
+  "Start a program": "Programm starten",
+  "Start [[program]] at [[temperature]] °C for [[duration]] min": "[[program]] bei [[temperature]] °C für [[duration]] Min. starten",
+  "Requires remote start to be enabled on the oven first.": "Erfordert, dass Fernstart zuerst am Backofen aktiviert ist.",
+  "Temperature (°C)": "Temperatur (°C)",
+  "Duration (minutes)": "Dauer (Minuten)",
+  "Select a program": "Programm auswählen",
+  "Select [[program]]": "[[program]] auswählen",
+  "Queues the program without starting it.": "Wählt das Programm aus, ohne es zu starten.",
+  "Start a program with a delay": "Programm mit Verzögerung starten",
+  "Start [[program]] in [[delay_minutes]] min": "[[program]] in [[delay_minutes]] Min. starten",
+  "Delay (min)": "Verzögerung (Min.)",
+  "Stop the program": "Programm stoppen",
+  "Pause the program": "Programm pausieren",
+  "Resume the program": "Programm fortsetzen",
+  "Set child lock": "Kindersicherung setzen",
+  "Set child lock to [[enabled]]": "Kindersicherung auf [[enabled]] setzen",
+  "Acknowledge event": "Meldung bestätigen",
+  "Clears whatever event is currently signalled on the appliance.": "Löscht die aktuell am Gerät angezeigte Meldung.",
+  "Turn off (standby)": "Ausschalten (Standby)",
+  "Set target temperature": "Zieltemperatur einstellen",
+  "Set target to [[celsius]] °C": "Ziel auf [[celsius]] °C einstellen",
+  "Set meat probe target": "Ziel des Bratenthermometers einstellen",
+  "Meat probe target [[celsius]] °C": "Bratenthermometer-Ziel [[celsius]] °C",
+  "Set kitchen timer": "Kurzzeitwecker stellen",
+  "Kitchen timer [[minutes]] min": "Kurzzeitwecker [[minutes]] Min.",
+  "Set oven light": "Backofenbeleuchtung setzen",
+  "Light [[enabled]]": "Beleuchtung [[enabled]]",
+  "Set fast preheat": "Schnellaufheizen setzen",
+  "Fast preheat [[enabled]]": "Schnellaufheizen [[enabled]]",
+  "Triggers when the dishwasher's operation state becomes Finished.": "Wird ausgelöst, wenn der Betriebszustand des Geschirrspülers Fertig wird.",
+  "The program phase changed": "Die Programmphase wurde geändert",
+  "Phase": "Phase",
+  "MainWash": "MainWash",
+  "Salt is low": "Salz ist niedrig",
+  "Severity": "Schweregrad",
+  "empty": "empty",
+  "Rinse aid is low": "Klarspüler ist niedrig",
+  "Filter check required": "Filterprüfung erforderlich",
+  "Machine care reminder": "Maschinenpflege-Erinnerung",
+  "Draining problem": "Ablaufproblem",
+  "Kind": "Art",
+  "pump_blocked": "pump_blocked",
+  "Low voltage": "Niedrige Netzspannung",
+  "Water heater scaled up": "Wassererhitzer verkalkt",
+  "Internal error": "Interner Fehler",
+  "Program phase !{{is|is not}} ...": "Programmphase !{{ist|ist nicht}} ...",
+  "Program phase !{{is|is not}} [[phase]]": "Programmphase !{{ist|ist nicht}} [[phase]]",
+  "Eco-dry !{{is|is not}} active": "Eco-Trocknen !{{ist|ist nicht}} aktiv",
+  "Half load !{{is|is not}} on": "Halbe Beladung !{{ist|ist nicht}} eingeschaltet",
+  "Silence !{{is|is not}} active": "Stillemodus !{{ist|ist nicht}} aktiv",
+  "Start [[program]]": "[[program]] starten",
+  "Requires remote start to be enabled on the dishwasher first.": "Erfordert, dass Fernstart zuerst am Geschirrspüler aktiviert ist."
+};
+
+function translateObject(obj) {
+  if (!obj || typeof obj !== "object") return obj;
+
+  if (Array.isArray(obj)) {
+    return obj.map(translateObject);
+  }
+
+  if (obj.en && obj.nl) {
+    const en = obj.en;
+    if (DE_TRANSLATIONS[en]) {
+      obj.de = DE_TRANSLATIONS[en];
+    } else {
+      if (en.startsWith("Triggers when the ") && en.endsWith("'s operation state becomes Finished.")) {
+        const type = en.replace("Triggers when the ", "").replace("'s operation state becomes Finished.", "");
+        if (type === "oven") {
+          obj.de = "Wird ausgelöst, wenn der Betriebszustand des Backofens Fertig wird.";
+        } else if (type === "dishwasher") {
+          obj.de = "Wird ausgelöst, wenn der Betriebszustand des Geschirrspülers Fertig wird.";
+        }
+      }
+      if (en.startsWith("Requires remote start to be enabled on the ") && en.endsWith(" first.")) {
+        const type = en.replace("Requires remote start to be enabled on the ", "").replace(" first.", "");
+        if (type === "oven") {
+          obj.de = "Erfordert, dass Fernstart zuerst am Backofen aktiviert ist.";
+        } else if (type === "dishwasher") {
+          obj.de = "Erfordert, dass Fernstart zuerst am Geschirrspüler aktiviert ist.";
+        }
+      }
+    }
+  }
+
+  const result = {};
+  for (const [key, value] of Object.entries(obj)) {
+    result[key] = translateObject(value);
+  }
+  return result;
+}
+
 // ---------------------------------------------------------------------------
 // Capability lists per driver (declared in driver.compose.json). The runtime
 // removes those whose backing feature isn't present on the specific paired
@@ -44,6 +219,12 @@ const OVEN_CAPS = [
   "homeconnect_display_brightness",
   "homeconnect_button_tones",
   "homeconnect_signal_duration",
+  "homeconnect_microwave_power",
+  "homeconnect_oven_program_name",
+  "homeconnect_oven_target_temperature",
+  "homeconnect_interior_light_active",
+  "homeconnect_oven_temp_too_high",
+  "homeconnect_software_update_available",
 ];
 
 const DISHWASHER_CAPS = [
@@ -70,6 +251,12 @@ const DISHWASHER_CAPS = [
   "homeconnect_sensitivity_turbidity",
   "homeconnect_sound_level_signal",
   "homeconnect_silence_default_time",
+  "homeconnect_remaining_time_estimated",
+  "homeconnect_salt_lack",
+  "homeconnect_rinse_aid_lack",
+  "homeconnect_filter_check_required",
+  "homeconnect_drain_pump_blocked",
+  "homeconnect_software_update_available",
 ];
 
 const WASHER_CAPS = [
@@ -904,7 +1091,8 @@ function readJson(p) {
 }
 
 function writeJson(p, body) {
-  writeFileSync(p, JSON.stringify(body, null, 2) + "\n");
+  const finalBody = p.endsWith(".flow.compose.json") ? translateObject(body) : body;
+  writeFileSync(p, JSON.stringify(finalBody, null, 2) + "\n");
 }
 
 // ---- Washer-only ---------------------------------------------------------

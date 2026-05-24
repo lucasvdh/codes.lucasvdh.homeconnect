@@ -1,0 +1,12 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Remaining time is estimated",
+    "nl": "Resterende tijd is schatting",
+    "de": "Restzeit ist geschätzt"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capability/homeconnect_remaining_time.svg"
+}

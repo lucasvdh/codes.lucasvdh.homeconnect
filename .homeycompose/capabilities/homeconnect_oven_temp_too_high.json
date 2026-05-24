@@ -1,0 +1,12 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Oven temperature too high",
+    "nl": "Oventemperatuur te hoog",
+    "de": "Ofentemperatur zu hoch"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capability/homeconnect_meat_probe_temp.svg"
+}

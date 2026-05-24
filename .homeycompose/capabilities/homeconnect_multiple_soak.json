@@ -1,7 +1,9 @@
 {
   "type": "boolean",
   "title": {
-    "en": "Multiple Soak"
+    "en": "Multiple Soak",
+    "nl": "Meervoudig weken",
+    "de": "Mehrfaches Einweichen"
   },
   "getable": true,
   "setable": true,

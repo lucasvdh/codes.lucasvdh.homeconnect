@@ -1,7 +1,9 @@
 {
   "type": "boolean",
   "title": {
-    "en": "Less Ironing"
+    "en": "Less Ironing",
+    "nl": "Minder strijken",
+    "de": "Leichter Bügeln"
   },
   "getable": true,
   "setable": true,

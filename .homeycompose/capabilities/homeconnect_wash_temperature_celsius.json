@@ -1,0 +1,18 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Wash temperature (°C)",
+    "nl": "Wastemperatuur (°C)",
+    "de": "Waschtemperatur (°C)"
+  },
+  "units": {
+    "en": "°C",
+    "nl": "°C",
+    "de": "°C"
+  },
+  "getable": true,
+  "setable": false,
+  "min": 0,
+  "max": 90,
+  "decimals": 0
+}

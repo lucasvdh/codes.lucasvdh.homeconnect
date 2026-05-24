@@ -1,0 +1,18 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Spin speed (rpm)",
+    "nl": "Centrifugetoerental (tpm)",
+    "de": "Schleuderdrehzahl (U/min)"
+  },
+  "units": {
+    "en": "rpm",
+    "nl": "tpm",
+    "de": "U/min"
+  },
+  "getable": true,
+  "setable": false,
+  "min": 0,
+  "max": 1600,
+  "decimals": 0
+}

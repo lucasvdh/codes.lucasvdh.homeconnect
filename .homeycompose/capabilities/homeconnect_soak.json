@@ -1,7 +1,9 @@
 {
   "type": "boolean",
   "title": {
-    "en": "Soak"
+    "en": "Soak",
+    "nl": "Weken",
+    "de": "Einweichen"
   },
   "getable": true,
   "setable": true,

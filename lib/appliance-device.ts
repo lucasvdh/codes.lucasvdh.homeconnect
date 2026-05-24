@@ -46,6 +46,27 @@ const decodeNumber: Decoder = (v) => {
 };
 
 /**
+ * Decode an enum/scalar option to a plain integer so values like spin speed
+ * and wash temperature can carry a unit label and be compared numerically in
+ * Flows. Extracts the number embedded in the member name, passes a raw number
+ * through (numeric-range feature), and maps non-numeric members (Off / Cold) to
+ * null — i.e. "no numeric value", rendered as "-" rather than a misleading 0.
+ *   "LaundryCare.Washer.EnumType.SpinSpeed.RPM1200" -> 1200
+ *   "GC40"                                           -> 40
+ *   1200                                             -> 1200
+ *   "Off" / "Cold"                                   -> null
+ */
+const decodeEnumToNumber: Decoder = (v) => {
+  if (typeof v === "number") return Number.isFinite(v) ? v : null;
+  if (typeof v !== "string") return null;
+  const segment = v.includes(".") ? v.slice(v.lastIndexOf(".") + 1) : v;
+  const digits = segment.match(/\d+/);
+  if (digits) return Number(digits[0]);
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+};
+
+/**
  * The appliance reports percentages in basis-points-like units: 5000 == 50%.
  * (refCID 11 / refDID A0 in the IDDF feature descriptor.) Divide by 100.
  */
@@ -451,6 +472,16 @@ const CAPABILITY_MAP: Record<string, CapabilityMapEntry> = {
   },
 };
 
+/**
+ * Read-only numeric mirrors: when a primary (enum) option updates, also publish
+ * a plain integer on a companion capability for Flow comparisons like
+ * "spin speed > 1000 rpm". Non-numeric members (Off / Cold) decode to null.
+ */
+const NUMERIC_MIRRORS: Record<string, string> = {
+  homeconnect_spin_speed: "homeconnect_spin_speed_rpm",
+  homeconnect_wash_temperature: "homeconnect_wash_temperature_celsius",
+};
+
 /** Insert spaces so a program's last segment reads nicely in the UI. */
 function prettify(segment: string): string {
   return segment
@@ -707,6 +738,14 @@ export class ApplianceDevice extends Homey.Device {
         continue;
       }
       this.fireTriggers(mapping.capability, value);
+
+      const mirror = NUMERIC_MIRRORS[mapping.capability];
+      if (mirror && this.hasCapability(mirror)) {
+        const numeric = decodeEnumToNumber(raw);
+        if (numeric !== this.getCapabilityValue(mirror)) {
+          await this.setCapabilityValue(mirror, numeric as never).catch(this.error);
+        }
+      }
     }
     this.reconcileDerivedState();
   }

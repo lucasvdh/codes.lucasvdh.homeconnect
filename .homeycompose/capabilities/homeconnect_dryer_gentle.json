@@ -1,0 +1,11 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Gentle drying",
+    "nl": "Voorzichtig drogen",
+    "de": "Schonend trocknen"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle"
+}

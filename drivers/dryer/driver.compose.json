@@ -20,7 +20,11 @@
     "homeconnect_local_control_active",
     "homeconnect_program_count_started",
     "homeconnect_child_lock",
-    "homeconnect_drying_target"
+    "homeconnect_drying_target",
+    "homeconnect_dryer_wrinkle_guard",
+    "homeconnect_dryer_gentle",
+    "homeconnect_dryer_drying_target_adjustment",
+    "homeconnect_dryer_process_phase"
   ],
   "discovery": "homeconnect-mdns",
   "images": {

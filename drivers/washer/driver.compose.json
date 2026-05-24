@@ -1,6 +1,6 @@
 {
   "name": {
-    "en": "Washing Machine",
+    "en": "Washing machine",
     "nl": "Wasmachine",
     "de": "Waschmaschine"
   },
@@ -8,37 +8,40 @@
   "capabilities": [
     "onoff",
     "homeconnect_operation_state",
+    "homeconnect_door_state",
     "homeconnect_program",
     "homeconnect_selected_program",
     "homeconnect_program_phase",
     "homeconnect_program_progress",
     "homeconnect_remaining_time",
     "homeconnect_elapsed_time",
-    "homeconnect_temperature",
+    "homeconnect_start_in_relative",
+    "homeconnect_remote_start",
+    "homeconnect_remote_control_active",
+    "homeconnect_local_control_active",
+    "homeconnect_program_count_started",
+    "homeconnect_child_lock",
+    "homeconnect_wash_temperature",
     "homeconnect_spin_speed",
+    "homeconnect_vario_perfect",
     "homeconnect_speed_perfect",
-    "homeconnect_rinse_plus",
+    "homeconnect_eco_perfect",
+    "homeconnect_water_plus",
     "homeconnect_prewash",
+    "homeconnect_rinse_plus",
     "homeconnect_less_ironing",
     "homeconnect_soak",
     "homeconnect_multiple_soak",
     "homeconnect_rinse_hold",
     "homeconnect_idos1_active",
     "homeconnect_idos2_active",
-    "homeconnect_remote_start",
-    "homeconnect_remote_control_active",
-    "homeconnect_local_control_active",
-    "homeconnect_child_lock",
-    "homeconnect_door_state",
-    "homeconnect_start_in_relative",
     "homeconnect_energy_forecast",
     "homeconnect_water_forecast"
   ],
   "discovery": "homeconnect-mdns",
   "images": {
     "small": "/drivers/washer/assets/images/small.png",
-    "large": "/drivers/washer/assets/images/large.png",
-    "xlarge": "/drivers/washer/assets/images/xlarge.png"
+    "large": "/drivers/washer/assets/images/large.png"
   },
   "platforms": [
     "local"
@@ -55,9 +58,9 @@
       },
       "options": {
         "title": {
-          "en": "Select the dishwashers to add",
-          "nl": "Selecteer de vaatwassers om toe te voegen",
-          "de": "Wähle die Geschirrspüler aus, die hinzugefügt werden sollen"
+          "en": "Select the washing machines to add",
+          "nl": "Selecteer de wasmachines om toe te voegen",
+          "de": "Wähle die Waschmaschinen aus, die hinzugefügt werden sollen"
         }
       }
     },

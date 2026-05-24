@@ -1,7 +1,9 @@
 {
   "type": "boolean",
   "title": {
-    "en": "i-DOS 1"
+    "en": "i-Dos 1 active",
+    "nl": "i-Dos 1 actief",
+    "de": "i-Dos 1 aktiv"
   },
   "getable": true,
   "setable": true,

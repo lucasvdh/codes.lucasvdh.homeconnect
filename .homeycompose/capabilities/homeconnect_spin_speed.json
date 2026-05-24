@@ -2,19 +2,76 @@
   "type": "enum",
   "title": {
     "en": "Spin speed",
-    "nl": "Centrifugesnelheid",
+    "nl": "Centrifugetoerental",
     "de": "Schleuderdrehzahl"
   },
   "getable": true,
   "setable": true,
+  "uiComponent": "picker",
   "values": [
-    { "id": "RPM400", "title": { "en": "400 rpm" } },
-    { "id": "RPM600", "title": { "en": "600 rpm" } },
-    { "id": "RPM800", "title": { "en": "800 rpm" } },
-    { "id": "RPM1000", "title": { "en": "1000 rpm" } },
-    { "id": "RPM1200", "title": { "en": "1200 rpm" } },
-    { "id": "RPM1400", "title": { "en": "1400 rpm" } },
-    { "id": "RPM1600", "title": { "en": "1600 rpm" } }
-  ],
-  "uiComponent": "picker"
+    {
+      "id": "Off",
+      "title": {
+        "en": "Off",
+        "nl": "Uit",
+        "de": "Aus"
+      }
+    },
+    {
+      "id": "RPM400",
+      "title": {
+        "en": "400 rpm",
+        "nl": "400 tpm",
+        "de": "400 U/min"
+      }
+    },
+    {
+      "id": "RPM600",
+      "title": {
+        "en": "600 rpm",
+        "nl": "600 tpm",
+        "de": "600 U/min"
+      }
+    },
+    {
+      "id": "RPM800",
+      "title": {
+        "en": "800 rpm",
+        "nl": "800 tpm",
+        "de": "800 U/min"
+      }
+    },
+    {
+      "id": "RPM1000",
+      "title": {
+        "en": "1000 rpm",
+        "nl": "1000 tpm",
+        "de": "1000 U/min"
+      }
+    },
+    {
+      "id": "RPM1200",
+      "title": {
+        "en": "1200 rpm",
+        "nl": "1200 tpm",
+        "de": "1200 U/min"
+      }
+    },
+    {
+      "id": "RPM1400",
+      "title": {
+        "en": "1400 rpm",
+        "nl": "1400 tpm",
+        "de": "1400 U/min"
+      }
+    },
+    {
+      "id": "RPM1600",
+      "title": {
+        "en": "1600 rpm",
+        "nl": "1600 tpm",
+        "de": "1600 U/min"
+      }
+    }
+  ]
 }

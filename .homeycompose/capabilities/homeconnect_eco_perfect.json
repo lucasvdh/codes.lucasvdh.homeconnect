@@ -1,9 +1,9 @@
 {
   "type": "boolean",
   "title": {
-    "en": "SpeedPerfect",
-    "nl": "SpeedPerfect",
-    "de": "SpeedPerfect"
+    "en": "EcoPerfect",
+    "nl": "EcoPerfect",
+    "de": "EcoPerfect"
   },
   "getable": true,
   "setable": true,

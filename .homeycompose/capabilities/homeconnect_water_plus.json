@@ -1,9 +1,9 @@
 {
   "type": "boolean",
   "title": {
-    "en": "SpeedPerfect",
-    "nl": "SpeedPerfect",
-    "de": "SpeedPerfect"
+    "en": "Water Plus",
+    "nl": "Water Plus",
+    "de": "Wasser Plus"
   },
   "getable": true,
   "setable": true,

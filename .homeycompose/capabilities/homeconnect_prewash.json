@@ -1,7 +1,9 @@
 {
   "type": "boolean",
   "title": {
-    "en": "Prewash"
+    "en": "Prewash",
+    "nl": "Voorwas",
+    "de": "Vorwäsche"
   },
   "getable": true,
   "setable": true,

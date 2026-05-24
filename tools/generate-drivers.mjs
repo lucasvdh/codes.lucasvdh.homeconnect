@@ -72,6 +72,24 @@ const DISHWASHER_CAPS = [
   "homeconnect_silence_default_time",
 ];
 
+const WASHER_CAPS = [
+  ...SHARED_CAPS,
+  "homeconnect_wash_temperature",
+  "homeconnect_spin_speed",
+  "homeconnect_vario_perfect",
+  "homeconnect_speed_perfect",
+  "homeconnect_eco_perfect",
+  "homeconnect_water_plus",
+  "homeconnect_prewash",
+  "homeconnect_idos1_active",
+  "homeconnect_idos2_active",
+];
+
+const DRYER_CAPS = [
+  ...SHARED_CAPS,
+  "homeconnect_drying_target",
+];
+
 // ---------------------------------------------------------------------------
 // Flow cards. We render each driver's `driver.flow.compose.json` from a
 // shared template + per-driver event lists.
@@ -684,6 +702,203 @@ const DISHWASHER_CONDITIONS = [
 // Assembly
 // ---------------------------------------------------------------------------
 
+const DE_DICT = {
+  "1": "1",
+  "2": "2",
+  "A program finished": "Ein Programm ist fertig",
+  "Triggers when the oven's operation state becomes Finished.": "Wird ausgelöst, wenn der Betriebszustand des Backofens Fertig wird.",
+  "A program started": "Ein Programm wurde gestartet",
+  "A program was aborted": "Ein Programm wurde abgebrochen",
+  "The door state changed": "Der Türstatus wurde geändert",
+  "Door state": "Türstatus",
+  "Open": "Offen",
+  "The door was opened": "Die Tür wurde geöffnet",
+  "The door was closed": "Die Tür wurde geschlossen",
+  "The operation state changed": "Der Betriebszustand wurde geändert",
+  "Operation state": "Betriebszustand",
+  "Run": "Run",
+  "The program progress changed": "Der Programmfortschritt wurde geändert",
+  "Progress (%)": "Fortschritt (%)",
+  "Remaining time changed": "Restzeit wurde geändert",
+  "Minutes": "Minuten",
+  "Elapsed time changed": "Verstrichene Zeit wurde geändert",
+  "Remote start allowed changed": "Fernstart erlaubt wurde geändert",
+  "Allowed": "Erlaubt",
+  "true": "true",
+  "Remote control active changed": "Fernsteuerung aktiv wurde geändert",
+  "Active": "Aktiv",
+  "Local control changed": "Lokale Bedienung wurde geändert",
+  "Child lock changed": "Kindersicherung wurde geändert",
+  "Enabled": "Aktiviert",
+  "An error occurred": "Ein Fehler ist aufgetreten",
+  "Error code": "Fehlercode",
+  "InternalError": "InternalError",
+  "AquaStop occurred": "AquaStop wurde ausgelöst",
+  "Low water pressure": "Niedriger Wasserdruck",
+  "A software update is available": "Ein Software-Update ist verfügbar",
+  "Preheat finished": "Vorheizen abgeschlossen",
+  "Preheat mode": "Vorheizmodus",
+  "regular": "regular",
+  "Kitchen timer elapsed": "Kurzzeitwecker abgelaufen",
+  "Meat probe target reached": "Zieltemperatur des Bratenthermometers erreicht",
+  "Meat probe needs attention": "Bratenthermometer erfordert Aufmerksamkeit",
+  "Reason": "Grund",
+  "necessary": "necessary",
+  "Insert food": "Lebensmittel einlegen",
+  "When": "Wann",
+  "now": "now",
+  "Turn food": "Lebensmittel wenden",
+  "Door needs attention": "Tür erfordert Aufmerksamkeit",
+  "open": "open",
+  "Cavity temperature too high": "Garraumtemperatur zu hoch",
+  "EasyClean required": "EasyClean erforderlich",
+  "Remove pyrolysis tank": "Pyrolysebehälter entfernen",
+  "Subsequent cooking suggested": "Nachgaren vorgeschlagen",
+  "Operating time limit reached": "Maximale Betriebsdauer erreicht",
+  "Door locked while cooling": "Tür während des Abkühlens verriegelt",
+  "!{{Is|Is not}} running": "!{{Läuft|Läuft nicht}}",
+  "!{{Is|Is not}} finished": "!{{Ist|Ist nicht}} fertig",
+  "!{{Is|Is not}} paused": "!{{Ist|Ist nicht}} pausiert",
+  "!{{Is|Is not}} idle": "!{{Ist|Ist nicht}} inaktiv",
+  "Delayed start !{{is|is not}} active": "Startzeitvorwahl !{{ist|ist nicht}} aktiv",
+  "There !{{is|is not}} an error": "Es !{{liegt|liegt kein}} Fehler vor",
+  "The door !{{is|is not}} open": "Die Tür !{{ist|ist nicht}} offen",
+  "Remote start !{{is|is not}} allowed": "Fernstart !{{ist|ist nicht}} erlaubt",
+  "Remote control !{{is|is not}} active": "Fernsteuerung !{{ist|ist nicht}} aktiv",
+  "Local control !{{is|is not}} active": "Lokale Bedienung !{{ist|ist nicht}} aktiv",
+  "The child lock !{{is|is not}} on": "Die Kindersicherung !{{ist|ist nicht}} eingeschaltet",
+  "Remaining time !{{is|is not}} below ...": "Restzeit !{{ist|ist nicht}} unter ...",
+  "Remaining time !{{is|is not}} below [[minutes]] min": "Restzeit !{{ist|ist nicht}} unter [[minutes]] Min.",
+  "Program progress !{{is|is not}} above ...": "Programmfortschritt !{{ist|ist nicht}} über ...",
+  "Program progress !{{is|is not}} above [[percent]] %": "Programmfortschritt !{{ist|ist nicht}} über [[percent]] %",
+  "Percent": "Prozent",
+  "The active program !{{is|is not}} ...": "Das aktive Programm !{{ist|ist nicht}} ...",
+  "The active program !{{is|is not}} [[program]]": "Das aktive Programm !{{ist|ist nicht}} [[program]]",
+  "Program": "Programm",
+  "The selected program !{{is|is not}} ...": "Das ausgewählte Programm !{{ist|ist nicht}} ...",
+  "The selected program !{{is|is not}} [[program]]": "Das ausgewählte Programm !{{ist|ist nicht}} [[program]]",
+  "Meat probe !{{is|is not}} plugged in": "Bratenthermometer !{{ist|ist nicht}} eingesteckt",
+  "Cavity temperature !{{is|is not}} above ...": "Garraumtemperatur !{{ist|ist nicht}} über ...",
+  "Cavity temperature !{{is|is not}} above [[celsius]] °C": "Garraumtemperatur !{{ist|ist nicht}} über [[celsius]] °C",
+  "°C": "°C",
+  "Meat probe temperature !{{is|is not}} above ...": "Bratenthermometer-Temperatur !{{ist|ist nicht}} über ...",
+  "Meat probe !{{is|is not}} above [[celsius]] °C": "Bratenthermometer !{{ist|ist nicht}} über [[celsius]] °C",
+  "Target temperature !{{is|is not}} above ...": "Zieltemperatur !{{ist|ist nicht}} über ...",
+  "Target !{{is|is not}} above [[celsius]] °C": "Zieltemperatur !{{ist|ist nicht}} über [[celsius]] °C",
+  "Fast preheat !{{is|is not}} on": "Schnellaufheizen !{{ist|ist nicht}} eingeschaltet",
+  "Oven light !{{is|is not}} on": "Backofenbeleuchtung !{{ist|ist nicht}} eingeschaltet",
+  "Start a program": "Programm starten",
+  "Start [[program]] at [[temperature]] °C for [[duration]] min": "[[program]] bei [[temperature]] °C für [[duration]] Min. starten",
+  "Requires remote start to be enabled on the oven first.": "Erfordert, dass Fernstart zuerst am Backofen aktiviert ist.",
+  "Temperature (°C)": "Temperatur (°C)",
+  "Duration (minutes)": "Dauer (Minuten)",
+  "Select a program": "Programm auswählen",
+  "Select [[program]]": "[[program]] auswählen",
+  "Queues the program without starting it.": "Wählt das Programm aus, ohne es zu starten.",
+  "Start a program with a delay": "Programm mit Verzögerung starten",
+  "Start [[program]] in [[delay_minutes]] min": "[[program]] in [[delay_minutes]] Min. starten",
+  "Delay (min)": "Verzögerung (Min.)",
+  "Stop the program": "Programm stoppen",
+  "Pause the program": "Programm pausieren",
+  "Resume the program": "Programm fortsetzen",
+  "Set child lock": "Kindersicherung setzen",
+  "Set child lock to [[enabled]]": "Kindersicherung auf [[enabled]] setzen",
+  "Acknowledge event": "Meldung bestätigen",
+  "Clears whatever event is currently signalled on the appliance.": "Löscht die aktuell am Gerät angezeigte Meldung.",
+  "Turn off (standby)": "Ausschalten (Standby)",
+  "Set target temperature": "Zieltemperatur einstellen",
+  "Set target to [[celsius]] °C": "Ziel auf [[celsius]] °C einstellen",
+  "Set meat probe target": "Ziel des Bratenthermometers einstellen",
+  "Meat probe target [[celsius]] °C": "Bratenthermometer-Ziel [[celsius]] °C",
+  "Set kitchen timer": "Kurzzeitwecker stellen",
+  "Kitchen timer [[minutes]] min": "Kurzzeitwecker [[minutes]] Min.",
+  "Set oven light": "Backofenbeleuchtung setzen",
+  "Light [[enabled]]": "Beleuchtung [[enabled]]",
+  "Set fast preheat": "Schnellaufheizen setzen",
+  "Fast preheat [[enabled]]": "Schnellaufheizen [[enabled]]",
+  "Triggers when the dishwasher's operation state becomes Finished.": "Wird ausgelöst, wenn der Betriebszustand des Geschirrspülers Fertig wird.",
+  "The program phase changed": "Die Programmphase wurde geändert",
+  "Phase": "Phase",
+  "MainWash": "MainWash",
+  "Salt is low": "Salz ist niedrig",
+  "Severity": "Schweregrad",
+  "empty": "empty",
+  "Rinse aid is low": "Klarspüler ist niedrig",
+  "Filter check required": "Filterprüfung erforderlich",
+  "Machine care reminder": "Maschinenpflege-Erinnerung",
+  "Draining problem": "Ablaufproblem",
+  "Kind": "Art",
+  "pump_blocked": "pump_blocked",
+  "Low voltage": "Niedrige Netzspannung",
+  "Water heater scaled up": "Wassererhitzer verkalkt",
+  "Internal error": "Interner Fehler",
+  "Program phase !{{is|is not}} ...": "Programmphase !{{ist|ist nicht}} ...",
+  "Program phase !{{is|is not}} [[phase]]": "Programmphase !{{ist|ist nicht}} [[phase]]",
+  "Eco-dry !{{is|is not}} active": "Eco-Trocknen !{{ist|ist nicht}} aktiv",
+  "Half load !{{is|is not}} on": "Halbe Beladung !{{ist|ist nicht}} eingeschaltet",
+  "Silence !{{is|is not}} active": "Stillemodus !{{ist|ist nicht}} aktiv",
+  "Start [[program]]": "[[program]] starten",
+  "Requires remote start to be enabled on the dishwasher first.": "Erfordert, dass Fernstart zuerst am Geschirrspüler aktiviert ist.",
+  "Triggers when the washer's operation state becomes Finished.": "Wird ausgelöst, wenn der Betriebszustand der Waschmaschine Fertig wird.",
+  "Triggers when the dryer's operation state becomes Finished.": "Wird ausgelöst, wenn der Betriebszustand des Wäschetrockners Fertig wird.",
+  "Requires remote start to be enabled on the washing machine first.": "Erfordert, dass Fernstart zuerst an der Waschmaschine aktiviert ist.",
+  "Requires remote start to be enabled on the dryer first.": "Erfordert, dass Fernstart zuerst am Wäschetrockner aktiviert ist.",
+  "i-Dos is low": "i-Dos fast leer",
+  "Dispenser": "Behälter",
+  "i-Dos !{{is|is not}} active": "i-Dos !{{ist|ist nicht}} aktiv",
+  "i-Dos [[dispenser]] !{{is|is not}} active": "i-Dos [[dispenser]] !{{ist|ist nicht}} aktiv",
+  "Set wash temperature": "Waschtemperatur einstellen",
+  "Set wash temperature to [[value]]": "Waschtemperatur auf [[value]] einstellen",
+  "Temperature": "Temperatur",
+  "Set spin speed": "Schleuderdrehzahl einstellen",
+  "Set spin speed to [[value]]": "Schleuderdrehzahl auf [[value]] einstellen",
+  "Spin speed": "Schleuderdrehzahl",
+  "Set i-Dos dosing": "i-Dos-Dosierung einstellen",
+  "Set i-Dos [[dispenser]] to [[enabled]]": "i-Dos [[dispenser]] auf [[enabled]] einstellen",
+  "Cold": "Kalt",
+  "Off": "Aus",
+  "20 °C": "20 °C",
+  "30 °C": "30 °C",
+  "40 °C": "40 °C",
+  "50 °C": "50 °C",
+  "60 °C": "60 °C",
+  "70 °C": "70 °C",
+  "80 °C": "80 °C",
+  "90 °C": "90 °C",
+  "400 rpm": "400 U/min",
+  "600 rpm": "600 U/min",
+  "800 rpm": "800 U/min",
+  "1000 rpm": "1000 U/min",
+  "1200 rpm": "1200 U/min",
+  "1400 rpm": "1400 U/min",
+  "1600 rpm": "1600 U/min",
+  "Set drying target": "Trockenziel einstellen",
+  "Set drying target to [[value]]": "Trockenziel auf [[value]] einstellen",
+  "Drying target": "Trockenziel",
+  "Iron dry": "Bügeltrocken",
+  "Cupboard dry": "Schranktrocken",
+  "Cupboard dry plus": "Schranktrocken plus",
+  "Extra dry": "Extratrocken"
+};
+
+// Layer German onto a flow object by matching English strings, reusing the
+// curated de from oven/dishwasher. Keeps generation trilingual without
+// hand-maintaining de in every template literal.
+function applyDe(node) {
+  if (Array.isArray(node)) { node.forEach(applyDe); return; }
+  if (node && typeof node === "object") {
+    if (typeof node.en === "string" && node.de === undefined && DE_DICT[node.en] !== undefined) {
+      node.de = DE_DICT[node.en];
+    }
+    for (const k of Object.keys(node)) applyDe(node[k]);
+  }
+}
+
+function writeFlow(p, flow) {
+  applyDe(flow);
+  writeJson(p, flow);
+}
+
 function readJson(p) {
   return JSON.parse(readFileSync(p, "utf8"));
 }
@@ -692,33 +907,170 @@ function writeJson(p, body) {
   writeFileSync(p, JSON.stringify(body, null, 2) + "\n");
 }
 
-// --- Oven driver -----------------------------------------------------------
+// ---- Washer-only ---------------------------------------------------------
 
-const ovenCompose = readJson("drivers/oven/driver.compose.json");
-ovenCompose.capabilities = OVEN_CAPS;
-writeJson("drivers/oven/driver.compose.json", ovenCompose);
+const WASHER_EVENT_TRIGGERS = [
+  {
+    id: "washer_idos_low",
+    title: { en: "i-Dos is low", nl: "i-Dos bijna leeg" },
+    tokens: [tokenString("dispenser", "Dispenser", "Reservoir", "1")],
+  },
+];
 
-const ovenStart = ovenStartProgramOverride();
-const ovenActions = sharedActions("oven", "oven").map((a) =>
-  a.id === ovenStart.id ? ovenStart : a,
-);
+const DISPENSER_VALUES = [
+  { id: "1", label: { en: "1", nl: "1" } },
+  { id: "2", label: { en: "2", nl: "2" } },
+];
 
-writeJson("drivers/oven/driver.flow.compose.json", {
-  triggers: [...sharedTriggers("oven"), ...OVEN_EVENT_TRIGGERS],
-  conditions: [...sharedConditions("oven"), ...OVEN_CONDITIONS],
-  actions: [...ovenActions, ...OVEN_ACTIONS],
-});
+const WASHER_CONDITIONS = [
+  {
+    id: "washer_idos_is_active",
+    title: { en: "i-Dos !{{is|is not}} active", nl: "i-Dos !{{is|is niet}} actief" },
+    titleFormatted: {
+      en: "i-Dos [[dispenser]] !{{is|is not}} active",
+      nl: "i-Dos [[dispenser]] !{{is|is niet}} actief",
+    },
+    args: [
+      { name: "dispenser", type: "dropdown", title: { en: "Dispenser", nl: "Reservoir" }, values: DISPENSER_VALUES },
+    ],
+  },
+];
 
-// --- Dishwasher driver -----------------------------------------------------
+const TEMP_VALUES = [
+  { id: "Cold", label: { en: "Cold", nl: "Koud" } },
+  { id: "GC20", label: { en: "20 °C", nl: "20 °C" } },
+  { id: "GC30", label: { en: "30 °C", nl: "30 °C" } },
+  { id: "GC40", label: { en: "40 °C", nl: "40 °C" } },
+  { id: "GC50", label: { en: "50 °C", nl: "50 °C" } },
+  { id: "GC60", label: { en: "60 °C", nl: "60 °C" } },
+  { id: "GC70", label: { en: "70 °C", nl: "70 °C" } },
+  { id: "GC80", label: { en: "80 °C", nl: "80 °C" } },
+  { id: "GC90", label: { en: "90 °C", nl: "90 °C" } },
+];
 
-const dwCompose = readJson("drivers/dishwasher/driver.compose.json");
-dwCompose.capabilities = DISHWASHER_CAPS;
-writeJson("drivers/dishwasher/driver.compose.json", dwCompose);
+const SPIN_VALUES = [
+  { id: "Off", label: { en: "Off", nl: "Uit" } },
+  { id: "RPM400", label: { en: "400 rpm", nl: "400 tpm" } },
+  { id: "RPM600", label: { en: "600 rpm", nl: "600 tpm" } },
+  { id: "RPM800", label: { en: "800 rpm", nl: "800 tpm" } },
+  { id: "RPM1000", label: { en: "1000 rpm", nl: "1000 tpm" } },
+  { id: "RPM1200", label: { en: "1200 rpm", nl: "1200 tpm" } },
+  { id: "RPM1400", label: { en: "1400 rpm", nl: "1400 tpm" } },
+  { id: "RPM1600", label: { en: "1600 rpm", nl: "1600 tpm" } },
+];
 
-writeJson("drivers/dishwasher/driver.flow.compose.json", {
-  triggers: [...sharedTriggers("dishwasher"), ...DISHWASHER_EVENT_TRIGGERS],
-  conditions: [...sharedConditions("dishwasher"), ...DISHWASHER_CONDITIONS],
-  actions: sharedActions("dishwasher", "dishwasher"),
-});
+const WASHER_ACTIONS = [
+  {
+    id: "washer_set_temperature",
+    title: { en: "Set wash temperature", nl: "Stel wastemperatuur in" },
+    titleFormatted: {
+      en: "Set wash temperature to [[value]]",
+      nl: "Stel wastemperatuur in op [[value]]",
+    },
+    args: [{ name: "value", type: "dropdown", title: { en: "Temperature", nl: "Temperatuur" }, values: TEMP_VALUES }],
+  },
+  {
+    id: "washer_set_spin_speed",
+    title: { en: "Set spin speed", nl: "Stel centrifugetoerental in" },
+    titleFormatted: {
+      en: "Set spin speed to [[value]]",
+      nl: "Stel centrifugetoerental in op [[value]]",
+    },
+    args: [{ name: "value", type: "dropdown", title: { en: "Spin speed", nl: "Toerental" }, values: SPIN_VALUES }],
+  },
+  {
+    id: "washer_set_idos",
+    title: { en: "Set i-Dos dosing", nl: "Stel i-Dos dosering in" },
+    titleFormatted: {
+      en: "Set i-Dos [[dispenser]] to [[enabled]]",
+      nl: "Zet i-Dos [[dispenser]] op [[enabled]]",
+    },
+    args: [
+      { name: "dispenser", type: "dropdown", title: { en: "Dispenser", nl: "Reservoir" }, values: DISPENSER_VALUES },
+      { name: "enabled", type: "checkbox", title: { en: "Enabled", nl: "Ingeschakeld" } },
+    ],
+  },
+];
 
-console.log("oven + dishwasher driver compose + flow files written");
+const DRYING_TARGET_VALUES = [
+  { id: "IronDry", label: { en: "Iron dry", nl: "Strijkdroog" } },
+  { id: "CupboardDry", label: { en: "Cupboard dry", nl: "Kastdroog" } },
+  { id: "CupboardDryPlus", label: { en: "Cupboard dry plus", nl: "Kastdroog plus" } },
+  { id: "ExtraDry", label: { en: "Extra dry", nl: "Extra droog" } },
+];
+
+const DRYER_ACTIONS = [
+  {
+    id: "dryer_set_drying_target",
+    title: { en: "Set drying target", nl: "Stel droogdoel in" },
+    titleFormatted: {
+      en: "Set drying target to [[value]]",
+      nl: "Stel droogdoel in op [[value]]",
+    },
+    args: [{ name: "value", type: "dropdown", title: { en: "Drying target", nl: "Droogdoel" }, values: DRYING_TARGET_VALUES }],
+  },
+];
+
+// ---------------------------------------------------------------------------
+// Assembly. Optional CLI arg scopes generation to one driver, e.g.
+//   node tools/generate-drivers.mjs washer
+// With no arg, all drivers are (re)generated.
+// ---------------------------------------------------------------------------
+
+const ONLY = process.argv[2];
+const want = (id) => !ONLY || ONLY === id;
+
+if (want("oven")) {
+  const ovenCompose = readJson("drivers/oven/driver.compose.json");
+  ovenCompose.capabilities = OVEN_CAPS;
+  writeJson("drivers/oven/driver.compose.json", ovenCompose);
+
+  const ovenStart = ovenStartProgramOverride();
+  const ovenActions = sharedActions("oven", "oven").map((a) =>
+    a.id === ovenStart.id ? ovenStart : a,
+  );
+
+  writeFlow("drivers/oven/driver.flow.compose.json", {
+    triggers: [...sharedTriggers("oven"), ...OVEN_EVENT_TRIGGERS],
+    conditions: [...sharedConditions("oven"), ...OVEN_CONDITIONS],
+    actions: [...ovenActions, ...OVEN_ACTIONS],
+  });
+}
+
+if (want("dishwasher")) {
+  const dwCompose = readJson("drivers/dishwasher/driver.compose.json");
+  dwCompose.capabilities = DISHWASHER_CAPS;
+  writeJson("drivers/dishwasher/driver.compose.json", dwCompose);
+
+  writeFlow("drivers/dishwasher/driver.flow.compose.json", {
+    triggers: [...sharedTriggers("dishwasher"), ...DISHWASHER_EVENT_TRIGGERS],
+    conditions: [...sharedConditions("dishwasher"), ...DISHWASHER_CONDITIONS],
+    actions: sharedActions("dishwasher", "dishwasher"),
+  });
+}
+
+if (want("washer")) {
+  const washerCompose = readJson("drivers/washer/driver.compose.json");
+  washerCompose.capabilities = WASHER_CAPS;
+  writeJson("drivers/washer/driver.compose.json", washerCompose);
+
+  writeFlow("drivers/washer/driver.flow.compose.json", {
+    triggers: [...sharedTriggers("washer"), ...WASHER_EVENT_TRIGGERS],
+    conditions: [...sharedConditions("washer"), ...WASHER_CONDITIONS],
+    actions: [...sharedActions("washer", "washing machine"), ...WASHER_ACTIONS],
+  });
+}
+
+if (want("dryer")) {
+  const dryerCompose = readJson("drivers/dryer/driver.compose.json");
+  dryerCompose.capabilities = DRYER_CAPS;
+  writeJson("drivers/dryer/driver.compose.json", dryerCompose);
+
+  writeFlow("drivers/dryer/driver.flow.compose.json", {
+    triggers: sharedTriggers("dryer"),
+    conditions: sharedConditions("dryer"),
+    actions: [...sharedActions("dryer", "dryer"), ...DRYER_ACTIONS],
+  });
+}
+
+console.log(`driver compose + flow files written${ONLY ? " (scope: " + ONLY + ")" : ""}`);

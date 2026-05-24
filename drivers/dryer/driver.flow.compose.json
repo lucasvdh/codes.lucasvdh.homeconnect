@@ -1,20 +1,20 @@
 {
   "triggers": [
     {
-      "id": "washer_program_finished",
+      "id": "dryer_program_finished",
       "title": {
         "en": "A program finished",
         "nl": "Een programma is klaar",
         "de": "Ein Programm ist fertig"
       },
       "hint": {
-        "en": "Triggers when the washer's operation state becomes Finished.",
+        "en": "Triggers when the dryer's operation state becomes Finished.",
         "nl": "Wordt geactiveerd wanneer de bedrijfstoestand Klaar wordt.",
-        "de": "Wird ausgelöst, wenn der Betriebszustand der Waschmaschine Fertig wird."
+        "de": "Wird ausgelöst, wenn der Betriebszustand des Wäschetrockners Fertig wird."
       }
     },
     {
-      "id": "washer_program_started",
+      "id": "dryer_program_started",
       "title": {
         "en": "A program started",
         "nl": "Een programma is gestart",
@@ -22,7 +22,7 @@
       }
     },
     {
-      "id": "washer_program_aborted",
+      "id": "dryer_program_aborted",
       "title": {
         "en": "A program was aborted",
         "nl": "Een programma is afgebroken",
@@ -30,7 +30,7 @@
       }
     },
     {
-      "id": "washer_door_changed",
+      "id": "dryer_door_changed",
       "title": {
         "en": "The door state changed",
         "nl": "De deurstatus is veranderd",
@@ -54,7 +54,7 @@
       ]
     },
     {
-      "id": "washer_door_opened",
+      "id": "dryer_door_opened",
       "title": {
         "en": "The door was opened",
         "nl": "De deur is geopend",
@@ -62,7 +62,7 @@
       }
     },
     {
-      "id": "washer_door_closed",
+      "id": "dryer_door_closed",
       "title": {
         "en": "The door was closed",
         "nl": "De deur is gesloten",
@@ -70,7 +70,7 @@
       }
     },
     {
-      "id": "washer_operation_state_changed",
+      "id": "dryer_operation_state_changed",
       "title": {
         "en": "The operation state changed",
         "nl": "De bedrijfstoestand is veranderd",
@@ -94,7 +94,7 @@
       ]
     },
     {
-      "id": "washer_program_progress_changed",
+      "id": "dryer_program_progress_changed",
       "title": {
         "en": "The program progress changed",
         "nl": "De programmavoortgang is veranderd",
@@ -114,7 +114,7 @@
       ]
     },
     {
-      "id": "washer_remaining_time_changed",
+      "id": "dryer_remaining_time_changed",
       "title": {
         "en": "Remaining time changed",
         "nl": "Resterende tijd is veranderd",
@@ -134,7 +134,7 @@
       ]
     },
     {
-      "id": "washer_elapsed_time_changed",
+      "id": "dryer_elapsed_time_changed",
       "title": {
         "en": "Elapsed time changed",
         "nl": "Verstreken tijd is veranderd",
@@ -154,7 +154,7 @@
       ]
     },
     {
-      "id": "washer_remote_start_allowed_changed",
+      "id": "dryer_remote_start_allowed_changed",
       "title": {
         "en": "Remote start allowed changed",
         "nl": "Op afstand starten toegestaan is veranderd",
@@ -178,7 +178,7 @@
       ]
     },
     {
-      "id": "washer_remote_control_active_changed",
+      "id": "dryer_remote_control_active_changed",
       "title": {
         "en": "Remote control active changed",
         "nl": "Bediening op afstand actief is veranderd",
@@ -202,7 +202,7 @@
       ]
     },
     {
-      "id": "washer_local_control_changed",
+      "id": "dryer_local_control_changed",
       "title": {
         "en": "Local control changed",
         "nl": "Lokale bediening is veranderd",
@@ -226,7 +226,7 @@
       ]
     },
     {
-      "id": "washer_child_lock_changed",
+      "id": "dryer_child_lock_changed",
       "title": {
         "en": "Child lock changed",
         "nl": "Kinderslot is veranderd",
@@ -250,7 +250,7 @@
       ]
     },
     {
-      "id": "washer_error_occurred",
+      "id": "dryer_error_occurred",
       "title": {
         "en": "An error occurred",
         "nl": "Er is een fout opgetreden",
@@ -274,7 +274,7 @@
       ]
     },
     {
-      "id": "washer_aqua_stop_occurred",
+      "id": "dryer_aqua_stop_occurred",
       "title": {
         "en": "AquaStop occurred",
         "nl": "AquaStop is geactiveerd",
@@ -282,7 +282,7 @@
       }
     },
     {
-      "id": "washer_low_water_pressure",
+      "id": "dryer_low_water_pressure",
       "title": {
         "en": "Low water pressure",
         "nl": "Lage waterdruk",
@@ -290,41 +290,17 @@
       }
     },
     {
-      "id": "washer_software_update_available",
+      "id": "dryer_software_update_available",
       "title": {
         "en": "A software update is available",
         "nl": "Er is een software-update beschikbaar",
         "de": "Ein Software-Update ist verfügbar"
       }
-    },
-    {
-      "id": "washer_idos_low",
-      "title": {
-        "en": "i-Dos is low",
-        "nl": "i-Dos bijna leeg",
-        "de": "i-Dos fast leer"
-      },
-      "tokens": [
-        {
-          "name": "dispenser",
-          "type": "string",
-          "title": {
-            "en": "Dispenser",
-            "nl": "Reservoir",
-            "de": "Behälter"
-          },
-          "example": {
-            "en": "1",
-            "nl": "1",
-            "de": "1"
-          }
-        }
-      ]
     }
   ],
   "conditions": [
     {
-      "id": "washer_is_running",
+      "id": "dryer_is_running",
       "title": {
         "en": "!{{Is|Is not}} running",
         "nl": "!{{Is|Is niet}} bezig",
@@ -332,7 +308,7 @@
       }
     },
     {
-      "id": "washer_is_finished",
+      "id": "dryer_is_finished",
       "title": {
         "en": "!{{Is|Is not}} finished",
         "nl": "!{{Is|Is niet}} klaar",
@@ -340,7 +316,7 @@
       }
     },
     {
-      "id": "washer_is_paused",
+      "id": "dryer_is_paused",
       "title": {
         "en": "!{{Is|Is not}} paused",
         "nl": "!{{Is|Is niet}} gepauzeerd",
@@ -348,7 +324,7 @@
       }
     },
     {
-      "id": "washer_is_inactive",
+      "id": "dryer_is_inactive",
       "title": {
         "en": "!{{Is|Is not}} idle",
         "nl": "!{{Is|Is niet}} inactief",
@@ -356,7 +332,7 @@
       }
     },
     {
-      "id": "washer_is_in_delayed_start",
+      "id": "dryer_is_in_delayed_start",
       "title": {
         "en": "Delayed start !{{is|is not}} active",
         "nl": "Uitgestelde start !{{is|is niet}} actief",
@@ -364,7 +340,7 @@
       }
     },
     {
-      "id": "washer_has_error",
+      "id": "dryer_has_error",
       "title": {
         "en": "There !{{is|is not}} an error",
         "nl": "Er !{{is|is niet}} een fout",
@@ -372,7 +348,7 @@
       }
     },
     {
-      "id": "washer_door_is_open",
+      "id": "dryer_door_is_open",
       "title": {
         "en": "The door !{{is|is not}} open",
         "nl": "De deur !{{is|is niet}} open",
@@ -380,7 +356,7 @@
       }
     },
     {
-      "id": "washer_remote_start_allowed",
+      "id": "dryer_remote_start_allowed",
       "title": {
         "en": "Remote start !{{is|is not}} allowed",
         "nl": "Op afstand starten !{{is|is niet}} toegestaan",
@@ -388,7 +364,7 @@
       }
     },
     {
-      "id": "washer_remote_control_is_active",
+      "id": "dryer_remote_control_is_active",
       "title": {
         "en": "Remote control !{{is|is not}} active",
         "nl": "Bediening op afstand !{{is|is niet}} actief",
@@ -396,7 +372,7 @@
       }
     },
     {
-      "id": "washer_local_control_is_active",
+      "id": "dryer_local_control_is_active",
       "title": {
         "en": "Local control !{{is|is not}} active",
         "nl": "Lokale bediening !{{is|is niet}} actief",
@@ -404,7 +380,7 @@
       }
     },
     {
-      "id": "washer_child_lock_is_on",
+      "id": "dryer_child_lock_is_on",
       "title": {
         "en": "The child lock !{{is|is not}} on",
         "nl": "Het kinderslot !{{is|is niet}} aan",
@@ -412,7 +388,7 @@
       }
     },
     {
-      "id": "washer_remaining_time_below",
+      "id": "dryer_remaining_time_below",
       "title": {
         "en": "Remaining time !{{is|is not}} below ...",
         "nl": "Resterende tijd !{{is|is niet}} minder dan ...",
@@ -439,7 +415,7 @@
       ]
     },
     {
-      "id": "washer_program_progress_above",
+      "id": "dryer_program_progress_above",
       "title": {
         "en": "Program progress !{{is|is not}} above ...",
         "nl": "Programmavoortgang !{{is|is niet}} hoger dan ...",
@@ -466,7 +442,7 @@
       ]
     },
     {
-      "id": "washer_current_program_is",
+      "id": "dryer_current_program_is",
       "title": {
         "en": "The active program !{{is|is not}} ...",
         "nl": "Het actieve programma !{{is|is niet}} ...",
@@ -490,7 +466,7 @@
       ]
     },
     {
-      "id": "washer_selected_program_is",
+      "id": "dryer_selected_program_is",
       "title": {
         "en": "The selected program !{{is|is not}} ...",
         "nl": "Het geselecteerde programma !{{is|is niet}} ...",
@@ -512,53 +488,11 @@
           }
         }
       ]
-    },
-    {
-      "id": "washer_idos_is_active",
-      "title": {
-        "en": "i-Dos !{{is|is not}} active",
-        "nl": "i-Dos !{{is|is niet}} actief",
-        "de": "i-Dos !{{ist|ist nicht}} aktiv"
-      },
-      "titleFormatted": {
-        "en": "i-Dos [[dispenser]] !{{is|is not}} active",
-        "nl": "i-Dos [[dispenser]] !{{is|is niet}} actief",
-        "de": "i-Dos [[dispenser]] !{{ist|ist nicht}} aktiv"
-      },
-      "args": [
-        {
-          "name": "dispenser",
-          "type": "dropdown",
-          "title": {
-            "en": "Dispenser",
-            "nl": "Reservoir",
-            "de": "Behälter"
-          },
-          "values": [
-            {
-              "id": "1",
-              "label": {
-                "en": "1",
-                "nl": "1",
-                "de": "1"
-              }
-            },
-            {
-              "id": "2",
-              "label": {
-                "en": "2",
-                "nl": "2",
-                "de": "2"
-              }
-            }
-          ]
-        }
-      ]
     }
   ],
   "actions": [
     {
-      "id": "washer_start_program",
+      "id": "dryer_start_program",
       "title": {
         "en": "Start a program",
         "nl": "Start een programma",
@@ -570,9 +504,9 @@
         "de": "[[program]] starten"
       },
       "hint": {
-        "en": "Requires remote start to be enabled on the washing machine first.",
-        "nl": "Vereist dat op afstand starten eerst op de washing machine is ingeschakeld.",
-        "de": "Erfordert, dass Fernstart zuerst an der Waschmaschine aktiviert ist."
+        "en": "Requires remote start to be enabled on the dryer first.",
+        "nl": "Vereist dat op afstand starten eerst op de dryer is ingeschakeld.",
+        "de": "Erfordert, dass Fernstart zuerst am Wäschetrockner aktiviert ist."
       },
       "args": [
         {
@@ -587,7 +521,7 @@
       ]
     },
     {
-      "id": "washer_select_program",
+      "id": "dryer_select_program",
       "title": {
         "en": "Select a program",
         "nl": "Selecteer een programma",
@@ -616,7 +550,7 @@
       ]
     },
     {
-      "id": "washer_start_program_delayed",
+      "id": "dryer_start_program_delayed",
       "title": {
         "en": "Start a program with a delay",
         "nl": "Start een programma met uitstel",
@@ -652,7 +586,7 @@
       ]
     },
     {
-      "id": "washer_stop_program",
+      "id": "dryer_stop_program",
       "title": {
         "en": "Stop the program",
         "nl": "Stop het programma",
@@ -660,7 +594,7 @@
       }
     },
     {
-      "id": "washer_pause_program",
+      "id": "dryer_pause_program",
       "title": {
         "en": "Pause the program",
         "nl": "Pauzeer het programma",
@@ -668,7 +602,7 @@
       }
     },
     {
-      "id": "washer_resume_program",
+      "id": "dryer_resume_program",
       "title": {
         "en": "Resume the program",
         "nl": "Hervat het programma",
@@ -676,7 +610,7 @@
       }
     },
     {
-      "id": "washer_set_child_lock",
+      "id": "dryer_set_child_lock",
       "title": {
         "en": "Set child lock",
         "nl": "Zet kinderslot",
@@ -700,7 +634,7 @@
       ]
     },
     {
-      "id": "washer_acknowledge_event",
+      "id": "dryer_acknowledge_event",
       "title": {
         "en": "Acknowledge event",
         "nl": "Bevestig melding",
@@ -713,7 +647,7 @@
       }
     },
     {
-      "id": "washer_power_off",
+      "id": "dryer_power_off",
       "title": {
         "en": "Turn off (standby)",
         "nl": "Uitschakelen (stand-by)",
@@ -721,241 +655,60 @@
       }
     },
     {
-      "id": "washer_set_temperature",
+      "id": "dryer_set_drying_target",
       "title": {
-        "en": "Set wash temperature",
-        "nl": "Stel wastemperatuur in",
-        "de": "Waschtemperatur einstellen"
+        "en": "Set drying target",
+        "nl": "Stel droogdoel in",
+        "de": "Trockenziel einstellen"
       },
       "titleFormatted": {
-        "en": "Set wash temperature to [[value]]",
-        "nl": "Stel wastemperatuur in op [[value]]",
-        "de": "Waschtemperatur auf [[value]] einstellen"
+        "en": "Set drying target to [[value]]",
+        "nl": "Stel droogdoel in op [[value]]",
+        "de": "Trockenziel auf [[value]] einstellen"
       },
       "args": [
         {
           "name": "value",
           "type": "dropdown",
           "title": {
-            "en": "Temperature",
-            "nl": "Temperatuur",
-            "de": "Temperatur"
+            "en": "Drying target",
+            "nl": "Droogdoel",
+            "de": "Trockenziel"
           },
           "values": [
             {
-              "id": "Cold",
+              "id": "IronDry",
               "label": {
-                "en": "Cold",
-                "nl": "Koud",
-                "de": "Kalt"
+                "en": "Iron dry",
+                "nl": "Strijkdroog",
+                "de": "Bügeltrocken"
               }
             },
             {
-              "id": "GC20",
+              "id": "CupboardDry",
               "label": {
-                "en": "20 °C",
-                "nl": "20 °C",
-                "de": "20 °C"
+                "en": "Cupboard dry",
+                "nl": "Kastdroog",
+                "de": "Schranktrocken"
               }
             },
             {
-              "id": "GC30",
+              "id": "CupboardDryPlus",
               "label": {
-                "en": "30 °C",
-                "nl": "30 °C",
-                "de": "30 °C"
+                "en": "Cupboard dry plus",
+                "nl": "Kastdroog plus",
+                "de": "Schranktrocken plus"
               }
             },
             {
-              "id": "GC40",
+              "id": "ExtraDry",
               "label": {
-                "en": "40 °C",
-                "nl": "40 °C",
-                "de": "40 °C"
-              }
-            },
-            {
-              "id": "GC50",
-              "label": {
-                "en": "50 °C",
-                "nl": "50 °C",
-                "de": "50 °C"
-              }
-            },
-            {
-              "id": "GC60",
-              "label": {
-                "en": "60 °C",
-                "nl": "60 °C",
-                "de": "60 °C"
-              }
-            },
-            {
-              "id": "GC70",
-              "label": {
-                "en": "70 °C",
-                "nl": "70 °C",
-                "de": "70 °C"
-              }
-            },
-            {
-              "id": "GC80",
-              "label": {
-                "en": "80 °C",
-                "nl": "80 °C",
-                "de": "80 °C"
-              }
-            },
-            {
-              "id": "GC90",
-              "label": {
-                "en": "90 °C",
-                "nl": "90 °C",
-                "de": "90 °C"
+                "en": "Extra dry",
+                "nl": "Extra droog",
+                "de": "Extratrocken"
               }
             }
           ]
-        }
-      ]
-    },
-    {
-      "id": "washer_set_spin_speed",
-      "title": {
-        "en": "Set spin speed",
-        "nl": "Stel centrifugetoerental in",
-        "de": "Schleuderdrehzahl einstellen"
-      },
-      "titleFormatted": {
-        "en": "Set spin speed to [[value]]",
-        "nl": "Stel centrifugetoerental in op [[value]]",
-        "de": "Schleuderdrehzahl auf [[value]] einstellen"
-      },
-      "args": [
-        {
-          "name": "value",
-          "type": "dropdown",
-          "title": {
-            "en": "Spin speed",
-            "nl": "Toerental",
-            "de": "Schleuderdrehzahl"
-          },
-          "values": [
-            {
-              "id": "Off",
-              "label": {
-                "en": "Off",
-                "nl": "Uit",
-                "de": "Aus"
-              }
-            },
-            {
-              "id": "RPM400",
-              "label": {
-                "en": "400 rpm",
-                "nl": "400 tpm",
-                "de": "400 U/min"
-              }
-            },
-            {
-              "id": "RPM600",
-              "label": {
-                "en": "600 rpm",
-                "nl": "600 tpm",
-                "de": "600 U/min"
-              }
-            },
-            {
-              "id": "RPM800",
-              "label": {
-                "en": "800 rpm",
-                "nl": "800 tpm",
-                "de": "800 U/min"
-              }
-            },
-            {
-              "id": "RPM1000",
-              "label": {
-                "en": "1000 rpm",
-                "nl": "1000 tpm",
-                "de": "1000 U/min"
-              }
-            },
-            {
-              "id": "RPM1200",
-              "label": {
-                "en": "1200 rpm",
-                "nl": "1200 tpm",
-                "de": "1200 U/min"
-              }
-            },
-            {
-              "id": "RPM1400",
-              "label": {
-                "en": "1400 rpm",
-                "nl": "1400 tpm",
-                "de": "1400 U/min"
-              }
-            },
-            {
-              "id": "RPM1600",
-              "label": {
-                "en": "1600 rpm",
-                "nl": "1600 tpm",
-                "de": "1600 U/min"
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "washer_set_idos",
-      "title": {
-        "en": "Set i-Dos dosing",
-        "nl": "Stel i-Dos dosering in",
-        "de": "i-Dos-Dosierung einstellen"
-      },
-      "titleFormatted": {
-        "en": "Set i-Dos [[dispenser]] to [[enabled]]",
-        "nl": "Zet i-Dos [[dispenser]] op [[enabled]]",
-        "de": "i-Dos [[dispenser]] auf [[enabled]] einstellen"
-      },
-      "args": [
-        {
-          "name": "dispenser",
-          "type": "dropdown",
-          "title": {
-            "en": "Dispenser",
-            "nl": "Reservoir",
-            "de": "Behälter"
-          },
-          "values": [
-            {
-              "id": "1",
-              "label": {
-                "en": "1",
-                "nl": "1",
-                "de": "1"
-              }
-            },
-            {
-              "id": "2",
-              "label": {
-                "en": "2",
-                "nl": "2",
-                "de": "2"
-              }
-            }
-          ]
-        },
-        {
-          "name": "enabled",
-          "type": "checkbox",
-          "title": {
-            "en": "Enabled",
-            "nl": "Ingeschakeld",
-            "de": "Aktiviert"
-          }
         }
       ]
     }

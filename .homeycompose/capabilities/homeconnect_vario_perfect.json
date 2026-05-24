@@ -1,0 +1,37 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "VarioPerfect",
+    "nl": "VarioPerfect",
+    "de": "VarioPerfect"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "values": [
+    {
+      "id": "Off",
+      "title": {
+        "en": "Off",
+        "nl": "Uit",
+        "de": "Aus"
+      }
+    },
+    {
+      "id": "EcoPerfect",
+      "title": {
+        "en": "EcoPerfect",
+        "nl": "EcoPerfect",
+        "de": "EcoPerfect"
+      }
+    },
+    {
+      "id": "SpeedPerfect",
+      "title": {
+        "en": "SpeedPerfect",
+        "nl": "SpeedPerfect",
+        "de": "SpeedPerfect"
+      }
+    }
+  ]
+}

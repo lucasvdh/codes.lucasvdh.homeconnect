@@ -1,0 +1,56 @@
+{
+  "name": {
+    "en": "Tumble dryer",
+    "nl": "Wasdroger",
+    "de": "Wäschetrockner"
+  },
+  "class": "dryer",
+  "capabilities": [
+    "onoff",
+    "homeconnect_operation_state",
+    "homeconnect_door_state",
+    "homeconnect_program",
+    "homeconnect_selected_program",
+    "homeconnect_program_progress",
+    "homeconnect_remaining_time",
+    "homeconnect_elapsed_time",
+    "homeconnect_start_in_relative",
+    "homeconnect_remote_start",
+    "homeconnect_remote_control_active",
+    "homeconnect_local_control_active",
+    "homeconnect_program_count_started",
+    "homeconnect_child_lock",
+    "homeconnect_drying_target"
+  ],
+  "discovery": "homeconnect-mdns",
+  "images": {
+    "small": "/drivers/dryer/assets/images/small.png",
+    "large": "/drivers/dryer/assets/images/large.png"
+  },
+  "platforms": [
+    "local"
+  ],
+  "connectivity": [
+    "lan"
+  ],
+  "pair": [
+    {
+      "id": "list_devices",
+      "template": "list_devices",
+      "navigation": {
+        "next": "add_devices"
+      },
+      "options": {
+        "title": {
+          "en": "Select the tumble dryers to add",
+          "nl": "Selecteer de wasdrogers om toe te voegen",
+          "de": "Wähle die Wäschetrockner aus, die hinzugefügt werden sollen"
+        }
+      }
+    },
+    {
+      "id": "add_devices",
+      "template": "add_devices"
+    }
+  ]
+}

@@ -2,6 +2,6 @@
 
 import { ApplianceDevice } from "../../lib/appliance-device";
 
-class WasherDevice extends ApplianceDevice {}
+class DryerDevice extends ApplianceDevice {}
 
-module.exports = WasherDevice;
+module.exports = DryerDevice;

@@ -1,0 +1,11 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Rinse Hold",
+    "nl": "Spoelstop",
+    "de": "Spülstopp"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle"
+}

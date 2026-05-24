@@ -1,0 +1,11 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Multiple Soak",
+    "nl": "Meervoudig weken",
+    "de": "Mehrfaches Einweichen"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle"
+}

@@ -1,0 +1,11 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Rinse Plus",
+    "nl": "Extra spoelen",
+    "de": "Extra Spülen"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle"
+}

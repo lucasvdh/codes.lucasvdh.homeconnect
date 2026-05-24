@@ -11,6 +11,19 @@ const RECONNECT_DELAY_MS = 15_000;
 /** Operation states in which the appliance actively pushes progress updates. */
 const RUNNING_STATES = new Set(["Run", "DelayedStart", "Pause", "ActionRequired"]);
 
+/**
+ * Features that only carry meaningful values while a program is running. When
+ * idle the appliance may still emit stale values for these; applying them would
+ * fight reconcileDerivedState() (which clears them), making the tiles flicker.
+ * We skip them in applyValues() unless the program is actually running.
+ */
+const RUNNING_ONLY_FEATURES = new Set([
+  "BSH.Common.Option.ProgramProgress",
+  "BSH.Common.Option.RemainingProgramTime",
+  "BSH.Common.Option.ElapsedProgramTime",
+  "BSH.Common.Option.StartInRelative",
+]);
+
 /** Decode a value coming from the appliance into a Homey capability value. */
 type Decoder = (v: unknown, feature?: FeatureDescriptor) => unknown;
 /** Encode a Homey capability value into the wire form the appliance expects. */
@@ -43,6 +56,27 @@ const decodeNumber: Decoder = (v) => {
   if (v == null) return null;
   const n = typeof v === "number" ? v : Number(v);
   return Number.isFinite(n) ? n : v;
+};
+
+/**
+ * Decode an enum/scalar option to a plain integer so values like spin speed
+ * and wash temperature can carry a unit label and be compared numerically in
+ * Flows. Extracts the number embedded in the member name, passes a raw number
+ * through (numeric-range feature), and maps non-numeric members (Off / Cold) to
+ * null — i.e. "no numeric value", rendered as "-" rather than a misleading 0.
+ *   "LaundryCare.Washer.EnumType.SpinSpeed.RPM1200" -> 1200
+ *   "GC40"                                           -> 40
+ *   1200                                             -> 1200
+ *   "Off" / "Cold"                                   -> null
+ */
+const decodeEnumToNumber: Decoder = (v) => {
+  if (typeof v === "number") return Number.isFinite(v) ? v : null;
+  if (typeof v !== "string") return null;
+  const segment = v.includes(".") ? v.slice(v.lastIndexOf(".") + 1) : v;
+  const digits = segment.match(/\d+/);
+  if (digits) return Number(digits[0]);
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
 };
 
 /**
@@ -408,12 +442,37 @@ const CAPABILITY_MAP: Record<string, CapabilityMapEntry> = {
     decode: decodeBool,
     encode: encodeBool,
   },
-  "LaundryCare.Washer.Option.IDos1Active": {
+  "LaundryCare.Washer.Option.RinsePlus": {
+    capability: "homeconnect_rinse_plus",
+    decode: decodeBool,
+    encode: encodeBool,
+  },
+  "LaundryCare.Washer.Option.LessIroning": {
+    capability: "homeconnect_less_ironing",
+    decode: decodeBool,
+    encode: encodeBool,
+  },
+  "LaundryCare.Washer.Option.Soak": {
+    capability: "homeconnect_soak",
+    decode: decodeBool,
+    encode: encodeBool,
+  },
+  "LaundryCare.Washer.Option.MultipleSoak": {
+    capability: "homeconnect_multiple_soak",
+    decode: decodeBool,
+    encode: encodeBool,
+  },
+  "LaundryCare.Washer.Option.RinseHold": {
+    capability: "homeconnect_rinse_hold",
+    decode: decodeBool,
+    encode: encodeBool,
+  },
+  "LaundryCare.Washer.Option.IDos1.Active": {
     capability: "homeconnect_idos1_active",
     decode: decodeBool,
     encode: encodeBool,
   },
-  "LaundryCare.Washer.Option.IDos2Active": {
+  "LaundryCare.Washer.Option.IDos2.Active": {
     capability: "homeconnect_idos2_active",
     decode: decodeBool,
     encode: encodeBool,
@@ -424,6 +483,16 @@ const CAPABILITY_MAP: Record<string, CapabilityMapEntry> = {
     decode: decodeLastSegment,
     encode: encodeEnumIndex,
   },
+};
+
+/**
+ * Read-only numeric mirrors: when a primary (enum) option updates, also publish
+ * a plain integer on a companion capability for Flow comparisons like
+ * "spin speed > 1000 rpm". Non-numeric members (Off / Cold) decode to null.
+ */
+const NUMERIC_MIRRORS: Record<string, string> = {
+  homeconnect_spin_speed: "homeconnect_spin_speed_rpm",
+  homeconnect_wash_temperature: "homeconnect_wash_temperature_celsius",
 };
 
 /** Insert spaces so a program's last segment reads nicely in the UI. */
@@ -671,6 +740,10 @@ export class ApplianceDevice extends Homey.Device {
       const mapping = CAPABILITY_MAP[name];
       if (!mapping || !this.hasCapability(mapping.capability)) continue;
 
+      // Stale running-only value while idle: skip it so we don't set a value
+      // reconcileDerivedState() will immediately clear again (flicker loop).
+      if (RUNNING_ONLY_FEATURES.has(name) && !this.isProgramRunning()) continue;
+
       const feature = this.findFeature(name);
       const value = mapping.decode(raw, feature);
       if (value === this.getCapabilityValue(mapping.capability)) continue;
@@ -682,6 +755,14 @@ export class ApplianceDevice extends Homey.Device {
         continue;
       }
       this.fireTriggers(mapping.capability, value);
+
+      const mirror = NUMERIC_MIRRORS[mapping.capability];
+      if (mirror && this.hasCapability(mirror)) {
+        const numeric = decodeEnumToNumber(raw);
+        if (numeric !== this.getCapabilityValue(mirror)) {
+          await this.setCapabilityValue(mirror, numeric as never).catch(this.error);
+        }
+      }
     }
     this.reconcileDerivedState();
   }
@@ -798,17 +879,25 @@ export class ApplianceDevice extends Homey.Device {
   }
 
   /**
+   * True when the appliance is powered on and in a state where it actively
+   * pushes progress/remaining-time updates. Used both to gate stale
+   * running-only values in applyValues() and to decide when to clear derived
+   * state here.
+   */
+  private isProgramRunning(): boolean {
+    const state = this.getCapabilityValue("homeconnect_operation_state");
+    const power = this.getCapabilityValue("onoff");
+    return power !== false && typeof state === "string" && RUNNING_STATES.has(state);
+  }
+
+  /**
    * The appliance stops pushing progress / remaining-time updates the moment
    * it is no longer running (program ended, aborted, or powered off), so the
    * last values would otherwise stay frozen on screen. Once we observe a
    * non-running state we clear the derived capabilities ourselves.
    */
   private reconcileDerivedState(): void {
-    const state = this.getCapabilityValue("homeconnect_operation_state");
-    const power = this.getCapabilityValue("onoff");
-    const running =
-      power !== false && typeof state === "string" && RUNNING_STATES.has(state);
-    if (running) return;
+    if (this.isProgramRunning()) return;
 
     const clear = (capability: string, value: unknown): void => {
       if (this.hasCapability(capability) && this.getCapabilityValue(capability) !== value) {
@@ -821,7 +910,9 @@ export class ApplianceDevice extends Homey.Device {
     clear("homeconnect_start_in_relative", null);
     clear("homeconnect_program_phase", "None");
     // Keep the program name on "Finished" so the user can still see what ran.
-    if (state !== "Finished") clear("homeconnect_program", null);
+    if (this.getCapabilityValue("homeconnect_operation_state") !== "Finished") {
+      clear("homeconnect_program", null);
+    }
   }
 
   // --- program control (delegated to from the driver's Flow cards) ---------

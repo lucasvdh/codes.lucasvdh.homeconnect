@@ -6,5 +6,10 @@
     "en": "Added washing machine and tumble dryer support: program start/select/stop/pause/resume, options (wash temperature, spin speed, i-Dos, drying target) and full Flow cards.",
     "nl": "Ondersteuning toegevoegd voor wasmachines en wasdrogers: programma starten/selecteren/stoppen/pauzeren/hervatten, opties (wastemperatuur, centrifugetoerental, i-Dos, droogdoel) en volledige Flow-kaarten.",
     "de": "Unterstützung für Waschmaschinen und Wäschetrockner hinzugefügt: Programm starten/auswählen/stoppen/pausieren/fortsetzen, Optionen (Waschtemperatur, Schleuderdrehzahl, i-Dos, Trockenziel) und vollständige Flow-Karten."
+  },
+  "1.2.0": {
+    "en": "More washer options (Rinse Plus, Less Ironing, Soak, Rinse Hold), program phase, energy/water forecast, and numeric spin speed/temperature for Flows. Fixed i-DOS controls and idle progress-tile flickering.",
+    "nl": "Meer wasmachine-opties (extra spoelen, minder strijken, weken, spoelstop), programmafase, verwacht energie-/waterverbruik en numeriek centrifugetoerental/temperatuur voor Flows. i-DOS-bediening en knipperende voortgangstegels in rust verholpen.",
+    "de": "Mehr Waschmaschinen-Optionen (Extra Spülen, Leichter Bügeln, Einweichen, Spülstopp), Programmphase, Energie-/Wasserprognose und numerische Schleuderdrehzahl/Temperatur für Flows. i-DOS-Steuerung und Flackern der Fortschrittskacheln im Leerlauf behoben."
   }
 }

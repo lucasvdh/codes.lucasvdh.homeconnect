@@ -1,0 +1,11 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Soak",
+    "nl": "Weken",
+    "de": "Einweichen"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle"
+}

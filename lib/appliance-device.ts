@@ -18,7 +18,6 @@ const RUNNING_STATES = new Set(["Run", "DelayedStart", "Pause", "ActionRequired"
  * We skip them in applyValues() unless the program is actually running.
  */
 const RUNNING_ONLY_FEATURES = new Set([
-  "BSH.Common.Option.ProgramProgress",
   "BSH.Common.Option.RemainingProgramTime",
   "BSH.Common.Option.ElapsedProgramTime",
   "BSH.Common.Option.StartInRelative",
@@ -86,7 +85,7 @@ const decodeEnumToNumber: Decoder = (v) => {
 const decodePercent: Decoder = (v) => {
   if (v == null) return null;
   const n = typeof v === "number" ? v : Number(v);
-  return Number.isFinite(n) ? Math.round(n / 100) : v;
+  return Number.isFinite(n) ? n : v;
 };
 
 const encodeBool: Encoder = (v) => v === true;
@@ -731,6 +730,30 @@ export class ApplianceDevice extends Homey.Device {
   /** Push a batch of decoded feature values onto Homey capabilities. */
   private async applyValues(values: Record<string, unknown>): Promise<void> {
     for (const [name, raw] of Object.entries(values)) {
+      // Some dishwashers report Root.ActiveProgram / Root.SelectedProgram as
+      // numeric IDs such as "001", while BSH.Common.Option.BaseProgram carries
+      // the readable program name, for example "PreRinse". Use BaseProgram as a
+      // fallback so the device tile does not show an internal numeric ID.
+      if (name === "BSH.Common.Option.BaseProgram" && typeof raw === "string" && raw.trim()) {
+        const fallback = decodeLastSegment(raw);
+        const isNumericProgramId = (value: unknown): boolean =>
+          typeof value === "string" && /^\d+$/.test(value);
+
+        if (
+          this.hasCapability("homeconnect_program") &&
+          isNumericProgramId(this.getCapabilityValue("homeconnect_program"))
+        ) {
+          await this.setCapabilityValue("homeconnect_program", fallback as never).catch(this.error);
+        }
+
+        if (
+          this.hasCapability("homeconnect_selected_program") &&
+          isNumericProgramId(this.getCapabilityValue("homeconnect_selected_program"))
+        ) {
+          await this.setCapabilityValue("homeconnect_selected_program", fallback as never).catch(this.error);
+        }
+      }
+
       // Events don't represent state, they fire triggers and get acked.
       if (name.includes(".Event.")) {
         this.handleEvent(name, raw);
@@ -739,6 +762,17 @@ export class ApplianceDevice extends Homey.Device {
 
       const mapping = CAPABILITY_MAP[name];
       if (!mapping || !this.hasCapability(mapping.capability)) continue;
+
+      // Some dishwashers report program roots as numeric IDs like "001".
+      // Keep the readable BaseProgram fallback instead of overwriting it.
+      if (
+        (name === "BSH.Common.Root.ActiveProgram" || name === "BSH.Common.Root.SelectedProgram") &&
+        typeof raw === "string" &&
+        /^\d+$/.test(raw) &&
+        this.getCapabilityValue(mapping.capability)
+      ) {
+        continue;
+      }
 
       // Stale running-only value while idle: skip it so we don't set a value
       // reconcileDerivedState() will immediately clear again (flicker loop).

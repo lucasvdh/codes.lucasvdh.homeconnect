@@ -86,7 +86,7 @@ const decodeEnumToNumber: Decoder = (v) => {
 const decodePercent: Decoder = (v) => {
   if (v == null) return null;
   const n = typeof v === "number" ? v : Number(v);
-  return Number.isFinite(n) ? Math.round(n / 100) : v;
+  return Number.isFinite(n) ? n : v;
 };
 
 const encodeBool: Encoder = (v) => v === true;
@@ -731,6 +731,10 @@ export class ApplianceDevice extends Homey.Device {
   /** Push a batch of decoded feature values onto Homey capabilities. */
   private async applyValues(values: Record<string, unknown>): Promise<void> {
     for (const [name, raw] of Object.entries(values)) {
+      if (name === "BSH.Common.Option.ProgramProgress") {
+        this.log("DEBUG ProgramProgress", this.getName(), JSON.stringify(raw));
+      }
+
       // Events don't represent state, they fire triggers and get acked.
       if (name.includes(".Event.")) {
         this.handleEvent(name, raw);

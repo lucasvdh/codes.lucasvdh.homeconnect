@@ -749,6 +749,10 @@ export class ApplianceDevice extends Homey.Device {
   /** Push a batch of decoded feature values onto Homey capabilities. */
   private async applyValues(values: Record<string, unknown>): Promise<void> {
     for (const [name, raw] of Object.entries(values)) {
+      if (name === "BSH.Common.Option.ProgramProgress") {
+        this.log("DEBUG ProgramProgress", this.getName(), JSON.stringify(raw));
+      }
+      
       // Some dishwashers report Root.ActiveProgram / Root.SelectedProgram as
       // numeric IDs such as "001", while BSH.Common.Option.BaseProgram carries
       // the readable program name, for example "PreRinse". Use BaseProgram as a

@@ -18,7 +18,6 @@ const RUNNING_STATES = new Set(["Run", "DelayedStart", "Pause", "ActionRequired"
  * We skip them in applyValues() unless the program is actually running.
  */
 const RUNNING_ONLY_FEATURES = new Set([
-  "BSH.Common.Option.ProgramProgress",
   "BSH.Common.Option.RemainingProgramTime",
   "BSH.Common.Option.ElapsedProgramTime",
   "BSH.Common.Option.StartInRelative",
@@ -483,6 +482,25 @@ const CAPABILITY_MAP: Record<string, CapabilityMapEntry> = {
     decode: decodeLastSegment,
     encode: encodeEnumIndex,
   },
+  "LaundryCare.Dryer.Option.WrinkleGuard": {
+    capability: "homeconnect_dryer_wrinkle_guard",
+    decode: decodeLastSegment,
+    encode: encodeEnumIndex,
+  },
+  "LaundryCare.Dryer.Option.Gentle": {
+    capability: "homeconnect_dryer_gentle",
+    decode: decodeBool,
+    encode: encodeBool,
+  },
+  "LaundryCare.Dryer.Option.DryingTargetAdjustment": {
+    capability: "homeconnect_dryer_drying_target_adjustment",
+    decode: decodeLastSegment,
+    encode: encodeEnumIndex,
+  },
+  "LaundryCare.Dryer.Option.ProcessPhase": {
+    capability: "homeconnect_dryer_process_phase",
+    decode: decodeLastSegment,
+  },
 };
 
 /**
@@ -734,6 +752,30 @@ export class ApplianceDevice extends Homey.Device {
       if (name === "BSH.Common.Option.ProgramProgress") {
         this.log("DEBUG ProgramProgress", this.getName(), JSON.stringify(raw));
       }
+      
+      // Some dishwashers report Root.ActiveProgram / Root.SelectedProgram as
+      // numeric IDs such as "001", while BSH.Common.Option.BaseProgram carries
+      // the readable program name, for example "PreRinse". Use BaseProgram as a
+      // fallback so the device tile does not show an internal numeric ID.
+      if (name === "BSH.Common.Option.BaseProgram" && typeof raw === "string" && raw.trim()) {
+        const fallback = decodeLastSegment(raw);
+        const isNumericProgramId = (value: unknown): boolean =>
+          typeof value === "string" && /^\d+$/.test(value);
+
+        if (
+          this.hasCapability("homeconnect_program") &&
+          isNumericProgramId(this.getCapabilityValue("homeconnect_program"))
+        ) {
+          await this.setCapabilityValue("homeconnect_program", fallback as never).catch(this.error);
+        }
+
+        if (
+          this.hasCapability("homeconnect_selected_program") &&
+          isNumericProgramId(this.getCapabilityValue("homeconnect_selected_program"))
+        ) {
+          await this.setCapabilityValue("homeconnect_selected_program", fallback as never).catch(this.error);
+        }
+      }
 
       // Events don't represent state, they fire triggers and get acked.
       if (name.includes(".Event.")) {
@@ -743,6 +785,17 @@ export class ApplianceDevice extends Homey.Device {
 
       const mapping = CAPABILITY_MAP[name];
       if (!mapping || !this.hasCapability(mapping.capability)) continue;
+
+      // Some dishwashers report program roots as numeric IDs like "001".
+      // Keep the readable BaseProgram fallback instead of overwriting it.
+      if (
+        (name === "BSH.Common.Root.ActiveProgram" || name === "BSH.Common.Root.SelectedProgram") &&
+        typeof raw === "string" &&
+        /^\d+$/.test(raw) &&
+        this.getCapabilityValue(mapping.capability)
+      ) {
+        continue;
+      }
 
       // Stale running-only value while idle: skip it so we don't set a value
       // reconcileDerivedState() will immediately clear again (flicker loop).

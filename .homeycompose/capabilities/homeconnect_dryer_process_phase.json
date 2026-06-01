@@ -1,0 +1,28 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Dryer process phase",
+    "nl": "Droogfase",
+    "de": "Trocknungsphase"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "picker",
+  "values": [
+    { "id": "SteamActive", "title": { "en": "Steam active", "nl": "Stoom actief", "de": "Dampf aktiv" } },
+    { "id": "ProgStarted", "title": { "en": "Program started", "nl": "Programma gestart", "de": "Programm gestartet" } },
+    { "id": "Drying", "title": { "en": "Drying", "nl": "Drogen", "de": "Trocknen" } },
+    { "id": "IronDryReached", "title": { "en": "Iron dry reached", "nl": "Strijkdroog bereikt", "de": "Bügeltrocken erreicht" } },
+    { "id": "CupboardDryReached", "title": { "en": "Cupboard dry reached", "nl": "Kastdroog bereikt", "de": "Schranktrocken erreicht" } },
+    { "id": "CupboardDryPlusReached", "title": { "en": "Cupboard dry plus reached", "nl": "Kastdroog plus bereikt", "de": "Schranktrocken plus erreicht" } },
+    { "id": "Cooling", "title": { "en": "Cooling", "nl": "Koelen", "de": "Kühlen" } },
+    { "id": "FinishedAntiCrease", "title": { "en": "Finished anti-crease", "nl": "Antikreuk klaar", "de": "Knitterschutz beendet" } },
+    { "id": "HeatExchangerCleaning", "title": { "en": "Heat exchanger cleaning", "nl": "Warmtewisselaar reinigen", "de": "Wärmetauscher reinigen" } },
+    { "id": "SlightlyDampReached", "title": { "en": "Slightly damp reached", "nl": "Licht vochtig bereikt", "de": "Leicht feucht erreicht" } },
+    { "id": "ExtraDryReached", "title": { "en": "Extra dry reached", "nl": "Extra droog bereikt", "de": "Extratrocken erreicht" } },
+    { "id": "QuickCare", "title": { "en": "Quick care", "nl": "Quick care", "de": "Quick care" } },
+    { "id": "DepthCarePhase1", "title": { "en": "Depth care phase 1", "nl": "Depth care fase 1", "de": "Depth care Phase 1" } },
+    { "id": "DepthCarePhase2", "title": { "en": "Depth care phase 2", "nl": "Depth care fase 2", "de": "Depth care Phase 2" } },
+    { "id": "Spare", "title": { "en": "Spare", "nl": "Reserve", "de": "Reserve" } }
+  ]
+}

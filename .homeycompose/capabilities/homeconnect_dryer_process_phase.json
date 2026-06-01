@@ -14,7 +14,7 @@
     { "id": "Drying", "title": { "en": "Drying", "nl": "Drogen", "de": "Trocknen" } },
     { "id": "IronDryReached", "title": { "en": "Iron dry reached", "nl": "Strijkdroog bereikt", "de": "Bügeltrocken erreicht" } },
     { "id": "CupboardDryReached", "title": { "en": "Cupboard dry reached", "nl": "Kastdroog bereikt", "de": "Schranktrocken erreicht" } },
-    { "id": "CubboardDryPlusReached", "title": { "en": "Cupboard dry plus reached", "nl": "Kastdroog plus bereikt", "de": "Schranktrocken plus erreicht" } },
+    { "id": "CupboardDryPlusReached", "title": { "en": "Cupboard dry plus reached", "nl": "Kastdroog plus bereikt", "de": "Schranktrocken plus erreicht" } },
     { "id": "Cooling", "title": { "en": "Cooling", "nl": "Koelen", "de": "Kühlen" } },
     { "id": "FinishedAntiCrease", "title": { "en": "Finished anti-crease", "nl": "Antikreuk klaar", "de": "Knitterschutz beendet" } },
     { "id": "HeatExchangerCleaning", "title": { "en": "Heat exchanger cleaning", "nl": "Warmtewisselaar reinigen", "de": "Wärmetauscher reinigen" } },

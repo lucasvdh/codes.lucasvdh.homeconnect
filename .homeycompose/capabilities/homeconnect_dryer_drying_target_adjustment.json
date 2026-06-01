@@ -1,0 +1,17 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Drying target adjustment",
+    "nl": "Droogdoel aanpassen",
+    "de": "Trockenziel anpassen"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "values": [
+    { "id": "Off", "title": { "en": "Off", "nl": "Uit", "de": "Aus" } },
+    { "id": "Plus1", "title": { "en": "Plus 1", "nl": "Plus 1", "de": "Plus 1" } },
+    { "id": "Plus2", "title": { "en": "Plus 2", "nl": "Plus 2", "de": "Plus 2" } },
+    { "id": "Plus3", "title": { "en": "Plus 3", "nl": "Plus 3", "de": "Plus 3" } }
+  ]
+}

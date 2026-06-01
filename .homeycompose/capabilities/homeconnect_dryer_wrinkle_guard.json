@@ -1,0 +1,19 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Wrinkle guard",
+    "nl": "Kreukbeveiliging",
+    "de": "Knitterschutz"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "values": [
+    { "id": "Off", "title": { "en": "Off", "nl": "Uit", "de": "Aus" } },
+    { "id": "Min30", "title": { "en": "30 min", "nl": "30 min", "de": "30 min" } },
+    { "id": "Min60", "title": { "en": "60 min", "nl": "60 min", "de": "60 min" } },
+    { "id": "Min90", "title": { "en": "90 min", "nl": "90 min", "de": "90 min" } },
+    { "id": "Min120", "title": { "en": "120 min", "nl": "120 min", "de": "120 min" } },
+    { "id": "Min180", "title": { "en": "180 min", "nl": "180 min", "de": "180 min" } }
+  ]
+}

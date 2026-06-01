@@ -483,6 +483,25 @@ const CAPABILITY_MAP: Record<string, CapabilityMapEntry> = {
     decode: decodeLastSegment,
     encode: encodeEnumIndex,
   },
+  "LaundryCare.Dryer.Option.WrinkleGuard": {
+    capability: "homeconnect_dryer_wrinkle_guard",
+    decode: decodeLastSegment,
+    encode: encodeEnumIndex,
+  },
+  "LaundryCare.Dryer.Option.Gentle": {
+    capability: "homeconnect_dryer_gentle",
+    decode: decodeBool,
+    encode: encodeBool,
+  },
+  "LaundryCare.Dryer.Option.DryingTargetAdjustment": {
+    capability: "homeconnect_dryer_drying_target_adjustment",
+    decode: decodeLastSegment,
+    encode: encodeEnumIndex,
+  },
+  "LaundryCare.Dryer.Option.ProcessPhase": {
+    capability: "homeconnect_dryer_process_phase",
+    decode: decodeLastSegment,
+  },
 };
 
 /**

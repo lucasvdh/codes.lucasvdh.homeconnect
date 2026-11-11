@@ -384,6 +384,7 @@ const NOUNS = {
   dishwasher: { en: "dishwasher", nl: "vaatwasser", de: "am Geschirrspüler" },
   washer: { en: "washing machine", nl: "wasmachine", de: "an der Waschmaschine" },
   dryer: { en: "dryer", nl: "droger", de: "am Trockner" },
+  hood: { en: "hood", nl: "afzuigkap", de: "an der Dunstabzugshaube" },
 };
 
 function sharedActions(prefix) {
@@ -896,6 +897,8 @@ const DE_DICT = {
   "Triggers when the dryer's operation state becomes Finished.": "Wird ausgelöst, wenn der Betriebszustand des Wäschetrockners Fertig wird.",
   "Requires remote start to be enabled on the washing machine first.": "Erfordert, dass Fernstart zuerst an der Waschmaschine aktiviert ist.",
   "Requires remote start to be enabled on the dryer first.": "Erfordert, dass Fernstart zuerst am Wäschetrockner aktiviert ist.",
+  "Triggers when the hood's operation state becomes Finished.": "Wird ausgelöst, wenn der Betriebszustand der Dunstabzugshaube Fertig wird.",
+  "Requires remote start to be enabled on the hood first.": "Erfordert, dass Fernstart zuerst an der Dunstabzugshaube aktiviert ist.",
   "i-Dos is low": "i-Dos fast leer",
   "Dispenser": "Behälter",
   "i-Dos !{{is|is not}} active": "i-Dos !{{ist|ist nicht}} aktiv",
@@ -1070,6 +1073,225 @@ const DRYER_ACTIONS = [
 // With no arg, all drivers are (re)generated.
 // ---------------------------------------------------------------------------
 
+// ---- Hood ----------------------------------------------------------------
+
+const HOOD_CAPS = [
+  "onoff",
+  "homeconnect_operation_state",
+  "homeconnect_program",
+  "homeconnect_venting_level",
+  "homeconnect_intensive_level",
+  "homeconnect_light",
+  "homeconnect_light_brightness",
+  "homeconnect_ambient_light",
+  "homeconnect_ambient_light_brightness",
+  "homeconnect_program_progress",
+  "homeconnect_remaining_time",
+  "homeconnect_remaining_time_display",
+  "homeconnect_elapsed_time",
+  "homeconnect_remote_control_active",
+  "homeconnect_local_control_active",
+];
+
+// Shared cards that make sense for a hood (no door, child lock, delayed start).
+const HOOD_SHARED = {
+  triggers: [
+    "program_started",
+    "program_finished",
+    "operation_state_changed",
+    "remaining_time_changed",
+    "remote_control_active_changed",
+    "local_control_changed",
+    "error_occurred",
+    "software_update_available",
+  ],
+  conditions: [
+    "is_running",
+    "is_inactive",
+    "has_error",
+    "remote_control_is_active",
+    "local_control_is_active",
+    "current_program_is",
+  ],
+  actions: ["start_program", "stop_program", "acknowledge_event", "power_off"],
+};
+
+const pick = (cards, prefix, ids) =>
+  cards.filter((c) => ids.includes(c.id.slice(prefix.length + 1)));
+
+const VENTING_LEVEL_VALUES = [
+  { id: "FanOff", title: { en: "Off", nl: "Uit", de: "Aus" } },
+  ...[1, 2, 3, 4, 5].map((i) => ({
+    id: `FanStage0${i}`,
+    title: { en: `Level ${i}`, nl: `Stand ${i}`, de: `Stufe ${i}` },
+  })),
+];
+
+const INTENSIVE_LEVEL_VALUES = [
+  { id: "IntensiveStageOff", title: { en: "Off", nl: "Uit", de: "Aus" } },
+  { id: "IntensiveStage1", title: { en: "Intensive 1", nl: "Intensief 1", de: "Intensiv 1" } },
+  { id: "IntensiveStage2", title: { en: "Intensive 2", nl: "Intensief 2", de: "Intensiv 2" } },
+];
+
+const levelArg = (values) => ({
+  name: "level",
+  type: "dropdown",
+  title: { en: "Level", nl: "Stand", de: "Stufe" },
+  values,
+});
+
+const onOffArg = {
+  name: "enabled",
+  type: "checkbox",
+  title: { en: "On", nl: "Aan", de: "Ein" },
+};
+
+const HOOD_TRIGGERS = [
+  {
+    id: "hood_venting_level_changed",
+    title: { en: "Fan level changed", nl: "Ventilatorstand is gewijzigd", de: "Lüfterstufe hat sich geändert" },
+    tokens: [
+      {
+        name: "level",
+        type: "string",
+        title: { en: "Level", nl: "Stand", de: "Stufe" },
+        example: { en: "FanStage02", nl: "FanStage02", de: "FanStage02" },
+      },
+    ],
+  },
+  {
+    id: "hood_grease_filter_nearly_saturated",
+    title: {
+      en: "Grease filter is nearly saturated",
+      nl: "Vetfilter is bijna verzadigd",
+      de: "Fettfilter ist fast gesättigt",
+    },
+  },
+  {
+    id: "hood_grease_filter_saturated",
+    title: {
+      en: "Grease filter is saturated",
+      nl: "Vetfilter is verzadigd",
+      de: "Fettfilter ist gesättigt",
+    },
+  },
+];
+
+const HOOD_CONDITIONS = [
+  {
+    id: "hood_venting_level_is",
+    title: {
+      en: "Fan level !{{is|is not}} ...",
+      nl: "Ventilatorstand !{{is|is niet}} ...",
+      de: "Lüfterstufe !{{ist|ist nicht}} ...",
+    },
+    titleFormatted: {
+      en: "Fan level !{{is|is not}} [[level]]",
+      nl: "Ventilatorstand !{{is|is niet}} [[level]]",
+      de: "Lüfterstufe !{{ist|ist nicht}} [[level]]",
+    },
+    args: [levelArg(VENTING_LEVEL_VALUES)],
+  },
+  {
+    id: "hood_light_is_on",
+    title: {
+      en: "Light !{{is|is not}} on",
+      nl: "Verlichting !{{is|is niet}} aan",
+      de: "Beleuchtung !{{ist|ist nicht}} an",
+    },
+  },
+];
+
+const HOOD_ACTIONS = [
+  {
+    id: "hood_set_venting_level",
+    title: { en: "Set fan level", nl: "Zet ventilatorstand", de: "Lüfterstufe einstellen" },
+    titleFormatted: {
+      en: "Set fan level to [[level]]",
+      nl: "Zet ventilatorstand op [[level]]",
+      de: "Lüfterstufe auf [[level]] einstellen",
+    },
+    hint: {
+      en: "Starts the fan at this level, changes the level while it runs, or stops it with Off.",
+      nl: "Start de ventilator op deze stand, wijzigt de stand terwijl hij draait, of stopt hem met Uit.",
+      de: "Startet den Lüfter auf dieser Stufe, ändert die Stufe im Betrieb oder stoppt ihn mit Aus.",
+    },
+    args: [levelArg(VENTING_LEVEL_VALUES)],
+  },
+  {
+    id: "hood_set_intensive_level",
+    title: { en: "Set intensive level", nl: "Zet intensiefstand", de: "Intensivstufe einstellen" },
+    titleFormatted: {
+      en: "Set intensive level to [[level]]",
+      nl: "Zet intensiefstand op [[level]]",
+      de: "Intensivstufe auf [[level]] einstellen",
+    },
+    args: [levelArg(INTENSIVE_LEVEL_VALUES)],
+  },
+  {
+    id: "hood_start_automatic",
+    title: { en: "Start automatic mode", nl: "Start automatische stand", de: "Automatikbetrieb starten" },
+    hint: {
+      en: "The hood picks the fan level itself based on its sensor.",
+      nl: "De kap kiest zelf de ventilatorstand op basis van zijn sensor.",
+      de: "Die Haube wählt die Lüfterstufe anhand ihres Sensors selbst.",
+    },
+  },
+  {
+    id: "hood_start_delayed_shutoff",
+    title: { en: "Start run-on", nl: "Start nalooptijd", de: "Nachlauf starten" },
+    hint: {
+      en: "Keeps the fan running for the hood's run-on time and then switches it off.",
+      nl: "Laat de ventilator nog de nalooptijd van de kap draaien en schakelt hem dan uit.",
+      de: "Lässt den Lüfter für die Nachlaufzeit der Haube laufen und schaltet ihn dann aus.",
+    },
+  },
+  {
+    id: "hood_set_light",
+    title: { en: "Turn the light on or off", nl: "Zet de verlichting aan of uit", de: "Beleuchtung ein- oder ausschalten" },
+    titleFormatted: {
+      en: "Turn the light [[enabled]]",
+      nl: "Zet de verlichting [[enabled]]",
+      de: "Beleuchtung [[enabled]] schalten",
+    },
+    args: [onOffArg],
+  },
+  {
+    id: "hood_set_light_brightness",
+    title: { en: "Set light brightness", nl: "Zet helderheid verlichting", de: "Helligkeit der Beleuchtung einstellen" },
+    titleFormatted: {
+      en: "Set light brightness to [[brightness]]%",
+      nl: "Zet helderheid verlichting op [[brightness]]%",
+      de: "Helligkeit der Beleuchtung auf [[brightness]]% einstellen",
+    },
+    args: [
+      {
+        name: "brightness",
+        type: "range",
+        title: { en: "Brightness", nl: "Helderheid", de: "Helligkeit" },
+        min: 10,
+        max: 100,
+        step: 1,
+        label: "%",
+      },
+    ],
+  },
+  {
+    id: "hood_set_ambient_light",
+    title: {
+      en: "Turn the ambient light on or off",
+      nl: "Zet de sfeerverlichting aan of uit",
+      de: "Ambientebeleuchtung ein- oder ausschalten",
+    },
+    titleFormatted: {
+      en: "Turn the ambient light [[enabled]]",
+      nl: "Zet de sfeerverlichting [[enabled]]",
+      de: "Ambientebeleuchtung [[enabled]] schalten",
+    },
+    args: [onOffArg],
+  },
+];
+
 const ONLY = process.argv[2];
 const want = (id) => !ONLY || ONLY === id;
 
@@ -1123,6 +1345,21 @@ if (want("dryer")) {
     triggers: sharedTriggers("dryer"),
     conditions: sharedConditions("dryer"),
     actions: [...sharedActions("dryer"), ...DRYER_ACTIONS],
+  });
+}
+
+if (want("hood")) {
+  const hoodCompose = readJson("drivers/hood/driver.compose.json");
+  hoodCompose.capabilities = HOOD_CAPS;
+  writeJson("drivers/hood/driver.compose.json", hoodCompose);
+
+  writeFlow("drivers/hood/driver.flow.compose.json", {
+    triggers: [...pick(sharedTriggers("hood"), "hood", HOOD_SHARED.triggers), ...HOOD_TRIGGERS],
+    conditions: [
+      ...pick(sharedConditions("hood"), "hood", HOOD_SHARED.conditions),
+      ...HOOD_CONDITIONS,
+    ],
+    actions: [...pick(sharedActions("hood"), "hood", HOOD_SHARED.actions), ...HOOD_ACTIONS],
   });
 }
 

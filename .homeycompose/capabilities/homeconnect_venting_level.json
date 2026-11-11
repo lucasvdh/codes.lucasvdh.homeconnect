@@ -1,0 +1,61 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Fan level",
+    "nl": "Ventilatorstand",
+    "de": "Lüfterstufe"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "values": [
+    {
+      "id": "FanOff",
+      "title": {
+        "en": "Off",
+        "nl": "Uit",
+        "de": "Aus"
+      }
+    },
+    {
+      "id": "FanStage01",
+      "title": {
+        "en": "Level 1",
+        "nl": "Stand 1",
+        "de": "Stufe 1"
+      }
+    },
+    {
+      "id": "FanStage02",
+      "title": {
+        "en": "Level 2",
+        "nl": "Stand 2",
+        "de": "Stufe 2"
+      }
+    },
+    {
+      "id": "FanStage03",
+      "title": {
+        "en": "Level 3",
+        "nl": "Stand 3",
+        "de": "Stufe 3"
+      }
+    },
+    {
+      "id": "FanStage04",
+      "title": {
+        "en": "Level 4",
+        "nl": "Stand 4",
+        "de": "Stufe 4"
+      }
+    },
+    {
+      "id": "FanStage05",
+      "title": {
+        "en": "Level 5",
+        "nl": "Stand 5",
+        "de": "Stufe 5"
+      }
+    }
+  ]
+}

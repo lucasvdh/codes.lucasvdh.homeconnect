@@ -10,7 +10,9 @@
       "remote_start_not_allowed": "Remote start is not enabled on the appliance. Enable it on the appliance first.",
       "feature_not_supported": "This appliance does not support that setting.",
       "feature_not_available": "That setting is not currently available on the appliance.",
-      "invalid_value": "The appliance rejected that value."
+      "invalid_value": "The appliance rejected that value.",
+      "door_open": "The door is open. Close the door before starting a program.",
+      "no_selected_program": "No program is selected on the appliance. Select one on the appliance (or with the 'Select a program' card) first."
     }
   },
   "settings": {

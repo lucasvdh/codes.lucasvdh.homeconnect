@@ -720,7 +720,6 @@ export class ApplianceDevice extends Homey.Device {
     }
   }
 
-
   /** Per-driver event spec, falling back to {} if the driver doesn't define one. */
   private eventMap(): Record<string, EventTriggerSpec> {
     const d = this.driver as TriggerDriver;
@@ -1043,9 +1042,7 @@ export class ApplianceDevice extends Homey.Device {
   ): Promise<void> {
     const programUid = this.findUid(programName);
     if (programUid == null) throw new Error(this.homey.__("device.error.unknown_program"));
-    if (this.getCapabilityValue("homeconnect_remote_start") === false) {
-      throw new Error(this.homey.__("device.error.remote_start_not_allowed"));
-    }
+    this.assertCanStartRemotely();
 
     const options: Array<{ uid: number; value: unknown }> = [];
     if (opts.temperature != null) {
@@ -1068,6 +1065,45 @@ export class ApplianceDevice extends Homey.Device {
     this.log(`startProgram ${programName} uid=${programUid} options=${JSON.stringify(options)}`);
     if (!this.client) throw new Error("not connected");
     await this.client.startProgram(programUid, options);
+  }
+
+  /**
+   * Start whatever program is currently selected on the appliance, with the
+   * options the user already set there. Lets a Flow decide *when* to run
+   * (e.g. on cheap energy) without having to pick the program in the Flow.
+   */
+  async startSelectedProgram(): Promise<void> {
+    let programUid = this.client?.selectedProgramUid ?? null;
+    if (programUid == null) {
+      // Fall back to the decoded capability value (last name segment).
+      const selected = this.getCapabilityValue("homeconnect_selected_program");
+      if (typeof selected === "string" && selected) {
+        const match = this.listPrograms().find((p) => p.id.split(".").pop() === selected);
+        if (match) programUid = this.findUid(match.id);
+      }
+    }
+    if (programUid == null) {
+      throw new Error(this.homey.__("device.error.no_selected_program"));
+    }
+    this.assertCanStartRemotely();
+    if (!this.client) throw new Error("not connected");
+    const name = this.config.features?.[String(programUid)]?.name ?? String(programUid);
+    this.log(`startSelectedProgram ${name} uid=${programUid}`);
+    // No options: the appliance keeps the options already set for the selection.
+    await this.client.startProgram(programUid, []);
+  }
+
+  /**
+   * Refuse a remote start the appliance would reject (or that would be
+   * unsafe), with a message the user can act on in the Flow.
+   */
+  private assertCanStartRemotely(): void {
+    if (this.getCapabilityValue("homeconnect_remote_start") === false) {
+      throw new Error(this.homey.__("device.error.remote_start_not_allowed"));
+    }
+    if (this.getCapabilityValue("homeconnect_door_state") === "Open") {
+      throw new Error(this.homey.__("device.error.door_open"));
+    }
   }
 
   /** Queue a program without starting it (sets BSH.Common.Root.SelectedProgram). */

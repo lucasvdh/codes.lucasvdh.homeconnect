@@ -52,6 +52,13 @@ export class HomeConnectClient extends EventEmitter {
     }
   >();
 
+  /**
+   * UID of the program currently selected on the appliance, as last reported
+   * through BSH.Common.Root.SelectedProgram. Kept raw because the decoded
+   * capability value is only the last name segment (or a BaseProgram fallback).
+   */
+  selectedProgramUid: number | null = null;
+
   constructor(dev: DeviceConfig) {
     super();
     this.dev = dev;
@@ -403,6 +410,9 @@ export class HomeConnectClient extends EventEmitter {
         key === "BSH.Common.Option.BaseProgram"
       ) {
         const programName = features[String(value)]?.name;
+        if (key === "BSH.Common.Root.SelectedProgram") {
+          this.selectedProgramUid = programName ? Number(value) : null;
+        }
         out[key] = programName ? programName.split(".").pop() : null;
         continue;
       }

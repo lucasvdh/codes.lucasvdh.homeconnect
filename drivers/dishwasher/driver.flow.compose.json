@@ -689,7 +689,7 @@
       },
       "hint": {
         "en": "Requires remote start to be enabled on the dishwasher first.",
-        "nl": "Vereist dat op afstand starten eerst op de dishwasher is ingeschakeld.",
+        "nl": "Vereist dat op afstand starten eerst op de vaatwasser is ingeschakeld.",
         "de": "Erfordert, dass Fernstart zuerst am Geschirrspüler aktiviert ist."
       },
       "args": [
@@ -703,6 +703,19 @@
           }
         }
       ]
+    },
+    {
+      "id": "dishwasher_start_selected_program",
+      "title": {
+        "en": "Start the selected program",
+        "nl": "Start het geselecteerde programma",
+        "de": "Ausgewähltes Programm starten"
+      },
+      "hint": {
+        "en": "Starts the program that is currently selected on the dishwasher, with the options set there. Requires remote start to be enabled and the door to be closed.",
+        "nl": "Start het programma dat nu op de vaatwasser is geselecteerd, met de daar ingestelde opties. Vereist dat op afstand starten is ingeschakeld en de deur dicht is.",
+        "de": "Startet das am Geschirrspüler aktuell ausgewählte Programm mit den dort eingestellten Optionen. Erfordert aktivierten Fernstart und eine geschlossene Tür."
+      }
     },
     {
       "id": "dishwasher_select_program",

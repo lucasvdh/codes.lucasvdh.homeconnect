@@ -10,7 +10,9 @@
       "remote_start_not_allowed": "Fernstart ist am Gerät nicht aktiviert. Aktiviere ihn zuerst am Gerät.",
       "feature_not_supported": "Dieses Gerät unterstützt diese Einstellung nicht.",
       "feature_not_available": "Diese Einstellung ist am Gerät derzeit nicht verfügbar.",
-      "invalid_value": "Das Gerät hat diesen Wert abgelehnt."
+      "invalid_value": "Das Gerät hat diesen Wert abgelehnt.",
+      "door_open": "Die Tür ist offen. Schließe die Tür, bevor du ein Programm startest.",
+      "no_selected_program": "Am Gerät ist kein Programm ausgewählt. Wähle zuerst eines am Gerät (oder mit der Karte 'Programm auswählen')."
     }
   },
   "settings": {

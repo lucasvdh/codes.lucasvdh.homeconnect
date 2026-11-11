@@ -1,5 +1,6 @@
 "use strict";
 
+import net from "net";
 import Homey from "homey";
 
 import { DeviceConfig, FeatureDescriptor } from "./types";
@@ -1198,12 +1199,22 @@ export class ApplianceDevice extends Homey.Device {
   // --- mDNS discovery: keep the host in sync if the appliance's IP moves ---
 
   onDiscoveryResult(result: Homey.DiscoveryResult): boolean {
-    return result.id === this.config.haId;
+    // The mDNS instance name is "BRAND-Type-<serial>" (TLS) or the bare
+    // serial (AES), while haId is just the serial, so match on the suffix.
+    const haId = this.config?.haId?.toLowerCase();
+    if (!haId) return false;
+    const r = result as { id?: string; name?: string; host?: string };
+    return [r.id, r.name, r.host]
+      .filter((v): v is string => typeof v === "string" && v.length > 0)
+      .map((v) => v.toLowerCase().replace(/\.local\.?$/, ""))
+      .some((v) => v === haId || v.endsWith(`-${haId}`));
   }
 
   async onDiscoveryAvailable(result: Homey.DiscoveryResult): Promise<void> {
     const address = (result as { address?: string }).address;
-    if (address && address !== this.config.host) {
+    // Only pin IPv4: link-local IPv6 addresses aren't usable without a scope id.
+    if (address && net.isIPv4(address) && address !== this.config.host) {
+      this.log(`mDNS: appliance found at ${address} (was ${this.config.host})`);
       this.config.host = address;
       await this.setStoreValue("config", this.config);
       await this.connect();

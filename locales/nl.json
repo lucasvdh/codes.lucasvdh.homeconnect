@@ -13,7 +13,8 @@
       "feature_not_available": "Die instelling is momenteel niet beschikbaar op het apparaat.",
       "invalid_value": "Het apparaat heeft die waarde geweigerd.",
       "door_open": "De deur staat open. Sluit de deur voordat je een programma start.",
-      "no_selected_program": "Er is geen programma geselecteerd op het apparaat. Kies er eerst een op het apparaat (of met de kaart 'Selecteer een programma')."
+      "no_selected_program": "Er is geen programma geselecteerd op het apparaat. Kies er eerst een op het apparaat (of met de kaart 'Selecteer een programma').",
+      "powered_off": "De koffiemachine staat uit. Zet hem eerst aan en wacht tot hij klaar is met doorspoelen."
     }
   },
   "settings": {

@@ -385,6 +385,7 @@ const NOUNS = {
   washer: { en: "washing machine", nl: "wasmachine", de: "an der Waschmaschine" },
   dryer: { en: "dryer", nl: "droger", de: "am Trockner" },
   hood: { en: "hood", nl: "afzuigkap", de: "an der Dunstabzugshaube" },
+  coffeemaker: { en: "coffee machine", nl: "koffiemachine", de: "am Kaffeevollautomaten" },
 };
 
 function sharedActions(prefix) {
@@ -899,6 +900,7 @@ const DE_DICT = {
   "Requires remote start to be enabled on the dryer first.": "Erfordert, dass Fernstart zuerst am Wäschetrockner aktiviert ist.",
   "Triggers when the hood's operation state becomes Finished.": "Wird ausgelöst, wenn der Betriebszustand der Dunstabzugshaube Fertig wird.",
   "Requires remote start to be enabled on the hood first.": "Erfordert, dass Fernstart zuerst an der Dunstabzugshaube aktiviert ist.",
+  "Triggers when the coffeemaker's operation state becomes Finished.": "Wird ausgelöst, wenn der Betriebszustand des Kaffeevollautomaten Fertig wird.",
   "i-Dos is low": "i-Dos fast leer",
   "Dispenser": "Behälter",
   "i-Dos !{{is|is not}} active": "i-Dos !{{ist|ist nicht}} aktiv",
@@ -1292,6 +1294,178 @@ const HOOD_ACTIONS = [
   },
 ];
 
+// ---- Coffee machine ------------------------------------------------------
+
+const COFFEEMAKER_CAPS = [
+  "onoff",
+  "homeconnect_operation_state",
+  "homeconnect_program",
+  "homeconnect_program_progress",
+  "homeconnect_bean_amount",
+  "homeconnect_fill_quantity",
+  "homeconnect_cup_warmer",
+  "homeconnect_beverage_count_coffee",
+  "homeconnect_remote_start",
+  "homeconnect_remote_control_active",
+  "homeconnect_local_control_active",
+  "homeconnect_child_lock",
+];
+
+const COFFEEMAKER_SHARED = {
+  triggers: [
+    "program_started",
+    "program_finished",
+    "program_aborted",
+    "operation_state_changed",
+    "program_progress_changed",
+    "remote_start_allowed_changed",
+    "remote_control_active_changed",
+    "local_control_changed",
+    "error_occurred",
+    "software_update_available",
+  ],
+  conditions: [
+    "is_running",
+    "is_inactive",
+    "has_error",
+    "remote_start_allowed",
+    "remote_control_is_active",
+    "local_control_is_active",
+    "current_program_is",
+  ],
+  actions: ["stop_program", "acknowledge_event", "power_off"],
+};
+
+const BEAN_AMOUNT_VALUES = [
+  { id: "VeryMild", title: { en: "Very mild", nl: "Zeer mild", de: "Sehr mild" } },
+  { id: "Mild", title: { en: "Mild", nl: "Mild", de: "Mild" } },
+  { id: "MildPlus", title: { en: "Mild +", nl: "Mild +", de: "Mild +" } },
+  { id: "Normal", title: { en: "Normal", nl: "Normaal", de: "Normal" } },
+  { id: "NormalPlus", title: { en: "Normal +", nl: "Normaal +", de: "Normal +" } },
+  { id: "Strong", title: { en: "Strong", nl: "Sterk", de: "Stark" } },
+  { id: "StrongPlus", title: { en: "Strong +", nl: "Sterk +", de: "Stark +" } },
+  { id: "VeryStrong", title: { en: "Very strong", nl: "Zeer sterk", de: "Sehr stark" } },
+  { id: "VeryStrongPlus", title: { en: "Very strong +", nl: "Zeer sterk +", de: "Sehr stark +" } },
+  { id: "ExtraStrong", title: { en: "Extra strong", nl: "Extra sterk", de: "Extra stark" } },
+  { id: "DoubleShot", title: { en: "Double shot", nl: "Dubbele shot", de: "Doppelter Shot" } },
+  { id: "DoubleShotPlus", title: { en: "Double shot +", nl: "Dubbele shot +", de: "Doppelter Shot +" } },
+  { id: "DoubleShotPlusPlus", title: { en: "Double shot ++", nl: "Dubbele shot ++", de: "Doppelter Shot ++" } },
+  { id: "TripleShot", title: { en: "Triple shot", nl: "Driedubbele shot", de: "Dreifacher Shot" } },
+  { id: "TripleShotPlus", title: { en: "Triple shot +", nl: "Driedubbele shot +", de: "Dreifacher Shot +" } },
+  { id: "CoffeeGround", title: { en: "Ground coffee", nl: "Gemalen koffie", de: "Kaffeepulver" } },
+];
+
+const MACHINE_DEFAULT_VALUE = {
+  id: "default",
+  title: { en: "Machine setting", nl: "Instelling van de machine", de: "Einstellung der Maschine" },
+};
+
+const COFFEE_TEMPERATURE_VALUES = ["88C", "90C", "92C", "94C", "95C", "96C"].map((id) => ({
+  id,
+  title: { en: `${id.slice(0, -1)} °C`, nl: `${id.slice(0, -1)} °C`, de: `${id.slice(0, -1)} °C` },
+}));
+
+const beverageArg = {
+  name: "beverage",
+  type: "autocomplete",
+  title: { en: "Drink", nl: "Drank", de: "Getränk" },
+};
+
+const coffeeAlert = (id, en, nl, de) => ({ id: `coffeemaker_${id}`, title: { en, nl, de } });
+
+const COFFEEMAKER_TRIGGERS = [
+  coffeeAlert("bean_container_empty", "Bean container is empty", "Bonenreservoir is leeg", "Bohnenbehälter ist leer"),
+  coffeeAlert("water_tank_empty", "Water tank is empty", "Waterreservoir is leeg", "Wassertank ist leer"),
+  coffeeAlert("drip_tray_full", "Drip tray is full", "Lekbak is vol", "Tropfschale ist voll"),
+  coffeeAlert("keep_milk_tank_cool", "Keep the milk container cool", "Houd het melkreservoir koel", "Milchbehälter kühl halten"),
+  {
+    ...coffeeAlert(
+      "maintenance_required",
+      "Cleaning or descaling is due",
+      "Reinigen of ontkalken is nodig",
+      "Reinigen oder Entkalken ist fällig",
+    ),
+    tokens: [
+      {
+        name: "reminder",
+        type: "string",
+        title: { en: "Reminder", nl: "Melding", de: "Hinweis" },
+        example: { en: "DescalingIn10Cups", nl: "DescalingIn10Cups", de: "DescalingIn10Cups" },
+      },
+    ],
+  },
+];
+
+const COFFEEMAKER_CONDITIONS = [
+  {
+    id: "coffeemaker_cup_warmer_is_on",
+    title: {
+      en: "Cup warmer !{{is|is not}} on",
+      nl: "Kopjesverwarmer !{{staat|staat niet}} aan",
+      de: "Tassenwärmer !{{ist|ist nicht}} an",
+    },
+  },
+];
+
+const COFFEEMAKER_ACTIONS = [
+  {
+    id: "coffeemaker_make_beverage",
+    title: { en: "Make a drink", nl: "Zet een drankje", de: "Getränk zubereiten" },
+    titleFormatted: { en: "Make [[beverage]]", nl: "Zet [[beverage]]", de: "[[beverage]] zubereiten" },
+    hint: {
+      en: "Uses the machine's own settings for this drink. The machine must be on and allow remote start.",
+      nl: "Gebruikt de eigen instellingen van de machine voor dit drankje. De machine moet aan staan en starten op afstand toestaan.",
+      de: "Verwendet die Einstellungen der Maschine für dieses Getränk. Die Maschine muss eingeschaltet sein und Fernstart erlauben.",
+    },
+    args: [beverageArg],
+  },
+  {
+    id: "coffeemaker_make_beverage_custom",
+    title: {
+      en: "Make a drink with settings",
+      nl: "Zet een drankje met instellingen",
+      de: "Getränk mit Einstellungen zubereiten",
+    },
+    titleFormatted: {
+      en: "Make [[beverage]], [[strength]], [[quantity]] ml at [[temperature]]",
+      nl: "Zet [[beverage]], [[strength]], [[quantity]] ml op [[temperature]]",
+      de: "[[beverage]] zubereiten, [[strength]], [[quantity]] ml bei [[temperature]]",
+    },
+    hint: {
+      en: "Pick 'Machine setting' (or quantity 0) to keep the machine's own value. Settings this model doesn't have are skipped; values outside the drink's range are rejected by the machine.",
+      nl: "Kies 'Instelling van de machine' (of hoeveelheid 0) om de eigen waarde van de machine te houden. Instellingen die dit model niet heeft worden overgeslagen; waarden buiten het bereik van het drankje weigert de machine.",
+      de: "Wähle 'Einstellung der Maschine' (oder Menge 0), um den eigenen Wert der Maschine zu behalten. Einstellungen, die dieses Modell nicht hat, werden übersprungen; Werte außerhalb des Bereichs lehnt die Maschine ab.",
+    },
+    args: [
+      beverageArg,
+      {
+        name: "strength",
+        type: "dropdown",
+        title: { en: "Strength", nl: "Sterkte", de: "Stärke" },
+        values: [MACHINE_DEFAULT_VALUE, ...BEAN_AMOUNT_VALUES],
+      },
+      {
+        name: "quantity",
+        type: "number",
+        title: {
+          en: "Quantity (ml, 0 = machine setting)",
+          nl: "Hoeveelheid (ml, 0 = instelling machine)",
+          de: "Füllmenge (ml, 0 = Einstellung der Maschine)",
+        },
+        min: 0,
+        max: 500,
+        step: 10,
+      },
+      {
+        name: "temperature",
+        type: "dropdown",
+        title: { en: "Temperature", nl: "Temperatuur", de: "Temperatur" },
+        values: [MACHINE_DEFAULT_VALUE, ...COFFEE_TEMPERATURE_VALUES],
+      },
+    ],
+  },
+];
+
 const ONLY = process.argv[2];
 const want = (id) => !ONLY || ONLY === id;
 
@@ -1360,6 +1534,22 @@ if (want("hood")) {
       ...HOOD_CONDITIONS,
     ],
     actions: [...pick(sharedActions("hood"), "hood", HOOD_SHARED.actions), ...HOOD_ACTIONS],
+  });
+}
+
+if (want("coffeemaker")) {
+  const coffeeCompose = readJson("drivers/coffeemaker/driver.compose.json");
+  coffeeCompose.capabilities = COFFEEMAKER_CAPS;
+  writeJson("drivers/coffeemaker/driver.compose.json", coffeeCompose);
+
+  const p = "coffeemaker";
+  writeFlow("drivers/coffeemaker/driver.flow.compose.json", {
+    triggers: [...pick(sharedTriggers(p), p, COFFEEMAKER_SHARED.triggers), ...COFFEEMAKER_TRIGGERS],
+    conditions: [
+      ...pick(sharedConditions(p), p, COFFEEMAKER_SHARED.conditions),
+      ...COFFEEMAKER_CONDITIONS,
+    ],
+    actions: [...pick(sharedActions(p), p, COFFEEMAKER_SHARED.actions), ...COFFEEMAKER_ACTIONS],
   });
 }
 

@@ -13,7 +13,8 @@
       "feature_not_available": "That setting is not currently available on the appliance.",
       "invalid_value": "The appliance rejected that value.",
       "door_open": "The door is open. Close the door before starting a program.",
-      "no_selected_program": "No program is selected on the appliance. Select one on the appliance (or with the 'Select a program' card) first."
+      "no_selected_program": "No program is selected on the appliance. Select one on the appliance (or with the 'Select a program' card) first.",
+      "powered_off": "The coffee machine is off. Turn it on first and wait until it has finished rinsing."
     }
   },
   "settings": {

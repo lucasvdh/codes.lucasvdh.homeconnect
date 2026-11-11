@@ -1,0 +1,11 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Cup warmer",
+    "nl": "Kopjesverwarmer",
+    "de": "Tassenwärmer"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle"
+}

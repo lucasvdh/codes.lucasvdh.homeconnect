@@ -565,6 +565,24 @@ const CAPABILITY_MAP: Record<string, CapabilityMapEntry> = {
     decode: decodeNumber,
     encode: encodeNumber,
   },
+  // --- Coffee maker -------------------------------------------------------
+  "ConsumerProducts.CoffeeMaker.Option.BeanAmount": {
+    capability: "homeconnect_bean_amount",
+    decode: decodeLastSegment,
+  },
+  "ConsumerProducts.CoffeeMaker.Option.FillQuantity": {
+    capability: "homeconnect_fill_quantity",
+    decode: decodeNumber,
+  },
+  "ConsumerProducts.CoffeeMaker.Setting.CupWarmer": {
+    capability: "homeconnect_cup_warmer",
+    decode: decodeBool,
+    encode: encodeBool,
+  },
+  "ConsumerProducts.CoffeeMaker.Status.BeverageCounterCoffee": {
+    capability: "homeconnect_beverage_count_coffee",
+    decode: decodeNumber,
+  },
 };
 
 /**

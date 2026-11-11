@@ -1,0 +1,14 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Coffees made",
+    "nl": "Gezette koffie",
+    "de": "Zubereitete Kaffees"
+  },
+  "decimals": 0,
+  "min": 0,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true
+}

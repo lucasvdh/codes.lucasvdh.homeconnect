@@ -80,8 +80,8 @@ const decodeEnumToNumber: Decoder = (v) => {
 };
 
 /**
- * The appliance reports percentages in basis-points-like units: 5000 == 50%.
- * (refCID 11 / refDID A0 in the IDDF feature descriptor.) Divide by 100.
+ * Progress and energy/water forecasts arrive as plain 0-100 percentages
+ * (refCID 11 / refDID A0 in the IDDF feature descriptor), so no scaling.
  */
 const decodePercent: Decoder = (v) => {
   if (v == null) return null;
@@ -750,10 +750,6 @@ export class ApplianceDevice extends Homey.Device {
   /** Push a batch of decoded feature values onto Homey capabilities. */
   private async applyValues(values: Record<string, unknown>): Promise<void> {
     for (const [name, raw] of Object.entries(values)) {
-      if (name === "BSH.Common.Option.ProgramProgress") {
-        this.log("DEBUG ProgramProgress", this.getName(), JSON.stringify(raw));
-      }
-      
       // Some dishwashers report Root.ActiveProgram / Root.SelectedProgram as
       // numeric IDs such as "001", while BSH.Common.Option.BaseProgram carries
       // the readable program name, for example "PreRinse". Use BaseProgram as a

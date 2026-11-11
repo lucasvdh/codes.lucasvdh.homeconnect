@@ -49,8 +49,9 @@
     <ol class="steps">
       <li data-i18n="settings.login_step_generate">Generate the login link and open it in your browser, or copy it.</li>
       <li data-i18n="settings.login_step_signin">Log in with SingleKey ID. Your browser will try to open hcauth://auth/prod?code=... and show an error. That is expected.</li>
-      <li data-i18n="settings.login_step_paste">Copy the full hcauth:// URL from the address bar or network inspector and paste it below.</li>
+      <li data-i18n="settings.login_step_paste">Copy the complete hcauth://auth/prod?code=... URL and paste it below. If your browser doesn't show it in the address bar, open the developer tools (F12) before logging in, go to the Network tab, tick &quot;Preserve log&quot;, type hcauth in the filter and copy the Request URL of the failed request. Chrome and Edge work best.</li>
     </ol>
+    <p class="hint" data-i18n="settings.login_alternative">Can't get the login to work (for example on a Chromebook, iPhone or in Firefox)? Use the homeconnect-profile-downloader tool, choose the hcpy profile and import the resulting devices.json in the other tab.</p>
     <div class="row">
       <button id="manual-generate" data-i18n="settings.generate_login_link">Generate login link</button>
     </div>
@@ -58,7 +59,7 @@
       <div class="row">
         <input type="text" id="manual-link-field" readonly />
         <button id="manual-copy" class="secondary" data-i18n="settings.copy">Copy</button>
-        <a id="manual-link" href="#" rel="noopener" data-i18n="settings.open">Open</a>
+        <a id="manual-link" href="#" target="_blank" rel="noopener" data-i18n="settings.open">Open</a>
       </div>
       <input type="text" id="manual-url" placeholder="hcauth://auth/prod?code=...&state=..." />
       <div class="row" style="margin-top:0.5rem">
@@ -192,6 +193,16 @@
         $('manual-link-block').style.display = 'block';
       } catch (err) {
         setStatus('err', __('settings.login_link_failed', { message: err.message || err }));
+      }
+    });
+    // Inside the Homey app the settings page runs in a webview where a plain
+    // link navigates nowhere; hand the URL to Homey to open in a real browser.
+    $('manual-link').addEventListener('click', (e) => {
+      const url = $('manual-link').href;
+      if (!url || url.endsWith('#')) return;
+      if (typeof Homey !== 'undefined' && typeof Homey.openURL === 'function') {
+        e.preventDefault();
+        Homey.openURL(url);
       }
     });
     $('manual-copy').addEventListener('click', () => {

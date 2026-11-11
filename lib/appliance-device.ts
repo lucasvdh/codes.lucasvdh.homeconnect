@@ -1,5 +1,6 @@
 "use strict";
 
+import net from "net";
 import Homey from "homey";
 
 import { DeviceConfig, FeatureDescriptor } from "./types";
@@ -43,6 +44,25 @@ const passthrough: Decoder = (v) => v;
 const decodeLastSegment: Decoder = (v) =>
   typeof v === "string" && v.includes(".") ? v.split(".").pop() : v;
 
+/**
+ * Capabilities derived from another capability rather than from a feature.
+ * They follow their source in syncCapabilities() and are kept in step by
+ * updateDerivedCapabilities().
+ */
+const DERIVED_CAPABILITIES: Record<string, string> = {
+  homeconnect_remaining_time_display: "homeconnect_remaining_time",
+};
+
+/**
+ * Minutes -> "h:mm" like the appliance display ("1:05", "0:45"). A string
+ * capability can be picked as a device's status indicator, a number can't.
+ */
+export function formatMinutes(minutes: unknown): string | null {
+  if (typeof minutes !== "number" || !Number.isFinite(minutes) || minutes < 0) return null;
+  const total = Math.round(minutes);
+  return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, "0")}`;
+}
+
 const decodeBool: Decoder = (v) => v === true || v === "true" || v === 1 || v === "1";
 
 const decodeSecondsToMinutes: Decoder = (v) => {
@@ -79,8 +99,8 @@ const decodeEnumToNumber: Decoder = (v) => {
 };
 
 /**
- * The appliance reports percentages in basis-points-like units: 5000 == 50%.
- * (refCID 11 / refDID A0 in the IDDF feature descriptor.) Divide by 100.
+ * Progress and energy/water forecasts arrive as plain 0-100 percentages
+ * (refCID 11 / refDID A0 in the IDDF feature descriptor), so no scaling.
  */
 const decodePercent: Decoder = (v) => {
   if (v == null) return null;
@@ -672,6 +692,32 @@ export class ApplianceDevice extends Homey.Device {
         await this.removeCapability(entry.capability).catch(this.error);
       }
     }
+
+    // Derived capabilities exist exactly when their source does. This also
+    // adds them to devices paired before the derived capability existed.
+    for (const [derived, source] of Object.entries(DERIVED_CAPABILITIES)) {
+      if (!declared.has(derived)) continue;
+      const want = this.hasCapability(source);
+      const has = this.hasCapability(derived);
+      if (want && !has) {
+        await this.addCapability(derived).catch(this.error);
+      } else if (!want && has) {
+        await this.removeCapability(derived).catch(this.error);
+      }
+    }
+    await this.updateDerivedCapabilities();
+  }
+
+  /** Recompute every derived capability from its source's current value. */
+  private async updateDerivedCapabilities(): Promise<void> {
+    if (this.hasCapability("homeconnect_remaining_time_display")) {
+      const text = formatMinutes(this.getCapabilityValue("homeconnect_remaining_time"));
+      if (text !== this.getCapabilityValue("homeconnect_remaining_time_display")) {
+        await this.setCapabilityValue("homeconnect_remaining_time_display", text as never).catch(
+          this.error,
+        );
+      }
+    }
   }
 
   /** Per-driver event spec, falling back to {} if the driver doesn't define one. */
@@ -749,10 +795,6 @@ export class ApplianceDevice extends Homey.Device {
   /** Push a batch of decoded feature values onto Homey capabilities. */
   private async applyValues(values: Record<string, unknown>): Promise<void> {
     for (const [name, raw] of Object.entries(values)) {
-      if (name === "BSH.Common.Option.ProgramProgress") {
-        this.log("DEBUG ProgramProgress", this.getName(), JSON.stringify(raw));
-      }
-      
       // Some dishwashers report Root.ActiveProgram / Root.SelectedProgram as
       // numeric IDs such as "001", while BSH.Common.Option.BaseProgram carries
       // the readable program name, for example "PreRinse". Use BaseProgram as a
@@ -812,6 +854,9 @@ export class ApplianceDevice extends Homey.Device {
         continue;
       }
       this.fireTriggers(mapping.capability, value);
+      if (Object.values(DERIVED_CAPABILITIES).includes(mapping.capability)) {
+        await this.updateDerivedCapabilities();
+      }
 
       const mirror = NUMERIC_MIRRORS[mapping.capability];
       if (mirror && this.hasCapability(mirror)) {
@@ -963,6 +1008,7 @@ export class ApplianceDevice extends Homey.Device {
     };
     clear("homeconnect_program_progress", null);
     clear("homeconnect_remaining_time", null);
+    clear("homeconnect_remaining_time_display", null);
     clear("homeconnect_elapsed_time", null);
     clear("homeconnect_start_in_relative", null);
     clear("homeconnect_program_phase", "None");
@@ -996,9 +1042,7 @@ export class ApplianceDevice extends Homey.Device {
   ): Promise<void> {
     const programUid = this.findUid(programName);
     if (programUid == null) throw new Error(this.homey.__("device.error.unknown_program"));
-    if (this.getCapabilityValue("homeconnect_remote_start") === false) {
-      throw new Error(this.homey.__("device.error.remote_start_not_allowed"));
-    }
+    this.assertCanStartRemotely();
 
     const options: Array<{ uid: number; value: unknown }> = [];
     if (opts.temperature != null) {
@@ -1021,6 +1065,45 @@ export class ApplianceDevice extends Homey.Device {
     this.log(`startProgram ${programName} uid=${programUid} options=${JSON.stringify(options)}`);
     if (!this.client) throw new Error("not connected");
     await this.client.startProgram(programUid, options);
+  }
+
+  /**
+   * Start whatever program is currently selected on the appliance, with the
+   * options the user already set there. Lets a Flow decide *when* to run
+   * (e.g. on cheap energy) without having to pick the program in the Flow.
+   */
+  async startSelectedProgram(): Promise<void> {
+    let programUid = this.client?.selectedProgramUid ?? null;
+    if (programUid == null) {
+      // Fall back to the decoded capability value (last name segment).
+      const selected = this.getCapabilityValue("homeconnect_selected_program");
+      if (typeof selected === "string" && selected) {
+        const match = this.listPrograms().find((p) => p.id.split(".").pop() === selected);
+        if (match) programUid = this.findUid(match.id);
+      }
+    }
+    if (programUid == null) {
+      throw new Error(this.homey.__("device.error.no_selected_program"));
+    }
+    this.assertCanStartRemotely();
+    if (!this.client) throw new Error("not connected");
+    const name = this.config.features?.[String(programUid)]?.name ?? String(programUid);
+    this.log(`startSelectedProgram ${name} uid=${programUid}`);
+    // No options: the appliance keeps the options already set for the selection.
+    await this.client.startProgram(programUid, []);
+  }
+
+  /**
+   * Refuse a remote start the appliance would reject (or that would be
+   * unsafe), with a message the user can act on in the Flow.
+   */
+  private assertCanStartRemotely(): void {
+    if (this.getCapabilityValue("homeconnect_remote_start") === false) {
+      throw new Error(this.homey.__("device.error.remote_start_not_allowed"));
+    }
+    if (this.getCapabilityValue("homeconnect_door_state") === "Open") {
+      throw new Error(this.homey.__("device.error.door_open"));
+    }
   }
 
   /** Queue a program without starting it (sets BSH.Common.Root.SelectedProgram). */
@@ -1198,12 +1281,22 @@ export class ApplianceDevice extends Homey.Device {
   // --- mDNS discovery: keep the host in sync if the appliance's IP moves ---
 
   onDiscoveryResult(result: Homey.DiscoveryResult): boolean {
-    return result.id === this.config.haId;
+    // The mDNS instance name is "BRAND-Type-<serial>" (TLS) or the bare
+    // serial (AES), while haId is just the serial, so match on the suffix.
+    const haId = this.config?.haId?.toLowerCase();
+    if (!haId) return false;
+    const r = result as { id?: string; name?: string; host?: string };
+    return [r.id, r.name, r.host]
+      .filter((v): v is string => typeof v === "string" && v.length > 0)
+      .map((v) => v.toLowerCase().replace(/\.local\.?$/, ""))
+      .some((v) => v === haId || v.endsWith(`-${haId}`));
   }
 
   async onDiscoveryAvailable(result: Homey.DiscoveryResult): Promise<void> {
     const address = (result as { address?: string }).address;
-    if (address && address !== this.config.host) {
+    // Only pin IPv4: link-local IPv6 addresses aren't usable without a scope id.
+    if (address && net.isIPv4(address) && address !== this.config.host) {
+      this.log(`mDNS: appliance found at ${address} (was ${this.config.host})`);
       this.config.host = address;
       await this.setStoreValue("config", this.config);
       await this.connect();

@@ -117,25 +117,56 @@ async function requestToken(body: URLSearchParams): Promise<TokenSet> {
 }
 
 /**
- * Parse `code` + `state` out of an `hcauth://auth/prod?code=...&state=...`
- * URL. The custom scheme isn't reliably handled by the URL constructor, so
- * we slice off the query string ourselves.
+ * Parse `code` + `state` out of what the user pasted. Ideally that is the
+ * `hcauth://auth/prod?code=...&state=...` URL, but in practice people paste:
+ *   - the URL with surrounding text (copied from a DevTools row or error page),
+ *   - a URL-encoded copy ("hcauth%3A%2F%2Fauth%2Fprod%3Fcode%3D..."),
+ *   - the SingleKey ID / authorize page URL from the address bar instead.
+ * The custom scheme isn't reliably handled by the URL constructor, so we
+ * slice off the query string ourselves.
  */
 export function parseRedirectUrl(raw: string): { code: string; state: string } {
-  const trimmed = raw.trim();
-  const qIndex = trimmed.indexOf("?");
-  if (qIndex === -1) {
-    throw new Error("That doesn't look like a redirect URL - no '?' query found");
+  let text = raw.trim();
+  if (!text) throw new Error("Paste the hcauth:// URL first");
+
+  // Undo URL-encoding (possibly applied more than once) until it settles.
+  for (let i = 0; i < 3 && /%3a|%3f|%3d|%26|%25/i.test(text); i++) {
+    try {
+      text = decodeURIComponent(text);
+    } catch {
+      break;
+    }
   }
-  const params = new URLSearchParams(trimmed.slice(qIndex + 1));
+
+  // Pick the hcauth:// URL out of any surrounding text.
+  const embedded = text.match(/hcauth:\/\/[^\s"'<>]+/i);
+  if (embedded) {
+    text = embedded[0];
+  } else if (/^https?:\/\//i.test(text)) {
+    throw new Error(
+      "This is the address of the login page, not the hcauth:// redirect. After logging in, " +
+        "copy the hcauth://auth/prod?code=... address from the network inspector (see the steps above).",
+    );
+  }
+
+  const qIndex = text.indexOf("?");
+  if (qIndex === -1) {
+    throw new Error("That doesn't look like the hcauth:// redirect URL - it has no '?code=...' part");
+  }
+  const params = new URLSearchParams(text.slice(qIndex + 1).replace(/&amp;/g, "&"));
   const error = params.get("error");
   if (error) {
     throw new Error(`Authorization failed: ${error} ${params.get("error_description") ?? ""}`.trim());
   }
   const code = params.get("code");
   const state = params.get("state");
-  if (!code) throw new Error("No 'code' parameter found in the redirect URL");
-  if (!state) throw new Error("No 'state' parameter found in the redirect URL");
+  if (!code) {
+    throw new Error(
+      `No 'code' parameter found in the pasted URL (it starts with "${text.slice(0, 40)}…"). ` +
+        "Make sure you copy the complete hcauth://auth/prod?code=... address.",
+    );
+  }
+  if (!state) throw new Error("No 'state' parameter found in the redirect URL - was it cut off?");
   return { code, state };
 }
 

@@ -10,7 +10,9 @@
       "remote_start_not_allowed": "Remote start is not enabled on the appliance. Enable it on the appliance first.",
       "feature_not_supported": "This appliance does not support that setting.",
       "feature_not_available": "That setting is not currently available on the appliance.",
-      "invalid_value": "The appliance rejected that value."
+      "invalid_value": "The appliance rejected that value.",
+      "door_open": "The door is open. Close the door before starting a program.",
+      "no_selected_program": "No program is selected on the appliance. Select one on the appliance (or with the 'Select a program' card) first."
     }
   },
   "settings": {
@@ -21,7 +23,8 @@
     "login_hint": "The SingleKey ID login cannot run inside the app because the login page is protected by hCaptcha. Log in with your own browser instead.",
     "login_step_generate": "Generate the login link and open it in your browser, or copy it.",
     "login_step_signin": "Log in with SingleKey ID. Your browser will try to open hcauth://auth/prod?code=... and show an error. That is expected.",
-    "login_step_paste": "Copy the full hcauth:// URL from the address bar or network inspector and paste it below.",
+    "login_step_paste": "Copy the complete hcauth://auth/prod?code=... URL and paste it below. If your browser doesn't show it in the address bar, open the developer tools (F12) before logging in, go to the Network tab, tick \"Preserve log\", type hcauth in the filter and copy the Request URL of the failed request. Chrome and Edge work best.",
+    "login_alternative": "Can't get the login to work (for example on a Chromebook, iPhone or in Firefox)? Use the homeconnect-profile-downloader tool, choose the hcpy profile and import the resulting devices.json in the other tab.",
     "generate_login_link": "Generate login link",
     "copy": "Copy",
     "open": "Open",

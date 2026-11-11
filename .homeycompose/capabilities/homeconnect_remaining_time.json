@@ -14,6 +14,6 @@
   "min": 0,
   "getable": true,
   "setable": false,
-  "uiComponent": "sensor",
+  "uiComponent": null,
   "icon": "/assets/capability/homeconnect_remaining_time.svg"
 }

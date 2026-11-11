@@ -1,0 +1,13 @@
+{
+  "type": "string",
+  "title": {
+    "en": "Remaining time",
+    "nl": "Resterende tijd",
+    "de": "Restzeit"
+  },
+  "getable": true,
+  "setable": false,
+  "insights": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capability/homeconnect_remaining_time.svg"
+}

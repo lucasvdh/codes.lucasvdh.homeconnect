@@ -239,6 +239,12 @@ export abstract class ApplianceDriver extends Homey.Driver {
       (args.device as ApplianceDevice).listPrograms(query),
     );
 
+    this.homey.flow
+      .getActionCard(`${p}_start_selected_program`)
+      .registerRunListener(async ({ device }: { device: Homey.Device }) =>
+        (device as ApplianceDevice).startSelectedProgram(),
+      );
+
     const selectProgram = this.homey.flow.getActionCard(`${p}_select_program`);
     selectProgram.registerRunListener(
       async (args: { device: Homey.Device; program: { id: string } }) =>

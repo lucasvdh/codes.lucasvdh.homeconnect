@@ -835,6 +835,19 @@
       ]
     },
     {
+      "id": "oven_start_selected_program",
+      "title": {
+        "en": "Start the selected program",
+        "nl": "Start het geselecteerde programma",
+        "de": "Ausgewähltes Programm starten"
+      },
+      "hint": {
+        "en": "Starts the program that is currently selected on the oven, with the options set there. Requires remote start to be enabled and the door to be closed.",
+        "nl": "Start het programma dat nu op de oven is geselecteerd, met de daar ingestelde opties. Vereist dat op afstand starten is ingeschakeld en de deur dicht is.",
+        "de": "Startet das am Backofen aktuell ausgewählte Programm mit den dort eingestellten Optionen. Erfordert aktivierten Fernstart und eine geschlossene Tür."
+      }
+    },
+    {
       "id": "oven_select_program",
       "title": {
         "en": "Select a program",

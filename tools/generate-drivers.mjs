@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-// One-shot generator for the oven + dishwasher driver compose files. Run from
-// the repo root. Overwrites driver.compose.json and driver.flow.compose.json
-// for both drivers. Safe to re-run.
+// Generator for the appliance driver compose files. Run from the repo root:
+//   node tools/generate-drivers.mjs [driver]
+// Overwrites driver.compose.json capabilities and driver.flow.compose.json.
+// Safe to re-run: on a clean checkout it must reproduce the committed files.
 
 import { readFileSync, writeFileSync } from "node:fs";
 
@@ -19,6 +20,7 @@ const SHARED_CAPS = [
   "homeconnect_selected_program",
   "homeconnect_program_progress",
   "homeconnect_remaining_time",
+  "homeconnect_remaining_time_display",
   "homeconnect_elapsed_time",
   "homeconnect_start_in_relative",
   "homeconnect_remote_start",
@@ -31,7 +33,6 @@ const SHARED_CAPS = [
 const OVEN_CAPS = [
   ...SHARED_CAPS,
   "measure_temperature",
-  "target_temperature",
   "homeconnect_program_duration",
   "homeconnect_meat_probe_plugged",
   "homeconnect_meat_probe_temp",
@@ -72,22 +73,51 @@ const DISHWASHER_CAPS = [
   "homeconnect_silence_default_time",
 ];
 
+// Own order: program_phase sits next to the program on the device tile.
 const WASHER_CAPS = [
-  ...SHARED_CAPS,
+  "onoff",
+  "homeconnect_operation_state",
+  "homeconnect_door_state",
+  "homeconnect_program",
+  "homeconnect_selected_program",
+  "homeconnect_program_phase",
+  "homeconnect_program_progress",
+  "homeconnect_remaining_time",
+  "homeconnect_remaining_time_display",
+  "homeconnect_elapsed_time",
+  "homeconnect_start_in_relative",
+  "homeconnect_remote_start",
+  "homeconnect_remote_control_active",
+  "homeconnect_local_control_active",
+  "homeconnect_program_count_started",
+  "homeconnect_child_lock",
   "homeconnect_wash_temperature",
+  "homeconnect_wash_temperature_celsius",
   "homeconnect_spin_speed",
+  "homeconnect_spin_speed_rpm",
   "homeconnect_vario_perfect",
   "homeconnect_speed_perfect",
   "homeconnect_eco_perfect",
   "homeconnect_water_plus",
   "homeconnect_prewash",
+  "homeconnect_rinse_plus",
+  "homeconnect_less_ironing",
+  "homeconnect_soak",
+  "homeconnect_multiple_soak",
+  "homeconnect_rinse_hold",
   "homeconnect_idos1_active",
   "homeconnect_idos2_active",
+  "homeconnect_energy_forecast",
+  "homeconnect_water_forecast",
 ];
 
 const DRYER_CAPS = [
   ...SHARED_CAPS,
   "homeconnect_drying_target",
+  "homeconnect_dryer_wrinkle_guard",
+  "homeconnect_dryer_gentle",
+  "homeconnect_dryer_drying_target_adjustment",
+  "homeconnect_dryer_process_phase",
 ];
 
 // ---------------------------------------------------------------------------
@@ -348,17 +378,39 @@ function sharedConditions(prefix) {
   ];
 }
 
-function sharedActions(prefix, label) {
+// How each driver names its appliance inside a sentence ("on the <noun>").
+const NOUNS = {
+  oven: { en: "oven", nl: "oven", de: "am Backofen" },
+  dishwasher: { en: "dishwasher", nl: "vaatwasser", de: "am Geschirrspüler" },
+  washer: { en: "washing machine", nl: "wasmachine", de: "an der Waschmaschine" },
+  dryer: { en: "dryer", nl: "droger", de: "am Trockner" },
+};
+
+function sharedActions(prefix) {
+  const noun = NOUNS[prefix];
   return [
     {
       id: `${prefix}_start_program`,
       title: { en: "Start a program", nl: "Start een programma" },
       titleFormatted: { en: "Start [[program]]", nl: "Start [[program]]" },
       hint: {
-        en: `Requires remote start to be enabled on the ${label} first.`,
-        nl: `Vereist dat op afstand starten eerst op de ${label} is ingeschakeld.`,
+        en: `Requires remote start to be enabled on the ${noun.en} first.`,
+        nl: `Vereist dat op afstand starten eerst op de ${noun.nl} is ingeschakeld.`,
       },
       args: [{ name: "program", type: "autocomplete", title: { en: "Program", nl: "Programma" } }],
+    },
+    {
+      id: `${prefix}_start_selected_program`,
+      title: {
+        en: "Start the selected program",
+        nl: "Start het geselecteerde programma",
+        de: "Ausgewähltes Programm starten",
+      },
+      hint: {
+        en: `Starts the program that is currently selected on the ${noun.en}, with the options set there. Requires remote start to be enabled and the door to be closed.`,
+        nl: `Start het programma dat nu op de ${noun.nl} is geselecteerd, met de daar ingestelde opties. Vereist dat op afstand starten is ingeschakeld en de deur dicht is.`,
+        de: `Startet das ${noun.de} aktuell ausgewählte Programm mit den dort eingestellten Optionen. Erfordert aktivierten Fernstart und eine geschlossene Tür.`,
+      },
     },
     {
       id: `${prefix}_select_program`,
@@ -524,6 +576,7 @@ const OVEN_CONDITIONS = [
   },
   {
     id: "oven_target_temperature_above",
+    deprecated: true,
     title: {
       en: "Target temperature !{{is|is not}} above ...",
       nl: "Insteltemperatuur !{{is|is niet}} hoger dan ...",
@@ -588,13 +641,13 @@ const OVEN_ACTIONS = [
     id: "oven_set_cavity_light",
     title: { en: "Set oven light", nl: "Zet ovenverlichting" },
     titleFormatted: { en: "Light [[enabled]]", nl: "Verlichting [[enabled]]" },
-    args: [{ name: "enabled", type: "checkbox", title: { en: "Enabled", nl: "Aan" } }],
+    args: [{ name: "enabled", type: "checkbox", title: { en: "Enabled", nl: "Aan", de: "Ein" } }],
   },
   {
     id: "oven_set_fast_preheat",
     title: { en: "Set fast preheat", nl: "Zet snelvoorverwarmen" },
     titleFormatted: { en: "Fast preheat [[enabled]]", nl: "Snelvoorverwarmen [[enabled]]" },
-    args: [{ name: "enabled", type: "checkbox", title: { en: "Enabled", nl: "Aan" } }],
+    args: [{ name: "enabled", type: "checkbox", title: { en: "Enabled", nl: "Aan", de: "Ein" } }],
   },
 ];
 
@@ -1026,7 +1079,7 @@ if (want("oven")) {
   writeJson("drivers/oven/driver.compose.json", ovenCompose);
 
   const ovenStart = ovenStartProgramOverride();
-  const ovenActions = sharedActions("oven", "oven").map((a) =>
+  const ovenActions = sharedActions("oven").map((a) =>
     a.id === ovenStart.id ? ovenStart : a,
   );
 
@@ -1045,7 +1098,7 @@ if (want("dishwasher")) {
   writeFlow("drivers/dishwasher/driver.flow.compose.json", {
     triggers: [...sharedTriggers("dishwasher"), ...DISHWASHER_EVENT_TRIGGERS],
     conditions: [...sharedConditions("dishwasher"), ...DISHWASHER_CONDITIONS],
-    actions: sharedActions("dishwasher", "dishwasher"),
+    actions: sharedActions("dishwasher"),
   });
 }
 
@@ -1057,7 +1110,7 @@ if (want("washer")) {
   writeFlow("drivers/washer/driver.flow.compose.json", {
     triggers: [...sharedTriggers("washer"), ...WASHER_EVENT_TRIGGERS],
     conditions: [...sharedConditions("washer"), ...WASHER_CONDITIONS],
-    actions: [...sharedActions("washer", "washing machine"), ...WASHER_ACTIONS],
+    actions: [...sharedActions("washer"), ...WASHER_ACTIONS],
   });
 }
 
@@ -1069,7 +1122,7 @@ if (want("dryer")) {
   writeFlow("drivers/dryer/driver.flow.compose.json", {
     triggers: sharedTriggers("dryer"),
     conditions: sharedConditions("dryer"),
-    actions: [...sharedActions("dryer", "dryer"), ...DRYER_ACTIONS],
+    actions: [...sharedActions("dryer"), ...DRYER_ACTIONS],
   });
 }
 

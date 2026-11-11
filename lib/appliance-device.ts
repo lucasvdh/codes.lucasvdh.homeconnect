@@ -44,6 +44,25 @@ const passthrough: Decoder = (v) => v;
 const decodeLastSegment: Decoder = (v) =>
   typeof v === "string" && v.includes(".") ? v.split(".").pop() : v;
 
+/**
+ * Capabilities derived from another capability rather than from a feature.
+ * They follow their source in syncCapabilities() and are kept in step by
+ * updateDerivedCapabilities().
+ */
+const DERIVED_CAPABILITIES: Record<string, string> = {
+  homeconnect_remaining_time_display: "homeconnect_remaining_time",
+};
+
+/**
+ * Minutes -> "h:mm" like the appliance display ("1:05", "0:45"). A string
+ * capability can be picked as a device's status indicator, a number can't.
+ */
+export function formatMinutes(minutes: unknown): string | null {
+  if (typeof minutes !== "number" || !Number.isFinite(minutes) || minutes < 0) return null;
+  const total = Math.round(minutes);
+  return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, "0")}`;
+}
+
 const decodeBool: Decoder = (v) => v === true || v === "true" || v === 1 || v === "1";
 
 const decodeSecondsToMinutes: Decoder = (v) => {
@@ -673,7 +692,34 @@ export class ApplianceDevice extends Homey.Device {
         await this.removeCapability(entry.capability).catch(this.error);
       }
     }
+
+    // Derived capabilities exist exactly when their source does. This also
+    // adds them to devices paired before the derived capability existed.
+    for (const [derived, source] of Object.entries(DERIVED_CAPABILITIES)) {
+      if (!declared.has(derived)) continue;
+      const want = this.hasCapability(source);
+      const has = this.hasCapability(derived);
+      if (want && !has) {
+        await this.addCapability(derived).catch(this.error);
+      } else if (!want && has) {
+        await this.removeCapability(derived).catch(this.error);
+      }
+    }
+    await this.updateDerivedCapabilities();
   }
+
+  /** Recompute every derived capability from its source's current value. */
+  private async updateDerivedCapabilities(): Promise<void> {
+    if (this.hasCapability("homeconnect_remaining_time_display")) {
+      const text = formatMinutes(this.getCapabilityValue("homeconnect_remaining_time"));
+      if (text !== this.getCapabilityValue("homeconnect_remaining_time_display")) {
+        await this.setCapabilityValue("homeconnect_remaining_time_display", text as never).catch(
+          this.error,
+        );
+      }
+    }
+  }
+
 
   /** Per-driver event spec, falling back to {} if the driver doesn't define one. */
   private eventMap(): Record<string, EventTriggerSpec> {
@@ -809,6 +855,9 @@ export class ApplianceDevice extends Homey.Device {
         continue;
       }
       this.fireTriggers(mapping.capability, value);
+      if (Object.values(DERIVED_CAPABILITIES).includes(mapping.capability)) {
+        await this.updateDerivedCapabilities();
+      }
 
       const mirror = NUMERIC_MIRRORS[mapping.capability];
       if (mirror && this.hasCapability(mirror)) {
@@ -960,6 +1009,7 @@ export class ApplianceDevice extends Homey.Device {
     };
     clear("homeconnect_program_progress", null);
     clear("homeconnect_remaining_time", null);
+    clear("homeconnect_remaining_time_display", null);
     clear("homeconnect_elapsed_time", null);
     clear("homeconnect_start_in_relative", null);
     clear("homeconnect_program_phase", "None");

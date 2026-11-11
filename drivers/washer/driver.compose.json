@@ -14,6 +14,7 @@
     "homeconnect_program_phase",
     "homeconnect_program_progress",
     "homeconnect_remaining_time",
+    "homeconnect_remaining_time_display",
     "homeconnect_elapsed_time",
     "homeconnect_start_in_relative",
     "homeconnect_remote_start",

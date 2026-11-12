@@ -30,7 +30,8 @@
   "discovery": "homeconnect-mdns",
   "images": {
     "small": "/drivers/dryer/assets/images/small.png",
-    "large": "/drivers/dryer/assets/images/large.png"
+    "large": "/drivers/dryer/assets/images/large.png",
+    "xlarge": "/drivers/dryer/assets/images/xlarge.png"
   },
   "platforms": [
     "local"

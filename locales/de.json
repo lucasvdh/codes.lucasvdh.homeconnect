@@ -1,6 +1,7 @@
 {
   "pair": {
-    "no_devices": "Noch keine Geräte gefunden. Öffne zuerst die App-Einstellungen und führe die einmalige Home Connect-Anmeldung aus."
+    "no_devices": "Noch keine Geräte gefunden. Öffne zuerst die App-Einstellungen und führe die einmalige Home Connect-Anmeldung aus.",
+    "no_devices_of_type": "Keines deiner gespeicherten Geräte wird als {{type}} erkannt. Gefunden: {{types}}. Ist eines davon ein {{type}}, melde es bitte mit einem Diagnosebericht."
   },
   "device": {
     "error": {

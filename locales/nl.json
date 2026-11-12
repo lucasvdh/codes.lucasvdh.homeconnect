@@ -1,6 +1,7 @@
 {
   "pair": {
-    "no_devices": "Nog geen apparaten gevonden. Open de app-instellingen en doorloop eerst de eenmalige Home Connect-login."
+    "no_devices": "Nog geen apparaten gevonden. Open de app-instellingen en doorloop eerst de eenmalige Home Connect-login.",
+    "no_devices_of_type": "Geen van je opgeslagen apparaten wordt herkend als {{type}}. Gevonden: {{types}}. Is een daarvan wel een {{type}}? Meld het dan met een diagnoserapport."
   },
   "device": {
     "error": {

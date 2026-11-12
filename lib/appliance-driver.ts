@@ -322,8 +322,17 @@ export abstract class ApplianceDriver extends Homey.Driver {
     this.log(
       `onPairListDevices: ${devices.length} ${this.applianceType}(s) of ${all.length} stored`,
     );
-    if (devices.length === 0) {
+    if (all.length === 0) {
       throw new Error(this.homey.__("pair.no_devices"));
+    }
+    if (devices.length === 0) {
+      // Appliances exist but none matches this driver's type string. Name
+      // what we did find, so a mismatched type shows up in user reports.
+      const types = [...new Set(all.map((cfg) => cfg.description?.type ?? "?"))].join(", ");
+      this.log(`onPairListDevices: no ${this.applianceType}; stored types: ${types}`);
+      throw new Error(
+        this.homey.__("pair.no_devices_of_type", { type: this.applianceType, types }),
+      );
     }
     return devices.map((cfg) => ({
       name: `${cfg.description.brand} ${cfg.description.type}`,

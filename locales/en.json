@@ -1,6 +1,7 @@
 {
   "pair": {
-    "no_devices": "No appliances found yet. Open the app settings and run the one-time Home Connect login first."
+    "no_devices": "No appliances found yet. Open the app settings and run the one-time Home Connect login first.",
+    "no_devices_of_type": "None of your stored appliances is recognised as a {{type}}. Found: {{types}}. If one of these is a {{type}}, please report it with a diagnostics report."
   },
   "device": {
     "error": {

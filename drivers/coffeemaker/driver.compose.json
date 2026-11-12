@@ -1,0 +1,53 @@
+{
+  "name": {
+    "en": "Coffee machine",
+    "nl": "Koffiemachine",
+    "de": "Kaffeevollautomat"
+  },
+  "class": "coffeemachine",
+  "capabilities": [
+    "onoff",
+    "homeconnect_operation_state",
+    "homeconnect_program",
+    "homeconnect_program_progress",
+    "homeconnect_bean_amount",
+    "homeconnect_fill_quantity",
+    "homeconnect_cup_warmer",
+    "homeconnect_beverage_count_coffee",
+    "homeconnect_remote_start",
+    "homeconnect_remote_control_active",
+    "homeconnect_local_control_active",
+    "homeconnect_child_lock"
+  ],
+  "discovery": "homeconnect-mdns",
+  "images": {
+    "small": "/drivers/coffeemaker/assets/images/small.png",
+    "large": "/drivers/coffeemaker/assets/images/large.png"
+  },
+  "platforms": [
+    "local"
+  ],
+  "connectivity": [
+    "lan"
+  ],
+  "pair": [
+    {
+      "id": "list_devices",
+      "template": "list_devices",
+      "navigation": {
+        "next": "add_devices"
+      },
+      "options": {
+        "title": {
+          "en": "Select the coffee machines to add",
+          "nl": "Selecteer de koffiemachines om toe te voegen",
+          "de": "Wähle die Kaffeevollautomaten aus, die hinzugefügt werden sollen"
+        }
+      }
+    },
+    {
+      "id": "add_devices",
+      "template": "add_devices"
+    }
+  ]
+}

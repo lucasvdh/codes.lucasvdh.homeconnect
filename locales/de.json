@@ -1,6 +1,7 @@
 {
   "pair": {
-    "no_devices": "Noch keine Geräte gefunden. Öffne zuerst die App-Einstellungen und führe die einmalige Home Connect-Anmeldung aus."
+    "no_devices": "Noch keine Geräte gefunden. Öffne zuerst die App-Einstellungen und führe die einmalige Home Connect-Anmeldung aus.",
+    "no_devices_of_type": "Keines deiner gespeicherten Geräte wird als {{type}} erkannt. Gefunden: {{types}}. Ist eines davon ein {{type}}, melde es bitte mit einem Diagnosebericht."
   },
   "device": {
     "error": {
@@ -12,7 +13,8 @@
       "feature_not_available": "Diese Einstellung ist am Gerät derzeit nicht verfügbar.",
       "invalid_value": "Das Gerät hat diesen Wert abgelehnt.",
       "door_open": "Die Tür ist offen. Schließe die Tür, bevor du ein Programm startest.",
-      "no_selected_program": "Am Gerät ist kein Programm ausgewählt. Wähle zuerst eines am Gerät (oder mit der Karte 'Programm auswählen')."
+      "no_selected_program": "Am Gerät ist kein Programm ausgewählt. Wähle zuerst eines am Gerät (oder mit der Karte 'Programm auswählen').",
+      "powered_off": "Die Kaffeemaschine ist aus. Schalte sie zuerst ein und warte, bis sie fertig gespült hat."
     }
   },
   "settings": {

@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-// One-shot generator for the oven + dishwasher driver compose files. Run from
-// the repo root. Overwrites driver.compose.json and driver.flow.compose.json
-// for both drivers. Safe to re-run.
+// Generator for the appliance driver compose files. Run from the repo root:
+//   node tools/generate-drivers.mjs [driver]
+// Overwrites driver.compose.json capabilities and driver.flow.compose.json.
+// Safe to re-run: on a clean checkout it must reproduce the committed files.
 
 import { readFileSync, writeFileSync } from "node:fs";
 
@@ -19,6 +20,7 @@ const SHARED_CAPS = [
   "homeconnect_selected_program",
   "homeconnect_program_progress",
   "homeconnect_remaining_time",
+  "homeconnect_remaining_time_display",
   "homeconnect_elapsed_time",
   "homeconnect_start_in_relative",
   "homeconnect_remote_start",
@@ -31,7 +33,6 @@ const SHARED_CAPS = [
 const OVEN_CAPS = [
   ...SHARED_CAPS,
   "measure_temperature",
-  "target_temperature",
   "homeconnect_program_duration",
   "homeconnect_meat_probe_plugged",
   "homeconnect_meat_probe_temp",
@@ -72,22 +73,51 @@ const DISHWASHER_CAPS = [
   "homeconnect_silence_default_time",
 ];
 
+// Own order: program_phase sits next to the program on the device tile.
 const WASHER_CAPS = [
-  ...SHARED_CAPS,
+  "onoff",
+  "homeconnect_operation_state",
+  "homeconnect_door_state",
+  "homeconnect_program",
+  "homeconnect_selected_program",
+  "homeconnect_program_phase",
+  "homeconnect_program_progress",
+  "homeconnect_remaining_time",
+  "homeconnect_remaining_time_display",
+  "homeconnect_elapsed_time",
+  "homeconnect_start_in_relative",
+  "homeconnect_remote_start",
+  "homeconnect_remote_control_active",
+  "homeconnect_local_control_active",
+  "homeconnect_program_count_started",
+  "homeconnect_child_lock",
   "homeconnect_wash_temperature",
+  "homeconnect_wash_temperature_celsius",
   "homeconnect_spin_speed",
+  "homeconnect_spin_speed_rpm",
   "homeconnect_vario_perfect",
   "homeconnect_speed_perfect",
   "homeconnect_eco_perfect",
   "homeconnect_water_plus",
   "homeconnect_prewash",
+  "homeconnect_rinse_plus",
+  "homeconnect_less_ironing",
+  "homeconnect_soak",
+  "homeconnect_multiple_soak",
+  "homeconnect_rinse_hold",
   "homeconnect_idos1_active",
   "homeconnect_idos2_active",
+  "homeconnect_energy_forecast",
+  "homeconnect_water_forecast",
 ];
 
 const DRYER_CAPS = [
   ...SHARED_CAPS,
   "homeconnect_drying_target",
+  "homeconnect_dryer_wrinkle_guard",
+  "homeconnect_dryer_gentle",
+  "homeconnect_dryer_drying_target_adjustment",
+  "homeconnect_dryer_process_phase",
 ];
 
 // ---------------------------------------------------------------------------
@@ -348,17 +378,41 @@ function sharedConditions(prefix) {
   ];
 }
 
-function sharedActions(prefix, label) {
+// How each driver names its appliance inside a sentence ("on the <noun>").
+const NOUNS = {
+  oven: { en: "oven", nl: "oven", de: "am Backofen" },
+  dishwasher: { en: "dishwasher", nl: "vaatwasser", de: "am Geschirrspüler" },
+  washer: { en: "washing machine", nl: "wasmachine", de: "an der Waschmaschine" },
+  dryer: { en: "dryer", nl: "droger", de: "am Trockner" },
+  hood: { en: "hood", nl: "afzuigkap", de: "an der Dunstabzugshaube" },
+  coffeemaker: { en: "coffee machine", nl: "koffiemachine", de: "am Kaffeevollautomaten" },
+};
+
+function sharedActions(prefix) {
+  const noun = NOUNS[prefix];
   return [
     {
       id: `${prefix}_start_program`,
       title: { en: "Start a program", nl: "Start een programma" },
       titleFormatted: { en: "Start [[program]]", nl: "Start [[program]]" },
       hint: {
-        en: `Requires remote start to be enabled on the ${label} first.`,
-        nl: `Vereist dat op afstand starten eerst op de ${label} is ingeschakeld.`,
+        en: `Requires remote start to be enabled on the ${noun.en} first.`,
+        nl: `Vereist dat op afstand starten eerst op de ${noun.nl} is ingeschakeld.`,
       },
       args: [{ name: "program", type: "autocomplete", title: { en: "Program", nl: "Programma" } }],
+    },
+    {
+      id: `${prefix}_start_selected_program`,
+      title: {
+        en: "Start the selected program",
+        nl: "Start het geselecteerde programma",
+        de: "Ausgewähltes Programm starten",
+      },
+      hint: {
+        en: `Starts the program that is currently selected on the ${noun.en}, with the options set there. Requires remote start to be enabled and the door to be closed.`,
+        nl: `Start het programma dat nu op de ${noun.nl} is geselecteerd, met de daar ingestelde opties. Vereist dat op afstand starten is ingeschakeld en de deur dicht is.`,
+        de: `Startet das ${noun.de} aktuell ausgewählte Programm mit den dort eingestellten Optionen. Erfordert aktivierten Fernstart und eine geschlossene Tür.`,
+      },
     },
     {
       id: `${prefix}_select_program`,
@@ -524,6 +578,7 @@ const OVEN_CONDITIONS = [
   },
   {
     id: "oven_target_temperature_above",
+    deprecated: true,
     title: {
       en: "Target temperature !{{is|is not}} above ...",
       nl: "Insteltemperatuur !{{is|is niet}} hoger dan ...",
@@ -588,13 +643,13 @@ const OVEN_ACTIONS = [
     id: "oven_set_cavity_light",
     title: { en: "Set oven light", nl: "Zet ovenverlichting" },
     titleFormatted: { en: "Light [[enabled]]", nl: "Verlichting [[enabled]]" },
-    args: [{ name: "enabled", type: "checkbox", title: { en: "Enabled", nl: "Aan" } }],
+    args: [{ name: "enabled", type: "checkbox", title: { en: "Enabled", nl: "Aan", de: "Ein" } }],
   },
   {
     id: "oven_set_fast_preheat",
     title: { en: "Set fast preheat", nl: "Zet snelvoorverwarmen" },
     titleFormatted: { en: "Fast preheat [[enabled]]", nl: "Snelvoorverwarmen [[enabled]]" },
-    args: [{ name: "enabled", type: "checkbox", title: { en: "Enabled", nl: "Aan" } }],
+    args: [{ name: "enabled", type: "checkbox", title: { en: "Enabled", nl: "Aan", de: "Ein" } }],
   },
 ];
 
@@ -843,6 +898,9 @@ const DE_DICT = {
   "Triggers when the dryer's operation state becomes Finished.": "Wird ausgelöst, wenn der Betriebszustand des Wäschetrockners Fertig wird.",
   "Requires remote start to be enabled on the washing machine first.": "Erfordert, dass Fernstart zuerst an der Waschmaschine aktiviert ist.",
   "Requires remote start to be enabled on the dryer first.": "Erfordert, dass Fernstart zuerst am Wäschetrockner aktiviert ist.",
+  "Triggers when the hood's operation state becomes Finished.": "Wird ausgelöst, wenn der Betriebszustand der Dunstabzugshaube Fertig wird.",
+  "Requires remote start to be enabled on the hood first.": "Erfordert, dass Fernstart zuerst an der Dunstabzugshaube aktiviert ist.",
+  "Triggers when the coffeemaker's operation state becomes Finished.": "Wird ausgelöst, wenn der Betriebszustand des Kaffeevollautomaten Fertig wird.",
   "i-Dos is low": "i-Dos fast leer",
   "Dispenser": "Behälter",
   "i-Dos !{{is|is not}} active": "i-Dos !{{ist|ist nicht}} aktiv",
@@ -1017,6 +1075,397 @@ const DRYER_ACTIONS = [
 // With no arg, all drivers are (re)generated.
 // ---------------------------------------------------------------------------
 
+// ---- Hood ----------------------------------------------------------------
+
+const HOOD_CAPS = [
+  "onoff",
+  "homeconnect_operation_state",
+  "homeconnect_program",
+  "homeconnect_venting_level",
+  "homeconnect_intensive_level",
+  "homeconnect_light",
+  "homeconnect_light_brightness",
+  "homeconnect_ambient_light",
+  "homeconnect_ambient_light_brightness",
+  "homeconnect_program_progress",
+  "homeconnect_remaining_time",
+  "homeconnect_remaining_time_display",
+  "homeconnect_elapsed_time",
+  "homeconnect_remote_control_active",
+  "homeconnect_local_control_active",
+];
+
+// Shared cards that make sense for a hood (no door, child lock, delayed start).
+const HOOD_SHARED = {
+  triggers: [
+    "program_started",
+    "program_finished",
+    "operation_state_changed",
+    "remaining_time_changed",
+    "remote_control_active_changed",
+    "local_control_changed",
+    "error_occurred",
+    "software_update_available",
+  ],
+  conditions: [
+    "is_running",
+    "is_inactive",
+    "has_error",
+    "remote_control_is_active",
+    "local_control_is_active",
+    "current_program_is",
+  ],
+  actions: ["start_program", "stop_program", "acknowledge_event", "power_off"],
+};
+
+const pick = (cards, prefix, ids) =>
+  cards.filter((c) => ids.includes(c.id.slice(prefix.length + 1)));
+
+const VENTING_LEVEL_VALUES = [
+  { id: "FanOff", title: { en: "Off", nl: "Uit", de: "Aus" } },
+  ...[1, 2, 3, 4, 5].map((i) => ({
+    id: `FanStage0${i}`,
+    title: { en: `Level ${i}`, nl: `Stand ${i}`, de: `Stufe ${i}` },
+  })),
+];
+
+const INTENSIVE_LEVEL_VALUES = [
+  { id: "IntensiveStageOff", title: { en: "Off", nl: "Uit", de: "Aus" } },
+  { id: "IntensiveStage1", title: { en: "Intensive 1", nl: "Intensief 1", de: "Intensiv 1" } },
+  { id: "IntensiveStage2", title: { en: "Intensive 2", nl: "Intensief 2", de: "Intensiv 2" } },
+];
+
+const levelArg = (values) => ({
+  name: "level",
+  type: "dropdown",
+  title: { en: "Level", nl: "Stand", de: "Stufe" },
+  values,
+});
+
+const onOffArg = {
+  name: "enabled",
+  type: "checkbox",
+  title: { en: "On", nl: "Aan", de: "Ein" },
+};
+
+const HOOD_TRIGGERS = [
+  {
+    id: "hood_venting_level_changed",
+    title: { en: "Fan level changed", nl: "Ventilatorstand is gewijzigd", de: "Lüfterstufe hat sich geändert" },
+    tokens: [
+      {
+        name: "level",
+        type: "string",
+        title: { en: "Level", nl: "Stand", de: "Stufe" },
+        example: { en: "FanStage02", nl: "FanStage02", de: "FanStage02" },
+      },
+    ],
+  },
+  {
+    id: "hood_grease_filter_nearly_saturated",
+    title: {
+      en: "Grease filter is nearly saturated",
+      nl: "Vetfilter is bijna verzadigd",
+      de: "Fettfilter ist fast gesättigt",
+    },
+  },
+  {
+    id: "hood_grease_filter_saturated",
+    title: {
+      en: "Grease filter is saturated",
+      nl: "Vetfilter is verzadigd",
+      de: "Fettfilter ist gesättigt",
+    },
+  },
+];
+
+const HOOD_CONDITIONS = [
+  {
+    id: "hood_venting_level_is",
+    title: {
+      en: "Fan level !{{is|is not}} ...",
+      nl: "Ventilatorstand !{{is|is niet}} ...",
+      de: "Lüfterstufe !{{ist|ist nicht}} ...",
+    },
+    titleFormatted: {
+      en: "Fan level !{{is|is not}} [[level]]",
+      nl: "Ventilatorstand !{{is|is niet}} [[level]]",
+      de: "Lüfterstufe !{{ist|ist nicht}} [[level]]",
+    },
+    args: [levelArg(VENTING_LEVEL_VALUES)],
+  },
+  {
+    id: "hood_light_is_on",
+    title: {
+      en: "Light !{{is|is not}} on",
+      nl: "Verlichting !{{is|is niet}} aan",
+      de: "Beleuchtung !{{ist|ist nicht}} an",
+    },
+  },
+];
+
+const HOOD_ACTIONS = [
+  {
+    id: "hood_set_venting_level",
+    title: { en: "Set fan level", nl: "Zet ventilatorstand", de: "Lüfterstufe einstellen" },
+    titleFormatted: {
+      en: "Set fan level to [[level]]",
+      nl: "Zet ventilatorstand op [[level]]",
+      de: "Lüfterstufe auf [[level]] einstellen",
+    },
+    hint: {
+      en: "Starts the fan at this level, changes the level while it runs, or stops it with Off.",
+      nl: "Start de ventilator op deze stand, wijzigt de stand terwijl hij draait, of stopt hem met Uit.",
+      de: "Startet den Lüfter auf dieser Stufe, ändert die Stufe im Betrieb oder stoppt ihn mit Aus.",
+    },
+    args: [levelArg(VENTING_LEVEL_VALUES)],
+  },
+  {
+    id: "hood_set_intensive_level",
+    title: { en: "Set intensive level", nl: "Zet intensiefstand", de: "Intensivstufe einstellen" },
+    titleFormatted: {
+      en: "Set intensive level to [[level]]",
+      nl: "Zet intensiefstand op [[level]]",
+      de: "Intensivstufe auf [[level]] einstellen",
+    },
+    args: [levelArg(INTENSIVE_LEVEL_VALUES)],
+  },
+  {
+    id: "hood_start_automatic",
+    title: { en: "Start automatic mode", nl: "Start automatische stand", de: "Automatikbetrieb starten" },
+    hint: {
+      en: "The hood picks the fan level itself based on its sensor.",
+      nl: "De kap kiest zelf de ventilatorstand op basis van zijn sensor.",
+      de: "Die Haube wählt die Lüfterstufe anhand ihres Sensors selbst.",
+    },
+  },
+  {
+    id: "hood_start_delayed_shutoff",
+    title: { en: "Start run-on", nl: "Start nalooptijd", de: "Nachlauf starten" },
+    hint: {
+      en: "Keeps the fan running for the hood's run-on time and then switches it off.",
+      nl: "Laat de ventilator nog de nalooptijd van de kap draaien en schakelt hem dan uit.",
+      de: "Lässt den Lüfter für die Nachlaufzeit der Haube laufen und schaltet ihn dann aus.",
+    },
+  },
+  {
+    id: "hood_set_light",
+    title: { en: "Turn the light on or off", nl: "Zet de verlichting aan of uit", de: "Beleuchtung ein- oder ausschalten" },
+    titleFormatted: {
+      en: "Turn the light [[enabled]]",
+      nl: "Zet de verlichting [[enabled]]",
+      de: "Beleuchtung [[enabled]] schalten",
+    },
+    args: [onOffArg],
+  },
+  {
+    id: "hood_set_light_brightness",
+    title: { en: "Set light brightness", nl: "Zet helderheid verlichting", de: "Helligkeit der Beleuchtung einstellen" },
+    titleFormatted: {
+      en: "Set light brightness to [[brightness]]%",
+      nl: "Zet helderheid verlichting op [[brightness]]%",
+      de: "Helligkeit der Beleuchtung auf [[brightness]]% einstellen",
+    },
+    args: [
+      {
+        name: "brightness",
+        type: "range",
+        title: { en: "Brightness", nl: "Helderheid", de: "Helligkeit" },
+        min: 10,
+        max: 100,
+        step: 1,
+        label: "%",
+      },
+    ],
+  },
+  {
+    id: "hood_set_ambient_light",
+    title: {
+      en: "Turn the ambient light on or off",
+      nl: "Zet de sfeerverlichting aan of uit",
+      de: "Ambientebeleuchtung ein- oder ausschalten",
+    },
+    titleFormatted: {
+      en: "Turn the ambient light [[enabled]]",
+      nl: "Zet de sfeerverlichting [[enabled]]",
+      de: "Ambientebeleuchtung [[enabled]] schalten",
+    },
+    args: [onOffArg],
+  },
+];
+
+// ---- Coffee machine ------------------------------------------------------
+
+const COFFEEMAKER_CAPS = [
+  "onoff",
+  "homeconnect_operation_state",
+  "homeconnect_program",
+  "homeconnect_program_progress",
+  "homeconnect_bean_amount",
+  "homeconnect_fill_quantity",
+  "homeconnect_cup_warmer",
+  "homeconnect_beverage_count_coffee",
+  "homeconnect_remote_start",
+  "homeconnect_remote_control_active",
+  "homeconnect_local_control_active",
+  "homeconnect_child_lock",
+];
+
+const COFFEEMAKER_SHARED = {
+  triggers: [
+    "program_started",
+    "program_finished",
+    "program_aborted",
+    "operation_state_changed",
+    "program_progress_changed",
+    "remote_start_allowed_changed",
+    "remote_control_active_changed",
+    "local_control_changed",
+    "error_occurred",
+    "software_update_available",
+  ],
+  conditions: [
+    "is_running",
+    "is_inactive",
+    "has_error",
+    "remote_start_allowed",
+    "remote_control_is_active",
+    "local_control_is_active",
+    "current_program_is",
+  ],
+  actions: ["stop_program", "acknowledge_event", "power_off"],
+};
+
+const BEAN_AMOUNT_VALUES = [
+  { id: "VeryMild", title: { en: "Very mild", nl: "Zeer mild", de: "Sehr mild" } },
+  { id: "Mild", title: { en: "Mild", nl: "Mild", de: "Mild" } },
+  { id: "MildPlus", title: { en: "Mild +", nl: "Mild +", de: "Mild +" } },
+  { id: "Normal", title: { en: "Normal", nl: "Normaal", de: "Normal" } },
+  { id: "NormalPlus", title: { en: "Normal +", nl: "Normaal +", de: "Normal +" } },
+  { id: "Strong", title: { en: "Strong", nl: "Sterk", de: "Stark" } },
+  { id: "StrongPlus", title: { en: "Strong +", nl: "Sterk +", de: "Stark +" } },
+  { id: "VeryStrong", title: { en: "Very strong", nl: "Zeer sterk", de: "Sehr stark" } },
+  { id: "VeryStrongPlus", title: { en: "Very strong +", nl: "Zeer sterk +", de: "Sehr stark +" } },
+  { id: "ExtraStrong", title: { en: "Extra strong", nl: "Extra sterk", de: "Extra stark" } },
+  { id: "DoubleShot", title: { en: "Double shot", nl: "Dubbele shot", de: "Doppelter Shot" } },
+  { id: "DoubleShotPlus", title: { en: "Double shot +", nl: "Dubbele shot +", de: "Doppelter Shot +" } },
+  { id: "DoubleShotPlusPlus", title: { en: "Double shot ++", nl: "Dubbele shot ++", de: "Doppelter Shot ++" } },
+  { id: "TripleShot", title: { en: "Triple shot", nl: "Driedubbele shot", de: "Dreifacher Shot" } },
+  { id: "TripleShotPlus", title: { en: "Triple shot +", nl: "Driedubbele shot +", de: "Dreifacher Shot +" } },
+  { id: "CoffeeGround", title: { en: "Ground coffee", nl: "Gemalen koffie", de: "Kaffeepulver" } },
+];
+
+const MACHINE_DEFAULT_VALUE = {
+  id: "default",
+  title: { en: "Machine setting", nl: "Instelling van de machine", de: "Einstellung der Maschine" },
+};
+
+const COFFEE_TEMPERATURE_VALUES = ["88C", "90C", "92C", "94C", "95C", "96C"].map((id) => ({
+  id,
+  title: { en: `${id.slice(0, -1)} °C`, nl: `${id.slice(0, -1)} °C`, de: `${id.slice(0, -1)} °C` },
+}));
+
+const beverageArg = {
+  name: "beverage",
+  type: "autocomplete",
+  title: { en: "Drink", nl: "Drank", de: "Getränk" },
+};
+
+const coffeeAlert = (id, en, nl, de) => ({ id: `coffeemaker_${id}`, title: { en, nl, de } });
+
+const COFFEEMAKER_TRIGGERS = [
+  coffeeAlert("bean_container_empty", "Bean container is empty", "Bonenreservoir is leeg", "Bohnenbehälter ist leer"),
+  coffeeAlert("water_tank_empty", "Water tank is empty", "Waterreservoir is leeg", "Wassertank ist leer"),
+  coffeeAlert("drip_tray_full", "Drip tray is full", "Lekbak is vol", "Tropfschale ist voll"),
+  coffeeAlert("keep_milk_tank_cool", "Keep the milk container cool", "Houd het melkreservoir koel", "Milchbehälter kühl halten"),
+  {
+    ...coffeeAlert(
+      "maintenance_required",
+      "Cleaning or descaling is due",
+      "Reinigen of ontkalken is nodig",
+      "Reinigen oder Entkalken ist fällig",
+    ),
+    tokens: [
+      {
+        name: "reminder",
+        type: "string",
+        title: { en: "Reminder", nl: "Melding", de: "Hinweis" },
+        example: { en: "DescalingIn10Cups", nl: "DescalingIn10Cups", de: "DescalingIn10Cups" },
+      },
+    ],
+  },
+];
+
+const COFFEEMAKER_CONDITIONS = [
+  {
+    id: "coffeemaker_cup_warmer_is_on",
+    title: {
+      en: "Cup warmer !{{is|is not}} on",
+      nl: "Kopjesverwarmer !{{staat|staat niet}} aan",
+      de: "Tassenwärmer !{{ist|ist nicht}} an",
+    },
+  },
+];
+
+const COFFEEMAKER_ACTIONS = [
+  {
+    id: "coffeemaker_make_beverage",
+    title: { en: "Make a drink", nl: "Zet een drankje", de: "Getränk zubereiten" },
+    titleFormatted: { en: "Make [[beverage]]", nl: "Zet [[beverage]]", de: "[[beverage]] zubereiten" },
+    hint: {
+      en: "Uses the machine's own settings for this drink. The machine must be on and allow remote start.",
+      nl: "Gebruikt de eigen instellingen van de machine voor dit drankje. De machine moet aan staan en starten op afstand toestaan.",
+      de: "Verwendet die Einstellungen der Maschine für dieses Getränk. Die Maschine muss eingeschaltet sein und Fernstart erlauben.",
+    },
+    args: [beverageArg],
+  },
+  {
+    id: "coffeemaker_make_beverage_custom",
+    title: {
+      en: "Make a drink with settings",
+      nl: "Zet een drankje met instellingen",
+      de: "Getränk mit Einstellungen zubereiten",
+    },
+    titleFormatted: {
+      en: "Make [[beverage]], [[strength]], [[quantity]] ml at [[temperature]]",
+      nl: "Zet [[beverage]], [[strength]], [[quantity]] ml op [[temperature]]",
+      de: "[[beverage]] zubereiten, [[strength]], [[quantity]] ml bei [[temperature]]",
+    },
+    hint: {
+      en: "Pick 'Machine setting' (or quantity 0) to keep the machine's own value. Settings this model doesn't have are skipped; values outside the drink's range are rejected by the machine.",
+      nl: "Kies 'Instelling van de machine' (of hoeveelheid 0) om de eigen waarde van de machine te houden. Instellingen die dit model niet heeft worden overgeslagen; waarden buiten het bereik van het drankje weigert de machine.",
+      de: "Wähle 'Einstellung der Maschine' (oder Menge 0), um den eigenen Wert der Maschine zu behalten. Einstellungen, die dieses Modell nicht hat, werden übersprungen; Werte außerhalb des Bereichs lehnt die Maschine ab.",
+    },
+    args: [
+      beverageArg,
+      {
+        name: "strength",
+        type: "dropdown",
+        title: { en: "Strength", nl: "Sterkte", de: "Stärke" },
+        values: [MACHINE_DEFAULT_VALUE, ...BEAN_AMOUNT_VALUES],
+      },
+      {
+        name: "quantity",
+        type: "number",
+        title: {
+          en: "Quantity (ml, 0 = machine setting)",
+          nl: "Hoeveelheid (ml, 0 = instelling machine)",
+          de: "Füllmenge (ml, 0 = Einstellung der Maschine)",
+        },
+        min: 0,
+        max: 500,
+        step: 10,
+      },
+      {
+        name: "temperature",
+        type: "dropdown",
+        title: { en: "Temperature", nl: "Temperatuur", de: "Temperatur" },
+        values: [MACHINE_DEFAULT_VALUE, ...COFFEE_TEMPERATURE_VALUES],
+      },
+    ],
+  },
+];
+
 const ONLY = process.argv[2];
 const want = (id) => !ONLY || ONLY === id;
 
@@ -1026,7 +1475,7 @@ if (want("oven")) {
   writeJson("drivers/oven/driver.compose.json", ovenCompose);
 
   const ovenStart = ovenStartProgramOverride();
-  const ovenActions = sharedActions("oven", "oven").map((a) =>
+  const ovenActions = sharedActions("oven").map((a) =>
     a.id === ovenStart.id ? ovenStart : a,
   );
 
@@ -1045,7 +1494,7 @@ if (want("dishwasher")) {
   writeFlow("drivers/dishwasher/driver.flow.compose.json", {
     triggers: [...sharedTriggers("dishwasher"), ...DISHWASHER_EVENT_TRIGGERS],
     conditions: [...sharedConditions("dishwasher"), ...DISHWASHER_CONDITIONS],
-    actions: sharedActions("dishwasher", "dishwasher"),
+    actions: sharedActions("dishwasher"),
   });
 }
 
@@ -1057,7 +1506,7 @@ if (want("washer")) {
   writeFlow("drivers/washer/driver.flow.compose.json", {
     triggers: [...sharedTriggers("washer"), ...WASHER_EVENT_TRIGGERS],
     conditions: [...sharedConditions("washer"), ...WASHER_CONDITIONS],
-    actions: [...sharedActions("washer", "washing machine"), ...WASHER_ACTIONS],
+    actions: [...sharedActions("washer"), ...WASHER_ACTIONS],
   });
 }
 
@@ -1069,7 +1518,38 @@ if (want("dryer")) {
   writeFlow("drivers/dryer/driver.flow.compose.json", {
     triggers: sharedTriggers("dryer"),
     conditions: sharedConditions("dryer"),
-    actions: [...sharedActions("dryer", "dryer"), ...DRYER_ACTIONS],
+    actions: [...sharedActions("dryer"), ...DRYER_ACTIONS],
+  });
+}
+
+if (want("hood")) {
+  const hoodCompose = readJson("drivers/hood/driver.compose.json");
+  hoodCompose.capabilities = HOOD_CAPS;
+  writeJson("drivers/hood/driver.compose.json", hoodCompose);
+
+  writeFlow("drivers/hood/driver.flow.compose.json", {
+    triggers: [...pick(sharedTriggers("hood"), "hood", HOOD_SHARED.triggers), ...HOOD_TRIGGERS],
+    conditions: [
+      ...pick(sharedConditions("hood"), "hood", HOOD_SHARED.conditions),
+      ...HOOD_CONDITIONS,
+    ],
+    actions: [...pick(sharedActions("hood"), "hood", HOOD_SHARED.actions), ...HOOD_ACTIONS],
+  });
+}
+
+if (want("coffeemaker")) {
+  const coffeeCompose = readJson("drivers/coffeemaker/driver.compose.json");
+  coffeeCompose.capabilities = COFFEEMAKER_CAPS;
+  writeJson("drivers/coffeemaker/driver.compose.json", coffeeCompose);
+
+  const p = "coffeemaker";
+  writeFlow("drivers/coffeemaker/driver.flow.compose.json", {
+    triggers: [...pick(sharedTriggers(p), p, COFFEEMAKER_SHARED.triggers), ...COFFEEMAKER_TRIGGERS],
+    conditions: [
+      ...pick(sharedConditions(p), p, COFFEEMAKER_SHARED.conditions),
+      ...COFFEEMAKER_CONDITIONS,
+    ],
+    actions: [...pick(sharedActions(p), p, COFFEEMAKER_SHARED.actions), ...COFFEEMAKER_ACTIONS],
   });
 }
 

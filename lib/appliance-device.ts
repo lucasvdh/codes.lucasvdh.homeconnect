@@ -34,6 +34,14 @@ interface CapabilityMapEntry {
   decode: Decoder;
   /** Only present for writable capabilities. */
   encode?: Encoder;
+  /**
+   * Value the capability falls back to once the appliance stops running,
+   * for values the appliance doesn't reset itself (a hood's fan stage is an
+   * option of the running program). Applied on the running -> idle edge only.
+   */
+  idleValue?: unknown;
+  /** Fire `<key>Trigger` on the driver with the new value as `token` on change. */
+  trigger?: { key: string; token: string };
 }
 
 // --- decode/encode helpers ---------------------------------------------------
@@ -521,6 +529,60 @@ const CAPABILITY_MAP: Record<string, CapabilityMapEntry> = {
     capability: "homeconnect_dryer_process_phase",
     decode: decodeLastSegment,
   },
+
+  // --- Hood ---------------------------------------------------------------
+  // Fan stages are options of the running program, so writes go through
+  // HoodDevice (start Venting / change the option / stop) rather than a
+  // plain /ro/values encode.
+  "Cooking.Common.Option.Hood.VentingLevel": {
+    capability: "homeconnect_venting_level",
+    decode: decodeLastSegment,
+    idleValue: "FanOff",
+    trigger: { key: "ventingLevelChanged", token: "level" },
+  },
+  "Cooking.Common.Option.Hood.IntensiveLevel": {
+    capability: "homeconnect_intensive_level",
+    decode: decodeLastSegment,
+    idleValue: "IntensiveStageOff",
+  },
+  "Cooking.Common.Setting.Lighting": {
+    capability: "homeconnect_light",
+    decode: decodeBool,
+    encode: encodeBool,
+  },
+  "Cooking.Common.Setting.LightingBrightness": {
+    capability: "homeconnect_light_brightness",
+    decode: decodeNumber,
+    encode: encodeNumber,
+  },
+  "BSH.Common.Setting.AmbientLightEnabled": {
+    capability: "homeconnect_ambient_light",
+    decode: decodeBool,
+    encode: encodeBool,
+  },
+  "BSH.Common.Setting.AmbientLightBrightness": {
+    capability: "homeconnect_ambient_light_brightness",
+    decode: decodeNumber,
+    encode: encodeNumber,
+  },
+  // --- Coffee maker -------------------------------------------------------
+  "ConsumerProducts.CoffeeMaker.Option.BeanAmount": {
+    capability: "homeconnect_bean_amount",
+    decode: decodeLastSegment,
+  },
+  "ConsumerProducts.CoffeeMaker.Option.FillQuantity": {
+    capability: "homeconnect_fill_quantity",
+    decode: decodeNumber,
+  },
+  "ConsumerProducts.CoffeeMaker.Setting.CupWarmer": {
+    capability: "homeconnect_cup_warmer",
+    decode: decodeBool,
+    encode: encodeBool,
+  },
+  "ConsumerProducts.CoffeeMaker.Status.BeverageCounterCoffee": {
+    capability: "homeconnect_beverage_count_coffee",
+    decode: decodeNumber,
+  },
 };
 
 /**
@@ -601,6 +663,7 @@ export class ApplianceDevice extends Homey.Device {
   private connectionGeneration = 0;
   private stopped = false;
   private readonly eventStates = new Map<string, unknown>();
+  private readonly lastTriggeredValues = new Map<string, unknown>();
 
   async onInit(): Promise<void> {
     this.stopped = false;
@@ -794,6 +857,7 @@ export class ApplianceDevice extends Homey.Device {
 
   /** Push a batch of decoded feature values onto Homey capabilities. */
   private async applyValues(values: Record<string, unknown>): Promise<void> {
+    const wasRunning = this.isProgramRunning();
     for (const [name, raw] of Object.entries(values)) {
       // Some dishwashers report Root.ActiveProgram / Root.SelectedProgram as
       // numeric IDs such as "001", while BSH.Common.Option.BaseProgram carries
@@ -866,6 +930,7 @@ export class ApplianceDevice extends Homey.Device {
         }
       }
     }
+    if (wasRunning && !this.isProgramRunning()) await this.applyIdleValues();
     this.reconcileDerivedState();
   }
 
@@ -978,6 +1043,38 @@ export class ApplianceDevice extends Homey.Device {
         ?.trigger(this, { phase: String(value) }, {})
         .catch(this.error);
     }
+    this.fireMappedChangeTrigger(capability, value);
+  }
+
+  /**
+   * Fire the change trigger a CAPABILITY_MAP row declares. Deduplicated per
+   * value, because a change can be reported twice: once by a write from the
+   * device tile (Homey sets the value itself) and once by the appliance.
+   */
+  protected fireMappedChangeTrigger(capability: string, value: unknown): void {
+    const row = Object.values(CAPABILITY_MAP).find((e) => e.capability === capability && e.trigger);
+    if (!row?.trigger) return;
+    if (this.lastTriggeredValues.get(capability) === value) return;
+    this.lastTriggeredValues.set(capability, value);
+    const trigger = (this.driver as unknown as Record<string, Homey.FlowCardTriggerDevice | undefined>)[
+      `${row.trigger.key}Trigger`
+    ];
+    trigger?.trigger(this, { [row.trigger.token]: String(value) }, {}).catch(this.error);
+  }
+
+  /** Reset capabilities that declare an idleValue, on the running -> idle edge. */
+  private async applyIdleValues(): Promise<void> {
+    for (const entry of Object.values(CAPABILITY_MAP)) {
+      if (entry.idleValue === undefined || !this.hasCapability(entry.capability)) continue;
+      if (this.getCapabilityValue(entry.capability) === entry.idleValue) continue;
+      try {
+        await this.setCapabilityValue(entry.capability, entry.idleValue as never);
+      } catch (err) {
+        this.error(err);
+        continue;
+      }
+      this.fireTriggers(entry.capability, entry.idleValue);
+    }
   }
 
   /**
@@ -986,7 +1083,7 @@ export class ApplianceDevice extends Homey.Device {
    * running-only values in applyValues() and to decide when to clear derived
    * state here.
    */
-  private isProgramRunning(): boolean {
+  protected isProgramRunning(): boolean {
     const state = this.getCapabilityValue("homeconnect_operation_state");
     const power = this.getCapabilityValue("onoff");
     return power !== false && typeof state === "string" && RUNNING_STATES.has(state);
@@ -1040,31 +1137,21 @@ export class ApplianceDevice extends Homey.Device {
     programName: string,
     opts: { temperature?: number; duration?: number; delayMinutes?: number } = {},
   ): Promise<void> {
-    const programUid = this.findUid(programName);
-    if (programUid == null) throw new Error(this.homey.__("device.error.unknown_program"));
-    this.assertCanStartRemotely();
-
-    const options: Array<{ uid: number; value: unknown }> = [];
-    if (opts.temperature != null) {
-      const uid = this.findUid("Cooking.Oven.Option.SetpointTemperature");
-      if (uid != null) options.push({ uid, value: Math.round(opts.temperature) });
+    // Legacy oven extras are best-effort: skipped when the model lacks them.
+    const options: Record<string, unknown> = {};
+    const setpoint = "Cooking.Oven.Option.SetpointTemperature";
+    if (opts.temperature != null && this.findUid(setpoint) != null) {
+      options[setpoint] = Math.round(opts.temperature);
     }
-    if (opts.duration != null) {
-      const uid = this.findUid("BSH.Common.Option.Duration");
-      // The Duration option is in seconds; the Flow argument is in minutes.
-      if (uid != null) options.push({ uid, value: Math.round(opts.duration * 60) });
+    // The Duration option is in seconds; the Flow argument is in minutes.
+    if (opts.duration != null && this.findUid("BSH.Common.Option.Duration") != null) {
+      options["BSH.Common.Option.Duration"] = Math.round(opts.duration * 60);
     }
+    // A delay is the point of the delayed-start card, so it must exist.
     if (opts.delayMinutes != null && opts.delayMinutes > 0) {
-      const uid = this.findUid("BSH.Common.Option.StartInRelative");
-      if (uid == null) {
-        throw new Error(this.homey.__("device.error.feature_not_supported"));
-      }
-      options.push({ uid, value: Math.round(opts.delayMinutes * 60) });
+      options["BSH.Common.Option.StartInRelative"] = Math.round(opts.delayMinutes * 60);
     }
-
-    this.log(`startProgram ${programName} uid=${programUid} options=${JSON.stringify(options)}`);
-    if (!this.client) throw new Error("not connected");
-    await this.client.startProgram(programUid, options);
+    await this.startProgramWithOptions(programName, options);
   }
 
   /**
@@ -1104,6 +1191,34 @@ export class ApplianceDevice extends Homey.Device {
     if (this.getCapabilityValue("homeconnect_door_state") === "Open") {
       throw new Error(this.homey.__("device.error.door_open"));
     }
+  }
+
+  /**
+   * Start a program with options given by feature name, e.g.
+   * { "Cooking.Common.Option.Hood.VentingLevel": "FanStage02" }. Enum member
+   * names are resolved to their wire index; options the appliance lacks are an
+   * error, so callers drop optional ones they don't need first.
+   */
+  async startProgramWithOptions(
+    programName: string,
+    options: Record<string, unknown> = {},
+  ): Promise<void> {
+    const programUid = this.findUid(programName);
+    if (programUid == null) throw new Error(this.homey.__("device.error.unknown_program"));
+    this.assertCanStartRemotely();
+
+    const wire: Array<{ uid: number; value: unknown }> = [];
+    for (const [featureName, value] of Object.entries(options)) {
+      const uid = this.findUid(featureName);
+      if (uid == null) throw new Error(this.homey.__("device.error.feature_not_supported"));
+      const encoded = this.encodeForFeature(uid, value);
+      if (encoded == null) throw new Error(this.homey.__("device.error.invalid_value"));
+      wire.push({ uid, value: encoded });
+    }
+
+    if (!this.client) throw new Error("not connected");
+    this.log(`startProgram ${programName} uid=${programUid} options=${JSON.stringify(wire)}`);
+    await this.client.startProgram(programUid, wire);
   }
 
   /** Queue a program without starting it (sets BSH.Common.Root.SelectedProgram). */
@@ -1165,11 +1280,22 @@ export class ApplianceDevice extends Homey.Device {
       throw new Error(this.homey.__("device.error.feature_not_supported"));
     }
     this.assertFeatureWritableNow(this.config.features?.[String(uid)]);
+    const encoded = this.encodeForFeature(uid, value);
+    if (encoded == null) throw new Error(this.homey.__("device.error.invalid_value"));
     if (!this.client) {
       throw new Error("not connected");
     }
-    this.log(`setSettingValue ${featureName} uid=${uid} value=${JSON.stringify(value)}`);
-    await this.client.setValue(uid, value);
+    this.log(`setSettingValue ${featureName} uid=${uid} value=${JSON.stringify(encoded)}`);
+    await this.client.setValue(uid, encoded);
+  }
+
+  /**
+   * Wire form of a value for a feature: an enum member name ("FanStage02")
+   * becomes its numeric index, anything else is sent as-is.
+   */
+  private encodeForFeature(uid: number, value: unknown): unknown {
+    const feature = this.config.features?.[String(uid)];
+    return feature?.values && typeof value === "string" ? encodeEnumIndex(value, feature) : value;
   }
 
   /** Send AcknowledgeEvent (clears whatever event is currently signalled). */

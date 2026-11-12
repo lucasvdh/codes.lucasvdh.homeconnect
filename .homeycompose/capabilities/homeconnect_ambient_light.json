@@ -1,0 +1,12 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Ambient light",
+    "nl": "Sfeerverlichting",
+    "de": "Ambientebeleuchtung"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle",
+  "icon": "/assets/capability/homeconnect_cavity_light.svg"
+}

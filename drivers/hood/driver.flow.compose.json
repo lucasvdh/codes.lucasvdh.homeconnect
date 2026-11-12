@@ -1,0 +1,628 @@
+{
+  "triggers": [
+    {
+      "id": "hood_program_finished",
+      "title": {
+        "en": "A program finished",
+        "nl": "Een programma is klaar",
+        "de": "Ein Programm ist fertig"
+      },
+      "hint": {
+        "en": "Triggers when the hood's operation state becomes Finished.",
+        "nl": "Wordt geactiveerd wanneer de bedrijfstoestand Klaar wordt.",
+        "de": "Wird ausgelöst, wenn der Betriebszustand der Dunstabzugshaube Fertig wird."
+      }
+    },
+    {
+      "id": "hood_program_started",
+      "title": {
+        "en": "A program started",
+        "nl": "Een programma is gestart",
+        "de": "Ein Programm wurde gestartet"
+      }
+    },
+    {
+      "id": "hood_operation_state_changed",
+      "title": {
+        "en": "The operation state changed",
+        "nl": "De bedrijfstoestand is veranderd",
+        "de": "Der Betriebszustand wurde geändert"
+      },
+      "tokens": [
+        {
+          "name": "operation_state",
+          "type": "string",
+          "title": {
+            "en": "Operation state",
+            "nl": "Bedrijfstoestand",
+            "de": "Betriebszustand"
+          },
+          "example": {
+            "en": "Run",
+            "nl": "Run",
+            "de": "Run"
+          }
+        }
+      ]
+    },
+    {
+      "id": "hood_remaining_time_changed",
+      "title": {
+        "en": "Remaining time changed",
+        "nl": "Resterende tijd is veranderd",
+        "de": "Restzeit wurde geändert"
+      },
+      "tokens": [
+        {
+          "name": "minutes",
+          "type": "number",
+          "title": {
+            "en": "Minutes",
+            "nl": "Minuten",
+            "de": "Minuten"
+          },
+          "example": 25
+        }
+      ]
+    },
+    {
+      "id": "hood_remote_control_active_changed",
+      "title": {
+        "en": "Remote control active changed",
+        "nl": "Bediening op afstand actief is veranderd",
+        "de": "Fernsteuerung aktiv wurde geändert"
+      },
+      "tokens": [
+        {
+          "name": "active",
+          "type": "boolean",
+          "title": {
+            "en": "Active",
+            "nl": "Actief",
+            "de": "Aktiv"
+          },
+          "example": {
+            "en": "true",
+            "nl": "true",
+            "de": "true"
+          }
+        }
+      ]
+    },
+    {
+      "id": "hood_local_control_changed",
+      "title": {
+        "en": "Local control changed",
+        "nl": "Lokale bediening is veranderd",
+        "de": "Lokale Bedienung wurde geändert"
+      },
+      "tokens": [
+        {
+          "name": "active",
+          "type": "boolean",
+          "title": {
+            "en": "Active",
+            "nl": "Actief",
+            "de": "Aktiv"
+          },
+          "example": {
+            "en": "true",
+            "nl": "true",
+            "de": "true"
+          }
+        }
+      ]
+    },
+    {
+      "id": "hood_error_occurred",
+      "title": {
+        "en": "An error occurred",
+        "nl": "Er is een fout opgetreden",
+        "de": "Ein Fehler ist aufgetreten"
+      },
+      "tokens": [
+        {
+          "name": "error_code",
+          "type": "string",
+          "title": {
+            "en": "Error code",
+            "nl": "Foutcode",
+            "de": "Fehlercode"
+          },
+          "example": {
+            "en": "InternalError",
+            "nl": "InternalError",
+            "de": "InternalError"
+          }
+        }
+      ]
+    },
+    {
+      "id": "hood_software_update_available",
+      "title": {
+        "en": "A software update is available",
+        "nl": "Er is een software-update beschikbaar",
+        "de": "Ein Software-Update ist verfügbar"
+      }
+    },
+    {
+      "id": "hood_venting_level_changed",
+      "title": {
+        "en": "Fan level changed",
+        "nl": "Ventilatorstand is gewijzigd",
+        "de": "Lüfterstufe hat sich geändert"
+      },
+      "tokens": [
+        {
+          "name": "level",
+          "type": "string",
+          "title": {
+            "en": "Level",
+            "nl": "Stand",
+            "de": "Stufe"
+          },
+          "example": {
+            "en": "FanStage02",
+            "nl": "FanStage02",
+            "de": "FanStage02"
+          }
+        }
+      ]
+    },
+    {
+      "id": "hood_grease_filter_nearly_saturated",
+      "title": {
+        "en": "Grease filter is nearly saturated",
+        "nl": "Vetfilter is bijna verzadigd",
+        "de": "Fettfilter ist fast gesättigt"
+      }
+    },
+    {
+      "id": "hood_grease_filter_saturated",
+      "title": {
+        "en": "Grease filter is saturated",
+        "nl": "Vetfilter is verzadigd",
+        "de": "Fettfilter ist gesättigt"
+      }
+    }
+  ],
+  "conditions": [
+    {
+      "id": "hood_is_running",
+      "title": {
+        "en": "!{{Is|Is not}} running",
+        "nl": "!{{Is|Is niet}} bezig",
+        "de": "!{{Läuft|Läuft nicht}}"
+      }
+    },
+    {
+      "id": "hood_is_inactive",
+      "title": {
+        "en": "!{{Is|Is not}} idle",
+        "nl": "!{{Is|Is niet}} inactief",
+        "de": "!{{Ist|Ist nicht}} inaktiv"
+      }
+    },
+    {
+      "id": "hood_has_error",
+      "title": {
+        "en": "There !{{is|is not}} an error",
+        "nl": "Er !{{is|is niet}} een fout",
+        "de": "Es !{{liegt|liegt kein}} Fehler vor"
+      }
+    },
+    {
+      "id": "hood_remote_control_is_active",
+      "title": {
+        "en": "Remote control !{{is|is not}} active",
+        "nl": "Bediening op afstand !{{is|is niet}} actief",
+        "de": "Fernsteuerung !{{ist|ist nicht}} aktiv"
+      }
+    },
+    {
+      "id": "hood_local_control_is_active",
+      "title": {
+        "en": "Local control !{{is|is not}} active",
+        "nl": "Lokale bediening !{{is|is niet}} actief",
+        "de": "Lokale Bedienung !{{ist|ist nicht}} aktiv"
+      }
+    },
+    {
+      "id": "hood_current_program_is",
+      "title": {
+        "en": "The active program !{{is|is not}} ...",
+        "nl": "Het actieve programma !{{is|is niet}} ...",
+        "de": "Das aktive Programm !{{ist|ist nicht}} ..."
+      },
+      "titleFormatted": {
+        "en": "The active program !{{is|is not}} [[program]]",
+        "nl": "Het actieve programma !{{is|is niet}} [[program]]",
+        "de": "Das aktive Programm !{{ist|ist nicht}} [[program]]"
+      },
+      "args": [
+        {
+          "name": "program",
+          "type": "autocomplete",
+          "title": {
+            "en": "Program",
+            "nl": "Programma",
+            "de": "Programm"
+          }
+        }
+      ]
+    },
+    {
+      "id": "hood_venting_level_is",
+      "title": {
+        "en": "Fan level !{{is|is not}} ...",
+        "nl": "Ventilatorstand !{{is|is niet}} ...",
+        "de": "Lüfterstufe !{{ist|ist nicht}} ..."
+      },
+      "titleFormatted": {
+        "en": "Fan level !{{is|is not}} [[level]]",
+        "nl": "Ventilatorstand !{{is|is niet}} [[level]]",
+        "de": "Lüfterstufe !{{ist|ist nicht}} [[level]]"
+      },
+      "args": [
+        {
+          "name": "level",
+          "type": "dropdown",
+          "title": {
+            "en": "Level",
+            "nl": "Stand",
+            "de": "Stufe"
+          },
+          "values": [
+            {
+              "id": "FanOff",
+              "title": {
+                "en": "Off",
+                "nl": "Uit",
+                "de": "Aus"
+              }
+            },
+            {
+              "id": "FanStage01",
+              "title": {
+                "en": "Level 1",
+                "nl": "Stand 1",
+                "de": "Stufe 1"
+              }
+            },
+            {
+              "id": "FanStage02",
+              "title": {
+                "en": "Level 2",
+                "nl": "Stand 2",
+                "de": "Stufe 2"
+              }
+            },
+            {
+              "id": "FanStage03",
+              "title": {
+                "en": "Level 3",
+                "nl": "Stand 3",
+                "de": "Stufe 3"
+              }
+            },
+            {
+              "id": "FanStage04",
+              "title": {
+                "en": "Level 4",
+                "nl": "Stand 4",
+                "de": "Stufe 4"
+              }
+            },
+            {
+              "id": "FanStage05",
+              "title": {
+                "en": "Level 5",
+                "nl": "Stand 5",
+                "de": "Stufe 5"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hood_light_is_on",
+      "title": {
+        "en": "Light !{{is|is not}} on",
+        "nl": "Verlichting !{{is|is niet}} aan",
+        "de": "Beleuchtung !{{ist|ist nicht}} an"
+      }
+    }
+  ],
+  "actions": [
+    {
+      "id": "hood_start_program",
+      "title": {
+        "en": "Start a program",
+        "nl": "Start een programma",
+        "de": "Programm starten"
+      },
+      "titleFormatted": {
+        "en": "Start [[program]]",
+        "nl": "Start [[program]]",
+        "de": "[[program]] starten"
+      },
+      "hint": {
+        "en": "Requires remote start to be enabled on the hood first.",
+        "nl": "Vereist dat op afstand starten eerst op de afzuigkap is ingeschakeld.",
+        "de": "Erfordert, dass Fernstart zuerst an der Dunstabzugshaube aktiviert ist."
+      },
+      "args": [
+        {
+          "name": "program",
+          "type": "autocomplete",
+          "title": {
+            "en": "Program",
+            "nl": "Programma",
+            "de": "Programm"
+          }
+        }
+      ]
+    },
+    {
+      "id": "hood_stop_program",
+      "title": {
+        "en": "Stop the program",
+        "nl": "Stop het programma",
+        "de": "Programm stoppen"
+      }
+    },
+    {
+      "id": "hood_acknowledge_event",
+      "title": {
+        "en": "Acknowledge event",
+        "nl": "Bevestig melding",
+        "de": "Meldung bestätigen"
+      },
+      "hint": {
+        "en": "Clears whatever event is currently signalled on the appliance.",
+        "nl": "Wist de melding die op het apparaat actief is.",
+        "de": "Löscht die aktuell am Gerät angezeigte Meldung."
+      }
+    },
+    {
+      "id": "hood_power_off",
+      "title": {
+        "en": "Turn off (standby)",
+        "nl": "Uitschakelen (stand-by)",
+        "de": "Ausschalten (Standby)"
+      }
+    },
+    {
+      "id": "hood_set_venting_level",
+      "title": {
+        "en": "Set fan level",
+        "nl": "Zet ventilatorstand",
+        "de": "Lüfterstufe einstellen"
+      },
+      "titleFormatted": {
+        "en": "Set fan level to [[level]]",
+        "nl": "Zet ventilatorstand op [[level]]",
+        "de": "Lüfterstufe auf [[level]] einstellen"
+      },
+      "hint": {
+        "en": "Starts the fan at this level, changes the level while it runs, or stops it with Off.",
+        "nl": "Start de ventilator op deze stand, wijzigt de stand terwijl hij draait, of stopt hem met Uit.",
+        "de": "Startet den Lüfter auf dieser Stufe, ändert die Stufe im Betrieb oder stoppt ihn mit Aus."
+      },
+      "args": [
+        {
+          "name": "level",
+          "type": "dropdown",
+          "title": {
+            "en": "Level",
+            "nl": "Stand",
+            "de": "Stufe"
+          },
+          "values": [
+            {
+              "id": "FanOff",
+              "title": {
+                "en": "Off",
+                "nl": "Uit",
+                "de": "Aus"
+              }
+            },
+            {
+              "id": "FanStage01",
+              "title": {
+                "en": "Level 1",
+                "nl": "Stand 1",
+                "de": "Stufe 1"
+              }
+            },
+            {
+              "id": "FanStage02",
+              "title": {
+                "en": "Level 2",
+                "nl": "Stand 2",
+                "de": "Stufe 2"
+              }
+            },
+            {
+              "id": "FanStage03",
+              "title": {
+                "en": "Level 3",
+                "nl": "Stand 3",
+                "de": "Stufe 3"
+              }
+            },
+            {
+              "id": "FanStage04",
+              "title": {
+                "en": "Level 4",
+                "nl": "Stand 4",
+                "de": "Stufe 4"
+              }
+            },
+            {
+              "id": "FanStage05",
+              "title": {
+                "en": "Level 5",
+                "nl": "Stand 5",
+                "de": "Stufe 5"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hood_set_intensive_level",
+      "title": {
+        "en": "Set intensive level",
+        "nl": "Zet intensiefstand",
+        "de": "Intensivstufe einstellen"
+      },
+      "titleFormatted": {
+        "en": "Set intensive level to [[level]]",
+        "nl": "Zet intensiefstand op [[level]]",
+        "de": "Intensivstufe auf [[level]] einstellen"
+      },
+      "args": [
+        {
+          "name": "level",
+          "type": "dropdown",
+          "title": {
+            "en": "Level",
+            "nl": "Stand",
+            "de": "Stufe"
+          },
+          "values": [
+            {
+              "id": "IntensiveStageOff",
+              "title": {
+                "en": "Off",
+                "nl": "Uit",
+                "de": "Aus"
+              }
+            },
+            {
+              "id": "IntensiveStage1",
+              "title": {
+                "en": "Intensive 1",
+                "nl": "Intensief 1",
+                "de": "Intensiv 1"
+              }
+            },
+            {
+              "id": "IntensiveStage2",
+              "title": {
+                "en": "Intensive 2",
+                "nl": "Intensief 2",
+                "de": "Intensiv 2"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hood_start_automatic",
+      "title": {
+        "en": "Start automatic mode",
+        "nl": "Start automatische stand",
+        "de": "Automatikbetrieb starten"
+      },
+      "hint": {
+        "en": "The hood picks the fan level itself based on its sensor.",
+        "nl": "De kap kiest zelf de ventilatorstand op basis van zijn sensor.",
+        "de": "Die Haube wählt die Lüfterstufe anhand ihres Sensors selbst."
+      }
+    },
+    {
+      "id": "hood_start_delayed_shutoff",
+      "title": {
+        "en": "Start run-on",
+        "nl": "Start nalooptijd",
+        "de": "Nachlauf starten"
+      },
+      "hint": {
+        "en": "Keeps the fan running for the hood's run-on time and then switches it off.",
+        "nl": "Laat de ventilator nog de nalooptijd van de kap draaien en schakelt hem dan uit.",
+        "de": "Lässt den Lüfter für die Nachlaufzeit der Haube laufen und schaltet ihn dann aus."
+      }
+    },
+    {
+      "id": "hood_set_light",
+      "title": {
+        "en": "Turn the light on or off",
+        "nl": "Zet de verlichting aan of uit",
+        "de": "Beleuchtung ein- oder ausschalten"
+      },
+      "titleFormatted": {
+        "en": "Turn the light [[enabled]]",
+        "nl": "Zet de verlichting [[enabled]]",
+        "de": "Beleuchtung [[enabled]] schalten"
+      },
+      "args": [
+        {
+          "name": "enabled",
+          "type": "checkbox",
+          "title": {
+            "en": "On",
+            "nl": "Aan",
+            "de": "Ein"
+          }
+        }
+      ]
+    },
+    {
+      "id": "hood_set_light_brightness",
+      "title": {
+        "en": "Set light brightness",
+        "nl": "Zet helderheid verlichting",
+        "de": "Helligkeit der Beleuchtung einstellen"
+      },
+      "titleFormatted": {
+        "en": "Set light brightness to [[brightness]]%",
+        "nl": "Zet helderheid verlichting op [[brightness]]%",
+        "de": "Helligkeit der Beleuchtung auf [[brightness]]% einstellen"
+      },
+      "args": [
+        {
+          "name": "brightness",
+          "type": "range",
+          "title": {
+            "en": "Brightness",
+            "nl": "Helderheid",
+            "de": "Helligkeit"
+          },
+          "min": 10,
+          "max": 100,
+          "step": 1,
+          "label": "%"
+        }
+      ]
+    },
+    {
+      "id": "hood_set_ambient_light",
+      "title": {
+        "en": "Turn the ambient light on or off",
+        "nl": "Zet de sfeerverlichting aan of uit",
+        "de": "Ambientebeleuchtung ein- oder ausschalten"
+      },
+      "titleFormatted": {
+        "en": "Turn the ambient light [[enabled]]",
+        "nl": "Zet de sfeerverlichting [[enabled]]",
+        "de": "Ambientebeleuchtung [[enabled]] schalten"
+      },
+      "args": [
+        {
+          "name": "enabled",
+          "type": "checkbox",
+          "title": {
+            "en": "On",
+            "nl": "Aan",
+            "de": "Ein"
+          }
+        }
+      ]
+    }
+  ]
+}

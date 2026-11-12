@@ -1,0 +1,37 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Intensive level",
+    "nl": "Intensiefstand",
+    "de": "Intensivstufe"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "values": [
+    {
+      "id": "IntensiveStageOff",
+      "title": {
+        "en": "Off",
+        "nl": "Uit",
+        "de": "Aus"
+      }
+    },
+    {
+      "id": "IntensiveStage1",
+      "title": {
+        "en": "Intensive 1",
+        "nl": "Intensief 1",
+        "de": "Intensiv 1"
+      }
+    },
+    {
+      "id": "IntensiveStage2",
+      "title": {
+        "en": "Intensive 2",
+        "nl": "Intensief 2",
+        "de": "Intensiv 2"
+      }
+    }
+  ]
+}

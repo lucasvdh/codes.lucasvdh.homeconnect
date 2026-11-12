@@ -571,7 +571,7 @@
       },
       "hint": {
         "en": "Requires remote start to be enabled on the washing machine first.",
-        "nl": "Vereist dat op afstand starten eerst op de washing machine is ingeschakeld.",
+        "nl": "Vereist dat op afstand starten eerst op de wasmachine is ingeschakeld.",
         "de": "Erfordert, dass Fernstart zuerst an der Waschmaschine aktiviert ist."
       },
       "args": [

@@ -1,0 +1,56 @@
+{
+  "name": {
+    "en": "Extractor hood",
+    "nl": "Afzuigkap",
+    "de": "Dunstabzugshaube"
+  },
+  "class": "fan",
+  "capabilities": [
+    "onoff",
+    "homeconnect_operation_state",
+    "homeconnect_program",
+    "homeconnect_venting_level",
+    "homeconnect_intensive_level",
+    "homeconnect_light",
+    "homeconnect_light_brightness",
+    "homeconnect_ambient_light",
+    "homeconnect_ambient_light_brightness",
+    "homeconnect_program_progress",
+    "homeconnect_remaining_time",
+    "homeconnect_remaining_time_display",
+    "homeconnect_elapsed_time",
+    "homeconnect_remote_control_active",
+    "homeconnect_local_control_active"
+  ],
+  "discovery": "homeconnect-mdns",
+  "images": {
+    "small": "/drivers/hood/assets/images/small.png",
+    "large": "/drivers/hood/assets/images/large.png"
+  },
+  "platforms": [
+    "local"
+  ],
+  "connectivity": [
+    "lan"
+  ],
+  "pair": [
+    {
+      "id": "list_devices",
+      "template": "list_devices",
+      "navigation": {
+        "next": "add_devices"
+      },
+      "options": {
+        "title": {
+          "en": "Select the extractor hoods to add",
+          "nl": "Selecteer de afzuigkappen om toe te voegen",
+          "de": "Wähle die Dunstabzugshauben aus, die hinzugefügt werden sollen"
+        }
+      }
+    },
+    {
+      "id": "add_devices",
+      "template": "add_devices"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Ambient light brightness",
+    "nl": "Helderheid sfeerverlichting",
+    "de": "Helligkeit Ambientebeleuchtung"
+  },
+  "units": {
+    "en": "%",
+    "nl": "%",
+    "de": "%"
+  },
+  "min": 10,
+  "max": 100,
+  "step": 1,
+  "decimals": 0,
+  "getable": true,
+  "setable": true,
+  "uiComponent": "slider",
+  "icon": "/assets/capability/homeconnect_display_brightness.svg"
+}

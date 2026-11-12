@@ -1,0 +1,141 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Strength",
+    "nl": "Sterkte",
+    "de": "Stärke"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "values": [
+    {
+      "id": "VeryMild",
+      "title": {
+        "en": "Very mild",
+        "nl": "Zeer mild",
+        "de": "Sehr mild"
+      }
+    },
+    {
+      "id": "Mild",
+      "title": {
+        "en": "Mild",
+        "nl": "Mild",
+        "de": "Mild"
+      }
+    },
+    {
+      "id": "MildPlus",
+      "title": {
+        "en": "Mild +",
+        "nl": "Mild +",
+        "de": "Mild +"
+      }
+    },
+    {
+      "id": "Normal",
+      "title": {
+        "en": "Normal",
+        "nl": "Normaal",
+        "de": "Normal"
+      }
+    },
+    {
+      "id": "NormalPlus",
+      "title": {
+        "en": "Normal +",
+        "nl": "Normaal +",
+        "de": "Normal +"
+      }
+    },
+    {
+      "id": "Strong",
+      "title": {
+        "en": "Strong",
+        "nl": "Sterk",
+        "de": "Stark"
+      }
+    },
+    {
+      "id": "StrongPlus",
+      "title": {
+        "en": "Strong +",
+        "nl": "Sterk +",
+        "de": "Stark +"
+      }
+    },
+    {
+      "id": "VeryStrong",
+      "title": {
+        "en": "Very strong",
+        "nl": "Zeer sterk",
+        "de": "Sehr stark"
+      }
+    },
+    {
+      "id": "VeryStrongPlus",
+      "title": {
+        "en": "Very strong +",
+        "nl": "Zeer sterk +",
+        "de": "Sehr stark +"
+      }
+    },
+    {
+      "id": "ExtraStrong",
+      "title": {
+        "en": "Extra strong",
+        "nl": "Extra sterk",
+        "de": "Extra stark"
+      }
+    },
+    {
+      "id": "DoubleShot",
+      "title": {
+        "en": "Double shot",
+        "nl": "Dubbele shot",
+        "de": "Doppelter Shot"
+      }
+    },
+    {
+      "id": "DoubleShotPlus",
+      "title": {
+        "en": "Double shot +",
+        "nl": "Dubbele shot +",
+        "de": "Doppelter Shot +"
+      }
+    },
+    {
+      "id": "DoubleShotPlusPlus",
+      "title": {
+        "en": "Double shot ++",
+        "nl": "Dubbele shot ++",
+        "de": "Doppelter Shot ++"
+      }
+    },
+    {
+      "id": "TripleShot",
+      "title": {
+        "en": "Triple shot",
+        "nl": "Driedubbele shot",
+        "de": "Dreifacher Shot"
+      }
+    },
+    {
+      "id": "TripleShotPlus",
+      "title": {
+        "en": "Triple shot +",
+        "nl": "Driedubbele shot +",
+        "de": "Dreifacher Shot +"
+      }
+    },
+    {
+      "id": "CoffeeGround",
+      "title": {
+        "en": "Ground coffee",
+        "nl": "Gemalen koffie",
+        "de": "Kaffeepulver"
+      }
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Light brightness",
+    "nl": "Helderheid verlichting",
+    "de": "Helligkeit Beleuchtung"
+  },
+  "units": {
+    "en": "%",
+    "nl": "%",
+    "de": "%"
+  },
+  "min": 10,
+  "max": 100,
+  "step": 1,
+  "decimals": 0,
+  "getable": true,
+  "setable": true,
+  "uiComponent": "slider",
+  "icon": "/assets/capability/homeconnect_display_brightness.svg"
+}

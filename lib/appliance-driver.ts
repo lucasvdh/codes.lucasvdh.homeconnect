@@ -26,24 +26,24 @@ export abstract class ApplianceDriver extends Homey.Driver {
   protected abstract readonly cardPrefix: string;
 
   // --- triggers (fired from ApplianceDevice) ---
-  programFinishedTrigger!: Homey.FlowCardTriggerDevice;
-  doorChangedTrigger!: Homey.FlowCardTriggerDevice;
-  operationStateChangedTrigger!: Homey.FlowCardTriggerDevice;
-  programProgressChangedTrigger!: Homey.FlowCardTriggerDevice;
-  programStartedTrigger!: Homey.FlowCardTriggerDevice;
-  programAbortedTrigger!: Homey.FlowCardTriggerDevice;
-  doorOpenedTrigger!: Homey.FlowCardTriggerDevice;
-  doorClosedTrigger!: Homey.FlowCardTriggerDevice;
-  remoteStartAllowedChangedTrigger!: Homey.FlowCardTriggerDevice;
-  remoteControlActiveChangedTrigger!: Homey.FlowCardTriggerDevice;
-  localControlChangedTrigger!: Homey.FlowCardTriggerDevice;
-  remainingTimeChangedTrigger!: Homey.FlowCardTriggerDevice;
-  elapsedTimeChangedTrigger!: Homey.FlowCardTriggerDevice;
-  childLockChangedTrigger!: Homey.FlowCardTriggerDevice;
-  errorOccurredTrigger!: Homey.FlowCardTriggerDevice;
-  aquaStopOccurredTrigger!: Homey.FlowCardTriggerDevice;
-  lowWaterPressureTrigger!: Homey.FlowCardTriggerDevice;
-  softwareUpdateAvailableTrigger!: Homey.FlowCardTriggerDevice;
+  programFinishedTrigger?: Homey.FlowCardTriggerDevice;
+  doorChangedTrigger?: Homey.FlowCardTriggerDevice;
+  operationStateChangedTrigger?: Homey.FlowCardTriggerDevice;
+  programProgressChangedTrigger?: Homey.FlowCardTriggerDevice;
+  programStartedTrigger?: Homey.FlowCardTriggerDevice;
+  programAbortedTrigger?: Homey.FlowCardTriggerDevice;
+  doorOpenedTrigger?: Homey.FlowCardTriggerDevice;
+  doorClosedTrigger?: Homey.FlowCardTriggerDevice;
+  remoteStartAllowedChangedTrigger?: Homey.FlowCardTriggerDevice;
+  remoteControlActiveChangedTrigger?: Homey.FlowCardTriggerDevice;
+  localControlChangedTrigger?: Homey.FlowCardTriggerDevice;
+  remainingTimeChangedTrigger?: Homey.FlowCardTriggerDevice;
+  elapsedTimeChangedTrigger?: Homey.FlowCardTriggerDevice;
+  childLockChangedTrigger?: Homey.FlowCardTriggerDevice;
+  errorOccurredTrigger?: Homey.FlowCardTriggerDevice;
+  aquaStopOccurredTrigger?: Homey.FlowCardTriggerDevice;
+  lowWaterPressureTrigger?: Homey.FlowCardTriggerDevice;
+  softwareUpdateAvailableTrigger?: Homey.FlowCardTriggerDevice;
 
   async onInit(): Promise<void> {
     this.registerStandardTriggers();
@@ -51,6 +51,22 @@ export abstract class ApplianceDriver extends Homey.Driver {
     this.registerStandardActions();
     this.registerEventTriggers();
     this.log(`${this.constructor.name} initialized`);
+  }
+
+  private flowCardIds?: Set<string>;
+
+  /**
+   * Look up a flow card, or null when the app manifest doesn't declare it.
+   * Not every appliance has every shared card (a hood has no door or child
+   * lock). Only a missing id is skipped: a declared card that fails to load
+   * still throws, so typos don't go silent.
+   */
+  protected optionalCard<T>(id: string, lookup: () => T): T | null {
+    if (!this.flowCardIds) {
+      const flow = (this.homey.manifest as { flow?: Record<string, Array<{ id: string }>> }).flow;
+      this.flowCardIds = new Set(Object.values(flow ?? {}).flatMap((cards) => cards.map((c) => c.id)));
+    }
+    return this.flowCardIds.has(id) ? lookup() : null;
   }
 
   // --- subclass extension points ------------------------------------------
@@ -74,8 +90,9 @@ export abstract class ApplianceDriver extends Homey.Driver {
 
   private registerStandardTriggers(): void {
     const p = this.cardPrefix;
-    const get = (id: string): Homey.FlowCardTriggerDevice =>
-      this.homey.flow.getDeviceTriggerCard(`${p}_${id}`);
+    const get = (id: string): Homey.FlowCardTriggerDevice | undefined =>
+      this.optionalCard(`${p}_${id}`, () => this.homey.flow.getDeviceTriggerCard(`${p}_${id}`)) ??
+      undefined;
 
     this.programFinishedTrigger = get("program_finished");
     this.doorChangedTrigger = get("door_changed");
@@ -109,7 +126,8 @@ export abstract class ApplianceDriver extends Homey.Driver {
       seen.add(spec.triggerKey);
       const snake = spec.triggerKey.replace(/[A-Z]/g, (m) => `_${m.toLowerCase()}`);
       const cardId = `${this.cardPrefix}_${snake}`;
-      const trigger = this.homey.flow.getDeviceTriggerCard(cardId);
+      const trigger = this.optionalCard(cardId, () => this.homey.flow.getDeviceTriggerCard(cardId));
+      if (!trigger) continue;
       (this as unknown as Record<string, Homey.FlowCardTriggerDevice>)[
         `${spec.triggerKey}Trigger`
       ] = trigger;
@@ -120,84 +138,84 @@ export abstract class ApplianceDriver extends Homey.Driver {
 
   private registerStandardConditions(): void {
     const p = this.cardPrefix;
-    const cond = (id: string): Homey.FlowCardCondition =>
-      this.homey.flow.getConditionCard(`${p}_${id}`);
+    const cond = (id: string): Homey.FlowCardCondition | null =>
+      this.optionalCard(`${p}_${id}`, () => this.homey.flow.getConditionCard(`${p}_${id}`));
 
-    cond("is_running").registerRunListener(
+    cond("is_running")?.registerRunListener(
       async ({ device }: { device: Homey.Device }) =>
         device.getCapabilityValue("homeconnect_operation_state") === "Run",
     );
-    cond("is_finished").registerRunListener(
+    cond("is_finished")?.registerRunListener(
       async ({ device }: { device: Homey.Device }) =>
         device.getCapabilityValue("homeconnect_operation_state") === "Finished",
     );
-    cond("is_paused").registerRunListener(
+    cond("is_paused")?.registerRunListener(
       async ({ device }: { device: Homey.Device }) =>
         device.getCapabilityValue("homeconnect_operation_state") === "Pause",
     );
-    cond("is_inactive").registerRunListener(
+    cond("is_inactive")?.registerRunListener(
       async ({ device }: { device: Homey.Device }) => {
         const s = device.getCapabilityValue("homeconnect_operation_state");
         return s === "Inactive" || s === "Ready";
       },
     );
-    cond("is_in_delayed_start").registerRunListener(
+    cond("is_in_delayed_start")?.registerRunListener(
       async ({ device }: { device: Homey.Device }) =>
         device.getCapabilityValue("homeconnect_operation_state") === "DelayedStart",
     );
-    cond("has_error").registerRunListener(
+    cond("has_error")?.registerRunListener(
       async ({ device }: { device: Homey.Device }) =>
         device.getCapabilityValue("homeconnect_operation_state") === "Error",
     );
-    cond("door_is_open").registerRunListener(
+    cond("door_is_open")?.registerRunListener(
       async ({ device }: { device: Homey.Device }) =>
         device.getCapabilityValue("homeconnect_door_state") === "Open",
     );
-    cond("remote_start_allowed").registerRunListener(
+    cond("remote_start_allowed")?.registerRunListener(
       async ({ device }: { device: Homey.Device }) =>
         device.getCapabilityValue("homeconnect_remote_start") === true,
     );
-    cond("remote_control_is_active").registerRunListener(
+    cond("remote_control_is_active")?.registerRunListener(
       async ({ device }: { device: Homey.Device }) =>
         device.getCapabilityValue("homeconnect_remote_control_active") === true,
     );
-    cond("local_control_is_active").registerRunListener(
+    cond("local_control_is_active")?.registerRunListener(
       async ({ device }: { device: Homey.Device }) =>
         device.getCapabilityValue("homeconnect_local_control_active") === true,
     );
-    cond("child_lock_is_on").registerRunListener(
+    cond("child_lock_is_on")?.registerRunListener(
       async ({ device }: { device: Homey.Device }) =>
         device.getCapabilityValue("homeconnect_child_lock") === true,
     );
-    cond("remaining_time_below").registerRunListener(
+    cond("remaining_time_below")?.registerRunListener(
       async ({ device, minutes }: { device: Homey.Device; minutes: number }) => {
         const v = device.getCapabilityValue("homeconnect_remaining_time");
         return typeof v === "number" && v < minutes;
       },
     );
-    cond("program_progress_above").registerRunListener(
+    cond("program_progress_above")?.registerRunListener(
       async ({ device, percent }: { device: Homey.Device; percent: number }) => {
         const v = device.getCapabilityValue("homeconnect_program_progress");
         return typeof v === "number" && v > percent;
       },
     );
 
-    const currentProgram = this.homey.flow.getConditionCard(`${p}_current_program_is`);
-    currentProgram.registerRunListener(
+    const currentProgram = cond("current_program_is");
+    currentProgram?.registerRunListener(
       async ({ device, program }: { device: Homey.Device; program: { id: string } }) =>
         device.getCapabilityValue("homeconnect_program") === program.id.split(".").pop(),
     );
-    currentProgram.registerArgumentAutocompleteListener("program", async (query, args) =>
+    currentProgram?.registerArgumentAutocompleteListener("program", async (query, args) =>
       (args.device as ApplianceDevice).listPrograms(query),
     );
 
-    const selectedProgram = this.homey.flow.getConditionCard(`${p}_selected_program_is`);
-    selectedProgram.registerRunListener(
+    const selectedProgram = cond("selected_program_is");
+    selectedProgram?.registerRunListener(
       async ({ device, program }: { device: Homey.Device; program: { id: string } }) =>
         device.getCapabilityValue("homeconnect_selected_program") ===
         program.id.split(".").pop(),
     );
-    selectedProgram.registerArgumentAutocompleteListener("program", async (query, args) =>
+    selectedProgram?.registerArgumentAutocompleteListener("program", async (query, args) =>
       (args.device as ApplianceDevice).listPrograms(query),
     );
   }
@@ -206,9 +224,11 @@ export abstract class ApplianceDriver extends Homey.Driver {
 
   private registerStandardActions(): void {
     const p = this.cardPrefix;
+    const action = (id: string): Homey.FlowCardAction | null =>
+      this.optionalCard(`${p}_${id}`, () => this.homey.flow.getActionCard(`${p}_${id}`));
 
-    const startProgram = this.homey.flow.getActionCard(`${p}_start_program`);
-    startProgram.registerRunListener(
+    const startProgram = action("start_program");
+    startProgram?.registerRunListener(
       async (args: {
         device: Homey.Device;
         program: { id: string };
@@ -220,12 +240,12 @@ export abstract class ApplianceDriver extends Homey.Driver {
           duration: args.duration,
         }),
     );
-    startProgram.registerArgumentAutocompleteListener("program", async (query, args) =>
+    startProgram?.registerArgumentAutocompleteListener("program", async (query, args) =>
       (args.device as ApplianceDevice).listPrograms(query),
     );
 
-    const startDelayed = this.homey.flow.getActionCard(`${p}_start_program_delayed`);
-    startDelayed.registerRunListener(
+    const startDelayed = action("start_program_delayed");
+    startDelayed?.registerRunListener(
       async (args: {
         device: Homey.Device;
         program: { id: string };
@@ -235,44 +255,39 @@ export abstract class ApplianceDriver extends Homey.Driver {
           delayMinutes: args.delay_minutes,
         }),
     );
-    startDelayed.registerArgumentAutocompleteListener("program", async (query, args) =>
+    startDelayed?.registerArgumentAutocompleteListener("program", async (query, args) =>
       (args.device as ApplianceDevice).listPrograms(query),
     );
 
-    this.homey.flow
-      .getActionCard(`${p}_start_selected_program`)
-      .registerRunListener(async ({ device }: { device: Homey.Device }) =>
+    action("start_selected_program")
+      ?.registerRunListener(async ({ device }: { device: Homey.Device }) =>
         (device as ApplianceDevice).startSelectedProgram(),
       );
 
-    const selectProgram = this.homey.flow.getActionCard(`${p}_select_program`);
-    selectProgram.registerRunListener(
+    const selectProgram = action("select_program");
+    selectProgram?.registerRunListener(
       async (args: { device: Homey.Device; program: { id: string } }) =>
         (args.device as ApplianceDevice).selectProgram(args.program.id),
     );
-    selectProgram.registerArgumentAutocompleteListener("program", async (query, args) =>
+    selectProgram?.registerArgumentAutocompleteListener("program", async (query, args) =>
       (args.device as ApplianceDevice).listPrograms(query),
     );
 
-    this.homey.flow
-      .getActionCard(`${p}_stop_program`)
-      .registerRunListener(async ({ device }: { device: Homey.Device }) =>
+    action("stop_program")
+      ?.registerRunListener(async ({ device }: { device: Homey.Device }) =>
         (device as ApplianceDevice).sendCommand("AbortProgram"),
       );
-    this.homey.flow
-      .getActionCard(`${p}_pause_program`)
-      .registerRunListener(async ({ device }: { device: Homey.Device }) =>
+    action("pause_program")
+      ?.registerRunListener(async ({ device }: { device: Homey.Device }) =>
         (device as ApplianceDevice).sendCommand("PauseProgram"),
       );
-    this.homey.flow
-      .getActionCard(`${p}_resume_program`)
-      .registerRunListener(async ({ device }: { device: Homey.Device }) =>
+    action("resume_program")
+      ?.registerRunListener(async ({ device }: { device: Homey.Device }) =>
         (device as ApplianceDevice).sendCommand("ResumeProgram"),
       );
 
-    this.homey.flow
-      .getActionCard(`${p}_set_child_lock`)
-      .registerRunListener(
+    action("set_child_lock")
+      ?.registerRunListener(
         async ({ device, enabled }: { device: Homey.Device; enabled: boolean }) =>
           (device as ApplianceDevice).setMappedCapabilityValue(
             "homeconnect_child_lock",
@@ -280,15 +295,13 @@ export abstract class ApplianceDriver extends Homey.Driver {
           ),
       );
 
-    this.homey.flow
-      .getActionCard(`${p}_acknowledge_event`)
-      .registerRunListener(async ({ device }: { device: Homey.Device }) =>
+    action("acknowledge_event")
+      ?.registerRunListener(async ({ device }: { device: Homey.Device }) =>
         (device as ApplianceDevice).acknowledgeCurrentEvent(),
       );
 
-    this.homey.flow
-      .getActionCard(`${p}_power_off`)
-      .registerRunListener(async ({ device }: { device: Homey.Device }) =>
+    action("power_off")
+      ?.registerRunListener(async ({ device }: { device: Homey.Device }) =>
         (device as ApplianceDevice).setMappedCapabilityValue("onoff", false),
       );
   }
@@ -309,8 +322,17 @@ export abstract class ApplianceDriver extends Homey.Driver {
     this.log(
       `onPairListDevices: ${devices.length} ${this.applianceType}(s) of ${all.length} stored`,
     );
-    if (devices.length === 0) {
+    if (all.length === 0) {
       throw new Error(this.homey.__("pair.no_devices"));
+    }
+    if (devices.length === 0) {
+      // Appliances exist but none matches this driver's type string. Name
+      // what we did find, so a mismatched type shows up in user reports.
+      const types = [...new Set(all.map((cfg) => cfg.description?.type ?? "?"))].join(", ");
+      this.log(`onPairListDevices: no ${this.applianceType}; stored types: ${types}`);
+      throw new Error(
+        this.homey.__("pair.no_devices_of_type", { type: this.applianceType, types }),
+      );
     }
     return devices.map((cfg) => ({
       name: `${cfg.description.brand} ${cfg.description.type}`,

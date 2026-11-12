@@ -22,7 +22,8 @@
   "discovery": "homeconnect-mdns",
   "images": {
     "small": "/drivers/coffeemaker/assets/images/small.png",
-    "large": "/drivers/coffeemaker/assets/images/large.png"
+    "large": "/drivers/coffeemaker/assets/images/large.png",
+    "xlarge": "/drivers/coffeemaker/assets/images/xlarge.png"
   },
   "platforms": [
     "local"

@@ -25,7 +25,8 @@
   "discovery": "homeconnect-mdns",
   "images": {
     "small": "/drivers/hood/assets/images/small.png",
-    "large": "/drivers/hood/assets/images/large.png"
+    "large": "/drivers/hood/assets/images/large.png",
+    "xlarge": "/drivers/hood/assets/images/xlarge.png"
   },
   "platforms": [
     "local"

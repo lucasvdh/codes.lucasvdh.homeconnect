@@ -44,7 +44,8 @@
   "discovery": "homeconnect-mdns",
   "images": {
     "small": "/drivers/washer/assets/images/small.png",
-    "large": "/drivers/washer/assets/images/large.png"
+    "large": "/drivers/washer/assets/images/large.png",
+    "xlarge": "/drivers/washer/assets/images/xlarge.png"
   },
   "platforms": [
     "local"

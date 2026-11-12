@@ -41,6 +41,8 @@ export class HomeConnectClient extends EventEmitter {
   private txMsgId: number | null = null;
   private readonly services: Record<string, { version: number }> = {};
   private servicesKnown = false;
+  /** Set by close(); a closed client never adopts or answers a socket again. */
+  private closed = false;
   private readonly pendingRequests = new Map<
     number,
     {
@@ -66,27 +68,56 @@ export class HomeConnectClient extends EventEmitter {
 
   async connect(): Promise<void> {
     const { ws, codec } = await openConnection(this.dev);
+    // close() may have been called while the socket was still opening (e.g.
+    // the device reconnected to a new mDNS address). Don't adopt an orphan.
+    if (this.closed) {
+      ws.terminate();
+      return;
+    }
     this.ws = ws;
     this.codec = codec;
 
     // Per the handshake rule above: do nothing on open, wait for the
     // appliance to POST /ei/initialValues.
-    ws.on("message", (raw: Buffer) => this.onMessage(raw));
+    ws.on("message", (raw: Buffer) => {
+      // A closing socket still delivers frames that were already in flight
+      // (typically the /ci/services RESPONSE right after a reconnect). This
+      // client has given the socket up, so there is nothing to answer.
+      if (this.ws !== ws) return;
+      // Anything thrown here would escape the ws event handler and crash the
+      // whole app. Report it and drop the socket instead: the half-finished
+      // handshake can't be trusted, and the "close" event makes the device
+      // schedule a fresh connection.
+      try {
+        this.onMessage(raw);
+      } catch (err) {
+        this.emitError(err as Error);
+        if (this.ws === ws) ws.terminate();
+      }
+    });
     ws.on("close", (code: number, reason: Buffer) => {
+      if (this.ws !== ws) return;
       this.ws = null;
       this.rejectPending(new Error(`connection closed (${code} ${reason?.toString()})`));
       this.emit("close", code, reason?.toString());
     });
     ws.on("error", (err: Error) => {
+      if (this.ws !== ws) return;
       this.rejectPending(err);
-      this.emit("error", err);
+      this.emitError(err);
     });
   }
 
   close(): void {
+    this.closed = true;
     this.rejectPending(new Error("connection closed"));
     this.ws?.close();
     this.ws = null;
+  }
+
+  /** Emit "error" without the EventEmitter throwing when nobody listens. */
+  private emitError(err: Error): void {
+    if (this.listenerCount("error") > 0) this.emit("error", err);
   }
 
   get connected(): boolean {
@@ -235,7 +266,7 @@ export class HomeConnectClient extends EventEmitter {
     try {
       text = this.codec ? this.codec.decrypt(raw) : raw.toString("utf8");
     } catch (err) {
-      this.emit("error", err);
+      this.emitError(err as Error);
       return;
     }
 
@@ -333,7 +364,7 @@ export class HomeConnectClient extends EventEmitter {
       msg.code != null &&
       !handledPendingResponse
     ) {
-      this.emit("error", new Error(`Appliance rejected the program (code ${msg.code})`));
+      this.emitError(new Error(`Appliance rejected the program (code ${msg.code})`));
     }
 
     // 4) Any other server-initiated POST must be acknowledged or the

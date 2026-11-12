@@ -10,7 +10,8 @@
     "build": "tsc",
     "homey-validate": "homey app validate --level verified",
     "homey-build": "homey app build",
-    "homey-run": "homey app run"
+    "homey-run": "homey app run",
+    "test": "tsc && node --test tests/*.test.js"
   },
   "dependencies": {
     "fast-xml-parser": "^4.5.0",

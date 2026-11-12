@@ -23,8 +23,8 @@
     "de": "Neu: Dunstabzugshauben (Lüfterstufe, Intensiv, Automatik, Nachlauf, Beleuchtung, Fettfilter-Hinweis) und Kaffeevollautomaten (Getränke zubereiten, Hinweise zum Nachfüllen und Entkalken). Beide sind neu, bitte gebt Rückmeldung. Enthält außerdem alles aus 1.3.0: Geräte, die 'im lokalen Netzwerk nicht erreichbar' blieben, verbinden sich jetzt (mDNS/.local, IPv4 zuerst, kein 403 mehr bei Waschmaschinen), Restzeit als Statusanzeige, eine Karte 'Ausgewähltes Programm starten', eine Türprüfung vor dem Start und eine nachsichtigere Anmeldung."
   },
   "1.4.1": {
-    "en": "Fixed the app crashing with \"not connected\" when an appliance reconnected (for example after its address was found again on the network). The app now reconnects instead.",
-    "nl": "De app crashte met \"not connected\" als een apparaat opnieuw verbond (bijvoorbeeld nadat het adres opnieuw op het netwerk werd gevonden). Dat is opgelost: de app verbindt nu gewoon opnieuw.",
-    "de": "Absturz der App mit \"not connected\" behoben, wenn sich ein Gerät neu verband (zum Beispiel nachdem seine Adresse im Netzwerk erneut gefunden wurde). Die App verbindet sich jetzt stattdessen neu."
+    "en": "Fixed the app crashing with \"not connected\" when an appliance reconnected (for example after its address was found again on the network). The app now reconnects instead. The extractor hood and coffee machine now show a product photo in the App Store.",
+    "nl": "De app crashte met \"not connected\" als een apparaat opnieuw verbond (bijvoorbeeld nadat het adres opnieuw op het netwerk werd gevonden). Dat is opgelost: de app verbindt nu gewoon opnieuw. De afzuigkap en het koffiezetapparaat hebben nu een productfoto in de App Store.",
+    "de": "Absturz der App mit \"not connected\" behoben, wenn sich ein Gerät neu verband (zum Beispiel nachdem seine Adresse im Netzwerk erneut gefunden wurde). Die App verbindet sich jetzt stattdessen neu. Dunstabzugshaube und Kaffeevollautomat zeigen im App Store jetzt ein Produktfoto."
   }
 }

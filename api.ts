@@ -65,6 +65,9 @@ module.exports = {
         type: d.description?.type ?? "",
         model: d.description?.model ?? "",
         protocol: d.iv ? "AES" : "TLS-PSK",
+        // Connection state as reported by the paired device (empty when the
+        // appliance isn't added to Homey), plus the last mDNS sighting.
+        connection: d.haId ? homey.app.connectionStatus.get(d.haId) : {},
       })),
     };
   },

@@ -69,6 +69,16 @@
     "clear_failed": "Löschen fehlgeschlagen: __message__",
     "progress_lookup": "Home Connect-Konto wird gesucht...",
     "progress_fetch_keys": "Schlüssel für __appliance__ werden abgerufen...",
-    "progress_fetch_map": "Funktionskarte für __appliance__ wird abgerufen..."
+    "progress_fetch_map": "Funktionskarte für __appliance__ wird abgerufen...",
+    "connection_title": "Verbindung",
+    "conn_connected": "Verbunden",
+    "conn_connecting": "Verbinde…",
+    "conn_unavailable": "Nicht verfügbar",
+    "conn_not_added": "Nicht zu Homey hinzugefügt",
+    "conn_since": "seit __time__",
+    "conn_address": "Adresse: __address__",
+    "conn_mdns_seen": "Per mDNS gesehen: __address__ um __time__",
+    "conn_mdns_never": "Seit dem App-Start nicht per mDNS gesehen",
+    "conn_reason": "Grund: __reason__"
   }
 }

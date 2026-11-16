@@ -32,6 +32,10 @@
     th, td { text-align: left; padding: 0.4rem 0.5rem; border-bottom: 1px solid #eee; }
     th { color: #777; font-weight: 600; }
     .muted { color: #888; font-size: 0.82rem; }
+    .conn { font-weight: 600; }
+    .conn.connected { color: #1e6c33; }
+    .conn.unavailable { color: #9b2222; }
+    .conn-detail { display: block; color: #666; font-size: 0.78rem; line-height: 1.35; word-break: break-word; }
     a { color: #EA0016; word-break: break-all; }
   </style>
 </head>
@@ -111,6 +115,36 @@
       });
     }
 
+    function formatTime(ms) {
+      if (!ms) return '';
+      try { return new Date(ms).toLocaleString(); } catch (e) { return String(ms); }
+    }
+
+    // One cell per appliance with what a screenshot needs: state, reason and
+    // its technical detail, the address used and the last mDNS sighting.
+    function connectionCell(c) {
+      c = c || {};
+      const lines = [];
+      if (!c.state) {
+        lines.push('<span class="conn">' + escapeHtml(__('settings.conn_not_added')) + '</span>');
+      } else {
+        lines.push('<span class="conn ' + escapeHtml(c.state) + '">' +
+          escapeHtml(__('settings.conn_' + c.state)) + '</span>' +
+          (c.since ? ' <span class="muted">' + escapeHtml(__('settings.conn_since', { time: formatTime(c.since) })) + '</span>' : ''));
+      }
+      if (c.reason) {
+        lines.push('<span class="conn-detail">' + escapeHtml(__('settings.conn_reason', { reason: c.reason })) +
+          (c.detail ? ' (' + escapeHtml(c.detail) + ')' : '') + '</span>');
+      }
+      if (c.address) {
+        lines.push('<span class="conn-detail">' + escapeHtml(__('settings.conn_address', { address: c.address })) + '</span>');
+      }
+      lines.push('<span class="conn-detail">' + escapeHtml(c.mdns
+        ? __('settings.conn_mdns_seen', { address: c.mdns.address || '?', time: formatTime(c.mdns.at) })
+        : __('settings.conn_mdns_never')) + '</span>');
+      return lines.join('');
+    }
+
     function localizeRuntimeMessage(message) {
       if (message === 'Looking up your Home Connect account…') {
         return __('settings.progress_lookup');
@@ -157,11 +191,13 @@
       } else {
         const rows = status.devices.map((d) =>
           '<tr><td>' + escapeHtml(d.name) + '</td><td>' + escapeHtml(d.brand + ' ' + d.type) + '</td>' +
-          '<td>' + escapeHtml(d.model) + '</td><td><span class="muted">' + escapeHtml(d.protocol) + '</span></td></tr>'
+          '<td>' + escapeHtml(d.model) + '</td><td><span class="muted">' + escapeHtml(d.protocol) + '</span></td>' +
+          '<td>' + connectionCell(d.connection) + '</td></tr>'
         ).join('');
         list.innerHTML = '<table><thead><tr><th>' + __('settings.table_name') + '</th><th>' +
           __('settings.table_brand_type') + '</th><th>' + __('settings.table_model') + '</th><th>' +
-          __('settings.table_protocol') + '</th></tr></thead><tbody>' + rows + '</tbody></table>';
+          __('settings.table_protocol') + '</th><th>' + __('settings.connection_title') +
+          '</th></tr></thead><tbody>' + rows + '</tbody></table>';
       }
       $('refresh-devices').disabled = !status.hasRefreshToken;
       $('clear-devices').disabled = status.devices.length === 0 && !status.hasRefreshToken;
@@ -271,6 +307,8 @@
 
     Homey.ready();
     refreshStatus();
+    // Keep the connection column current while the page is open.
+    setInterval(() => { refreshStatus().catch(() => {}); }, 10000);
     }
   </script>
 </body>

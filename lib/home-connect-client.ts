@@ -6,7 +6,7 @@ import WebSocket from "ws";
 
 import { DeviceConfig, HomeConnectMessage, HomeConnectValue } from "./types";
 import { AesHmacCodec } from "./aes-hmac-codec";
-import { openConnection } from "./home-connect-socket";
+import { OpenOptions, openConnection } from "./home-connect-socket";
 
 /**
  * High-level client for one appliance. Handles the websocket lifecycle, the
@@ -61,13 +61,29 @@ export class HomeConnectClient extends EventEmitter {
    */
   selectedProgramUid: number | null = null;
 
-  constructor(dev: DeviceConfig) {
+  /** The address the socket connected to, once connect() resolved. */
+  address: string | null = null;
+  /**
+   * Last socket/websocket error, kept so a following "close" can be
+   * explained (an HTTP 403 on the upgrade arrives as an error, then a close).
+   */
+  lastError: Error | null = null;
+
+  private readonly openOptions: OpenOptions;
+
+  constructor(dev: DeviceConfig, openOptions: OpenOptions = {}) {
     super();
     this.dev = dev;
+    this.openOptions = openOptions;
+  }
+
+  /** True once the appliance answered /ci/services: the session is usable. */
+  get handshakeDone(): boolean {
+    return this.servicesKnown;
   }
 
   async connect(): Promise<void> {
-    const { ws, codec } = await openConnection(this.dev);
+    const { ws, codec, address } = await openConnection(this.dev, this.openOptions);
     // close() may have been called while the socket was still opening (e.g.
     // the device reconnected to a new mDNS address). Don't adopt an orphan.
     if (this.closed) {
@@ -76,6 +92,7 @@ export class HomeConnectClient extends EventEmitter {
     }
     this.ws = ws;
     this.codec = codec;
+    this.address = address;
 
     // Per the handshake rule above: do nothing on open, wait for the
     // appliance to POST /ei/initialValues.
@@ -103,6 +120,7 @@ export class HomeConnectClient extends EventEmitter {
     });
     ws.on("error", (err: Error) => {
       if (this.ws !== ws) return;
+      this.lastError = err;
       this.rejectPending(err);
       this.emitError(err);
     });

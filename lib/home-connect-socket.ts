@@ -8,7 +8,8 @@ import WebSocket from "ws";
 
 import { DeviceConfig } from "./types";
 import { AesHmacCodec, b64urlDecode } from "./aes-hmac-codec";
-import { resolveAddresses, urlHost } from "./host-resolver";
+import { resolveAddresses, urlHost, ResolveOptions } from "./host-resolver";
+import { ConnectionError, ConnectionReason, classifyError, mostSpecific } from "./connection-errors";
 
 const CONNECT_TIMEOUT_MS = 8_000;
 
@@ -16,6 +17,23 @@ export interface OpenedConnection {
   ws: WebSocket;
   /** Present only for the HTTP/AES variant; null for TLS-PSK appliances. */
   codec: AesHmacCodec | null;
+  /** The address the socket actually connected to. */
+  address: string;
+}
+
+export interface OpenOptions {
+  /**
+   * Addresses to try before resolving the hostname, e.g. a fresh mDNS
+   * sighting and the last address that worked. Tried in order; the name is
+   * still resolved when they all fail.
+   */
+  preferredAddresses?: string[];
+  /** One line per attempt, for the app log. */
+  log?: (line: string) => void;
+  /** Per-address connect timeout (tests use a short one). */
+  connectTimeoutMs?: number;
+  /** Passed through to the resolver (tests inject a fake lookup). */
+  resolve?: Omit<ResolveOptions, "log">;
 }
 
 /**
@@ -37,28 +55,64 @@ function makeStaticAgent(socket: net.Socket, useTls: boolean): http.Agent {
 /**
  * Open a local websocket to an appliance. Picks the protocol variant from
  * the device config: an `iv` means the HTTP/AES variant, otherwise TLS-PSK.
+ *
+ * Tries the preferred addresses first, then every resolved address (IPv4
+ * first). When all fail it throws a ConnectionError with the most specific
+ * reason seen, so the device can say *why* it is unavailable.
  */
-export async function openConnection(dev: DeviceConfig): Promise<OpenedConnection> {
+export async function openConnection(
+  dev: DeviceConfig,
+  opts: OpenOptions = {},
+): Promise<OpenedConnection> {
+  const log = opts.log ?? (() => {});
   const psk = b64urlDecode(dev.key);
   const useTls = !dev.iv;
   const host = dev.host.trim();
+  const port = useTls ? 443 : 80;
 
-  // Try every resolved address in turn (IPv4 first) until one answers.
-  const addresses = await resolveAddresses(host);
   const failures: string[] = [];
-  let socket: net.Socket | null = null;
-  for (const address of addresses) {
+  const reasons: ConnectionReason[] = [];
+  const tried = new Set<string>();
+
+  const tryAll = async (addresses: string[], source: string): Promise<net.Socket | null> => {
+    for (const address of addresses) {
+      if (!address || tried.has(address)) continue;
+      tried.add(address);
+      try {
+        const socket = await connectSocket(address, host, psk, useTls, opts.connectTimeoutMs);
+        log(`connect ${address}:${port} (${source}): ok`);
+        return socket;
+      } catch (err) {
+        const { reason, detail } = classifyError(err, {
+          tcpConnected: (err as { tcpConnected?: boolean }).tcpConnected,
+        });
+        log(`connect ${address}:${port} (${source}): ${reason} ${detail}`);
+        failures.push(`${address}: ${detail}`);
+        reasons.push(reason);
+      }
+    }
+    return null;
+  };
+
+  let socket = await tryAll(opts.preferredAddresses ?? [], "known address");
+  let resolveError: ConnectionError | null = null;
+  if (!socket) {
     try {
-      socket = await connectSocket(address, host, psk, useTls);
-      break;
+      const resolved = await resolveAddresses(host, { ...opts.resolve, log });
+      socket = await tryAll(resolved, "resolved");
     } catch (err) {
-      failures.push(`${address}: ${(err as Error).message}`);
+      resolveError = err instanceof ConnectionError ? err : null;
+      if (!resolveError) throw err;
     }
   }
   if (!socket) {
-    throw new Error(`Could not connect to ${host} (${failures.join("; ")})`);
+    if (reasons.length === 0 && resolveError) throw resolveError;
+    const reason = mostSpecific(reasons);
+    const detail = [...failures, ...(resolveError ? [resolveError.detail] : [])].join("; ");
+    throw new ConnectionError(reason, `Could not connect to ${host} (${detail})`, detail);
   }
 
+  const address = socket.remoteAddress ?? [...tried].pop() ?? host;
   const codec = useTls ? null : new AesHmacCodec(psk, b64urlDecode(dev.iv as string));
   const url = useTls
     ? `wss://${urlHost(host)}:443/homeconnect`
@@ -71,20 +125,26 @@ export async function openConnection(dev: DeviceConfig): Promise<OpenedConnectio
     rejectUnauthorized: false,
   });
 
-  return { ws, codec };
+  return { ws, codec, address };
 }
 
-/** Open the raw (TLS-PSK or plain TCP) socket to one resolved address. */
-function connectSocket(
+/**
+ * Open the raw (TLS-PSK or plain TCP) socket to one resolved address. A
+ * rejection carries `tcpConnected` so a TLS failure (TCP up, handshake
+ * refused) can be told apart from an unreachable address.
+ */
+export function connectSocket(
   address: string,
   host: string,
   psk: Buffer,
   useTls: boolean,
+  timeoutMs = CONNECT_TIMEOUT_MS,
+  port = useTls ? 443 : 80,
 ): Promise<net.Socket> {
   const socket = useTls
     ? tls.connect({
         host: address,
-        port: 443,
+        port,
         // SNI must be a hostname, never an IP literal.
         ...(net.isIP(host) ? {} : { servername: host }),
         rejectUnauthorized: false,
@@ -94,24 +154,43 @@ function connectSocket(
         maxVersion: "TLSv1.2",
         pskCallback: () => ({ identity: "HCCOM_Local_App", psk }),
       })
-    : net.connect({ host: address, port: 80 });
+    : net.connect({ host: address, port });
+
+  let tcpConnected = false;
+  // For TLS, "connect" fires when TCP is up, before the handshake.
+  socket.once("connect", () => {
+    tcpConnected = true;
+  });
 
   const readyEvent = useTls ? "secureConnect" : "connect";
   return new Promise<net.Socket>((resolve, reject) => {
-    const timer = setTimeout(() => {
+    let settled = false;
+    const fail = (err: Error): void => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      socket.removeListener("close", onClose);
+      // Swallow late errors from the socket we are discarding.
+      socket.on("error", () => {});
       socket.destroy();
-      reject(new Error(`timed out after ${CONNECT_TIMEOUT_MS}ms`));
-    }, CONNECT_TIMEOUT_MS);
+      reject(Object.assign(err, { tcpConnected }));
+    };
+    const timer = setTimeout(
+      () => fail(new Error(`timed out after ${timeoutMs}ms`)),
+      timeoutMs,
+    );
+    const onError = (err: Error): void => fail(err);
+    // A peer that hangs up during the TLS handshake may close without an error.
+    const onClose = (): void => fail(Object.assign(new Error("socket closed"), { code: "ECONNRESET" }));
     socket.once(readyEvent, () => {
+      if (settled) return;
+      settled = true;
       clearTimeout(timer);
       socket.removeListener("error", onError);
+      socket.removeListener("close", onClose);
       resolve(socket);
     });
-    const onError = (err: Error): void => {
-      clearTimeout(timer);
-      socket.destroy();
-      reject(err);
-    };
     socket.once("error", onError);
+    socket.once("close", onClose);
   });
 }

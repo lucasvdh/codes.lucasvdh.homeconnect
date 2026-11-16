@@ -1,6 +1,6 @@
 {
   "id": "codes.lucasvdh.homeconnect",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "compatibility": ">=12.9.0",
   "sdk": 3,
   "platforms": [
@@ -13,9 +13,9 @@
     "de": "Home Connect (Lokal)"
   },
   "description": {
-    "en": "Control and monitor your Bosch and Siemens appliances locally",
-    "nl": "Beheer en monitor je Bosch- en Siemens-apparaten lokaal",
-    "de": "Steuere und überwache deine Bosch- und Siemens-Geräte lokal"
+    "en": "Keep your Bosch and Siemens appliances connected, even without the cloud",
+    "nl": "Houd je Bosch- en Siemens-apparaten verbonden, ook zonder cloud",
+    "de": "Halte deine Bosch- und Siemens-Geräte verbunden, auch ohne Cloud"
   },
   "category": [
     "appliances"

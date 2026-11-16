@@ -31,5 +31,10 @@
     "en": "Fixed the app crashing with \"not connected\" when an appliance reconnected (for example after its address was found again on the network). The app now reconnects instead. The extractor hood and coffee machine now show a product photo in the App Store.",
     "nl": "De app crashte met \"not connected\" als een apparaat opnieuw verbond (bijvoorbeeld nadat het adres opnieuw op het netwerk werd gevonden). Dat is opgelost: de app verbindt nu gewoon opnieuw. De afzuigkap en het koffiezetapparaat hebben nu een productfoto in de App Store.",
     "de": "Absturz der App mit \"not connected\" behoben, wenn sich ein Gerät neu verband (zum Beispiel nachdem seine Adresse im Netzwerk erneut gefunden wurde). Die App verbindet sich jetzt stattdessen neu. Dunstabzugshaube und Kaffeevollautomat zeigen im App Store jetzt ein Produktfoto."
+  },
+  "1.4.3": {
+    "en": "Updated App Store description and readme.",
+    "nl": "Beschrijving en leesmij in de App Store bijgewerkt.",
+    "de": "Beschreibung und Readme im App Store aktualisiert."
   }
 }

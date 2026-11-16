@@ -69,6 +69,16 @@
     "clear_failed": "Wissen mislukt: __message__",
     "progress_lookup": "Home Connect-account opzoeken...",
     "progress_fetch_keys": "Sleutels ophalen voor __appliance__...",
-    "progress_fetch_map": "Functiekaart ophalen voor __appliance__..."
+    "progress_fetch_map": "Functiekaart ophalen voor __appliance__...",
+    "connection_title": "Verbinding",
+    "conn_connected": "Verbonden",
+    "conn_connecting": "Verbinden…",
+    "conn_unavailable": "Niet beschikbaar",
+    "conn_not_added": "Niet toegevoegd aan Homey",
+    "conn_since": "sinds __time__",
+    "conn_address": "Adres: __address__",
+    "conn_mdns_seen": "Gezien via mDNS: __address__ om __time__",
+    "conn_mdns_never": "Niet gezien via mDNS sinds de app gestart is",
+    "conn_reason": "Reden: __reason__"
   }
 }

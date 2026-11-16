@@ -69,6 +69,16 @@
     "clear_failed": "Clear failed: __message__",
     "progress_lookup": "Looking up your Home Connect account...",
     "progress_fetch_keys": "Fetching keys for __appliance__...",
-    "progress_fetch_map": "Fetching feature map for __appliance__..."
+    "progress_fetch_map": "Fetching feature map for __appliance__...",
+    "connection_title": "Connection",
+    "conn_connected": "Connected",
+    "conn_connecting": "Connecting…",
+    "conn_unavailable": "Unavailable",
+    "conn_not_added": "Not added to Homey",
+    "conn_since": "since __time__",
+    "conn_address": "Address: __address__",
+    "conn_mdns_seen": "Seen via mDNS: __address__ at __time__",
+    "conn_mdns_never": "Not seen via mDNS since the app started",
+    "conn_reason": "Reason: __reason__"
   }
 }

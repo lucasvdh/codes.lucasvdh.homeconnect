@@ -33,8 +33,8 @@
     "de": "Absturz der App mit \"not connected\" behoben, wenn sich ein Gerät neu verband (zum Beispiel nachdem seine Adresse im Netzwerk erneut gefunden wurde). Die App verbindet sich jetzt stattdessen neu. Dunstabzugshaube und Kaffeevollautomat zeigen im App Store jetzt ein Produktfoto."
   },
   "1.4.3": {
-    "en": "Updated App Store description, readme and app image.",
-    "nl": "Beschrijving, leesmij en app-afbeelding in de App Store bijgewerkt.",
-    "de": "Beschreibung, Readme und App-Bild im App Store aktualisiert."
+    "en": "Appliances that stay unavailable now say why, for example not found on the network, no answer, or key not accepted. The app settings show the connection status per appliance. Appliances found via mDNS are connected directly, and their network name is kept when the address changes. Also updated the App Store description, readme and app image.",
+    "nl": "Apparaten die niet beschikbaar blijven, vertellen nu waarom, bijvoorbeeld niet gevonden op het netwerk, geen antwoord of sleutel niet geaccepteerd. De app-instellingen tonen de verbindingsstatus per apparaat. Apparaten die via mDNS gevonden worden, worden direct verbonden, en hun netwerknaam blijft bewaard als het adres verandert. Ook de beschrijving, leesmij en app-afbeelding in de App Store zijn bijgewerkt.",
+    "de": "Geräte, die nicht verfügbar bleiben, sagen jetzt warum, zum Beispiel nicht im Netzwerk gefunden, keine Antwort oder Schlüssel nicht akzeptiert. Die App-Einstellungen zeigen den Verbindungsstatus pro Gerät. Per mDNS gefundene Geräte werden direkt verbunden, und ihr Netzwerkname bleibt erhalten, wenn sich die Adresse ändert. Außerdem wurden Beschreibung, Readme und App-Bild im App Store aktualisiert."
   }
 }

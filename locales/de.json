@@ -15,6 +15,16 @@
       "door_open": "Die Tür ist offen. Schließe die Tür, bevor du ein Programm startest.",
       "no_selected_program": "Am Gerät ist kein Programm ausgewählt. Wähle zuerst eines am Gerät (oder mit der Karte 'Programm auswählen').",
       "powered_off": "Die Kaffeemaschine ist aus. Schalte sie zuerst ein und warte, bis sie fertig gespült hat."
+    },
+    "unavailable": {
+      "resolve_failed": "Homey findet das Gerät nicht im Netzwerk. Prüfe, ob es eingeschaltet und mit demselben Netzwerk wie Homey verbunden ist.",
+      "connect_timeout": "Das Gerät antwortet nicht. Prüfe, ob es eingeschaltet ist und im selben Netzwerk wie Homey ist, nicht in einem Gast- oder IoT-Netzwerk.",
+      "connection_refused": "Das Gerät hat die Verbindung abgelehnt. Vielleicht hat sich die Adresse geändert; die App sucht weiter danach.",
+      "host_unreachable": "Homey erreicht das Netzwerk des Geräts nicht. Ist das Gerät in einem anderen Netzwerk oder VLAN?",
+      "tls_failed": "Das Gerät hat den Sicherheitsschlüssel nicht akzeptiert. Aktualisiere die Geräte in den App-Einstellungen.",
+      "ws_rejected": "Das Gerät hat die Verbindung abgelehnt. Vielleicht ist es bereits mit einer anderen Steuerung verbunden, zum Beispiel einem zweiten Homey.",
+      "closed_by_appliance": "Das Gerät hat die Verbindung beendet. Ist es auch in einem anderen Homey oder einer anderen Steuerung eingebunden? Entferne es dort.",
+      "unknown": "Das Gerät ist im lokalen Netzwerk nicht erreichbar."
     }
   },
   "settings": {

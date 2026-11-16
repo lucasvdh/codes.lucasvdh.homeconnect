@@ -15,6 +15,16 @@
       "door_open": "De deur staat open. Sluit de deur voordat je een programma start.",
       "no_selected_program": "Er is geen programma geselecteerd op het apparaat. Kies er eerst een op het apparaat (of met de kaart 'Selecteer een programma').",
       "powered_off": "De koffiemachine staat uit. Zet hem eerst aan en wacht tot hij klaar is met doorspoelen."
+    },
+    "unavailable": {
+      "resolve_failed": "Homey kan het apparaat niet vinden op het netwerk. Controleer of het aan staat en met hetzelfde netwerk als Homey is verbonden.",
+      "connect_timeout": "Het apparaat reageert niet. Controleer of het aan staat en op hetzelfde netwerk als Homey zit, niet op een gast- of IoT-netwerk.",
+      "connection_refused": "Het apparaat weigerde de verbinding. Misschien is het adres veranderd; de app blijft het apparaat zoeken.",
+      "host_unreachable": "Homey kan het netwerk van het apparaat niet bereiken. Zit het apparaat op een ander netwerk of VLAN?",
+      "tls_failed": "Het apparaat accepteerde de beveiligingssleutel niet. Vernieuw de apparaten in de app-instellingen.",
+      "ws_rejected": "Het apparaat weigerde de verbinding. Misschien is het al verbonden met een andere controller, zoals een tweede Homey.",
+      "closed_by_appliance": "Het apparaat heeft de verbinding verbroken. Is het ook aan een andere Homey of controller toegevoegd? Verwijder het daar dan.",
+      "unknown": "Apparaat is niet bereikbaar op het lokale netwerk."
     }
   },
   "settings": {

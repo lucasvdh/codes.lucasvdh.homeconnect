@@ -5,9 +5,24 @@ import Homey from "homey";
 
 import { DeviceConfig, FeatureDescriptor } from "./types";
 import { HomeConnectClient } from "./home-connect-client";
+import { mergeStoredConfig } from "./device-config";
+import { ConnectionReason, classifyClose, classifyError } from "./connection-errors";
+import { ConnectionStatusStore } from "./connection-status";
+import { matchMdnsResult } from "./mdns-match";
 
-/** Reconnect backoff after an unexpected websocket close. */
-const RECONNECT_DELAY_MS = 15_000;
+/**
+ * Reconnect delays after a failed or dropped connection, growing per failure
+ * and reset once connected. Gentle on purpose: an appliance that refuses us
+ * (another controller, wrong key) shouldn't be hammered every few seconds.
+ */
+const RECONNECT_DELAYS_MS = [15_000, 30_000, 60_000, 120_000, 300_000];
+
+/** What the device needs from the app instance. */
+interface AppApi {
+  getDevice(id: string): DeviceConfig | undefined;
+  connectionStatus: ConnectionStatusStore;
+  findMdnsAddress(haId: string): { address: string; via?: string } | null;
+}
 
 /** Operation states in which the appliance actively pushes progress updates. */
 const RUNNING_STATES = new Set(["Run", "DelayedStart", "Pause", "ActionRequired"]);
@@ -661,6 +676,7 @@ export class ApplianceDevice extends Homey.Device {
   private reconnectTimer: NodeJS.Timeout | null = null;
   private refreshValuesTimer: NodeJS.Timeout | null = null;
   private connectionGeneration = 0;
+  private reconnectAttempts = 0;
   private stopped = false;
   private readonly eventStates = new Map<string, unknown>();
   private readonly lastTriggeredValues = new Map<string, unknown>();
@@ -670,24 +686,19 @@ export class ApplianceDevice extends Homey.Device {
     // The pairing payload is lean (just data.id), so on first init the store
     // is empty - look the full config up from the app (the source of truth)
     // and persist it so the device stays self-contained afterwards.
-    this.config = this.getStoreValue("config") as DeviceConfig;
     const haId = String(this.getData().id);
-    const fromApp = (
-      this.homey.app as unknown as { getDevice(id: string): DeviceConfig | undefined }
-    ).getDevice(haId);
-    if (!this.config?.key) {
-      if (fromApp?.key) {
-        this.config = fromApp;
-        await this.setStoreValue("config", fromApp);
-      }
-    } else if (fromApp?.key && this.configChanged(fromApp)) {
-      this.config = {
-        ...fromApp,
-        // Keep a discovery-resolved address if we already learned one.
-        host: this.config.host || fromApp.host,
-      };
+    const merged = mergeStoredConfig(
+      this.getStoreValue("config") as DeviceConfig | undefined,
+      this.app.getDevice(haId),
+    );
+    this.config = merged.config as DeviceConfig;
+    if (merged.changed && this.config) {
       await this.setStoreValue("config", this.config);
     }
+    this.log(
+      `[conn] init haId=${haId} host=${this.config?.host ?? "-"} address=${this.config?.address ?? "-"} ` +
+        `protocol=${this.config?.iv ? "AES" : "TLS-PSK"} model=${this.config?.description?.model ?? "-"}`,
+    );
     if (!this.config?.key) {
       await this.setUnavailable(this.homey.__("device.error.no_keys"));
       return;
@@ -723,14 +734,12 @@ export class ApplianceDevice extends Homey.Device {
     );
   }
 
-  private configChanged(next: DeviceConfig): boolean {
-    return (
-      this.config.key !== next.key ||
-      this.config.iv !== next.iv ||
-      this.config.description?.version !== next.description?.version ||
-      this.config.description?.revision !== next.description?.revision ||
-      JSON.stringify(this.config.features ?? {}) !== JSON.stringify(next.features ?? {})
-    );
+  private get app(): AppApi {
+    return this.homey.app as unknown as AppApi;
+  }
+
+  private get haId(): string {
+    return String(this.config?.haId ?? this.getData().id);
   }
 
   /**
@@ -804,7 +813,23 @@ export class ApplianceDevice extends Homey.Device {
     this.clearReconnect();
     const generation = ++this.connectionGeneration;
     const previous = this.client;
-    const client = new HomeConnectClient(this.config);
+
+    // Known addresses first: a current mDNS sighting, then the last address
+    // that worked. The hostname is still resolved when both fail.
+    const mdns = this.app.findMdnsAddress(this.haId);
+    const preferred = [mdns?.address, this.config.address].filter(
+      (a, i, all): a is string => typeof a === "string" && net.isIPv4(a) && all.indexOf(a) === i,
+    );
+    this.log(
+      `[conn] connecting host=${this.config.host} known=${preferred.join(",") || "-"}` +
+        (mdns ? ` (mDNS via ${mdns.via})` : " (no mDNS sighting)"),
+    );
+    this.app.connectionStatus.setState(this.haId, "connecting");
+
+    const client = new HomeConnectClient(this.config, {
+      preferredAddresses: preferred,
+      log: (line) => this.log(`[conn] ${line}`),
+    });
     this.client = client;
     previous?.close();
 
@@ -813,8 +838,15 @@ export class ApplianceDevice extends Homey.Device {
 
     client.on("connected", () => {
       if (!isCurrent()) return;
+      this.reconnectAttempts = 0;
       this.setAvailable().catch(this.error);
-      this.log("connected to appliance");
+      const address = client.address ?? undefined;
+      this.log(`[conn] connected via ${address ?? "?"}`);
+      this.app.connectionStatus.setState(this.haId, "connected", { address });
+      if (address && net.isIPv4(address) && address !== this.config.address) {
+        this.config.address = address;
+        this.setStoreValue("config", this.config).catch(this.error);
+      }
     });
 
     client.on("values", (values: Record<string, unknown>) => {
@@ -835,24 +867,45 @@ export class ApplianceDevice extends Homey.Device {
 
     client.on("close", (code: number, reason: string) => {
       if (!isCurrent()) return;
-      this.log(`websocket closed (${code} ${reason}) - reconnecting`);
-      this.setUnavailable(this.homey.__("device.error.unreachable")).catch(this.error);
-      this.scheduleReconnect();
+      const handshakeDone = client.handshakeDone;
+      const classified = classifyClose(code, reason, {
+        handshakeDone,
+        lastError: client.lastError,
+      });
+      this.log(
+        `[conn] websocket closed code=${code} reason=${reason || "-"} ` +
+          `handshake=${handshakeDone ? "done" : "not finished"} lastError=${client.lastError?.message ?? "-"}`,
+      );
+      this.markUnavailable(classified.reason, classified.detail);
     });
 
     client.on("error", (err: Error) => {
       if (!isCurrent()) return;
-      this.error("client error:", err.message);
+      this.error("[conn] client error:", err.message);
     });
 
     try {
       await client.connect();
     } catch (err) {
       if (!isCurrent()) return;
-      this.error("connect failed:", (err as Error).message);
-      this.setUnavailable(this.homey.__("device.error.unreachable")).catch(this.error);
-      this.scheduleReconnect();
+      const classified = classifyError(err);
+      this.error(`[conn] connect failed: ${(err as Error).message}`);
+      this.markUnavailable(classified.reason, classified.detail);
     }
+  }
+
+  /**
+   * Mark the device unavailable with a message naming the failing step, record
+   * it for the settings page, and schedule the next attempt.
+   */
+  private markUnavailable(reason: ConnectionReason, detail: string): void {
+    const delay =
+      RECONNECT_DELAYS_MS[Math.min(this.reconnectAttempts, RECONNECT_DELAYS_MS.length - 1)];
+    this.reconnectAttempts++;
+    this.log(`[conn] unavailable: ${reason} (${detail || "-"}); retry in ${delay / 1000}s`);
+    this.app.connectionStatus.setState(this.haId, "unavailable", { reason, detail });
+    this.setUnavailable(this.homey.__(`device.unavailable.${reason}`)).catch(this.error);
+    this.scheduleReconnect(delay);
   }
 
   /** Push a batch of decoded feature values onto Homey capabilities. */
@@ -1373,11 +1426,11 @@ export class ApplianceDevice extends Homey.Device {
 
   // --- reconnect bookkeeping ----------------------------------------------
 
-  private scheduleReconnect(): void {
+  private scheduleReconnect(delayMs: number): void {
     this.clearReconnect();
     this.reconnectTimer = this.homey.setTimeout(() => {
       this.connect().catch(this.error);
-    }, RECONNECT_DELAY_MS);
+    }, delayMs);
   }
 
   private clearReconnect(): void {
@@ -1407,24 +1460,31 @@ export class ApplianceDevice extends Homey.Device {
   // --- mDNS discovery: keep the host in sync if the appliance's IP moves ---
 
   onDiscoveryResult(result: Homey.DiscoveryResult): boolean {
-    // The mDNS instance name is "BRAND-Type-<serial>" (TLS) or the bare
-    // serial (AES), while haId is just the serial, so match on the suffix.
-    const haId = this.config?.haId?.toLowerCase();
-    if (!haId) return false;
-    const r = result as { id?: string; name?: string; host?: string };
-    return [r.id, r.name, r.host]
-      .filter((v): v is string => typeof v === "string" && v.length > 0)
-      .map((v) => v.toLowerCase().replace(/\.local\.?$/, ""))
-      .some((v) => v === haId || v.endsWith(`-${haId}`));
+    // Homey may ask before onInit loaded the config; fall back to data.id.
+    // connect() also looks mDNS up itself, so a miss here isn't fatal.
+    const haId = this.config?.haId ?? String(this.getData().id);
+    return matchMdnsResult(result as never, haId).matched;
   }
 
   async onDiscoveryAvailable(result: Homey.DiscoveryResult): Promise<void> {
+    if (!this.config?.key) return;
     const address = (result as { address?: string }).address;
     // Only pin IPv4: link-local IPv6 addresses aren't usable without a scope id.
-    if (address && net.isIPv4(address) && address !== this.config.host) {
-      this.log(`mDNS: appliance found at ${address} (was ${this.config.host})`);
-      this.config.host = address;
+    if (!address || !net.isIPv4(address)) return;
+    const via = matchMdnsResult(result as never, this.haId).via;
+    this.app.connectionStatus.recordMdns(this.haId, address, via);
+    const changed = address !== this.config.address;
+    if (changed) {
+      this.log(`[mdns] appliance seen at ${address} via ${via ?? "?"} (was ${this.config.address ?? "-"})`);
+      this.config.address = address;
       await this.setStoreValue("config", this.config);
+    }
+    // Retry right away when we're waiting for a reconnect anyway, or when the
+    // live session uses another address. Don't interrupt an attempt that is
+    // still in progress or a working session on this address.
+    const waitingToRetry = this.reconnectTimer != null;
+    const elsewhere = this.client?.handshakeDone === true && this.client.address !== address;
+    if (waitingToRetry || elsewhere) {
       await this.connect();
     }
   }
@@ -1443,6 +1503,7 @@ export class ApplianceDevice extends Homey.Device {
   }
 
   async onDeleted(): Promise<void> {
+    this.app.connectionStatus.forget(this.haId);
     this.stopped = true;
     this.connectionGeneration++;
     this.clearReconnect();

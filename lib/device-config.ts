@@ -1,5 +1,7 @@
 "use strict";
 
+import net from "net";
+
 import { DeviceConfig } from "./types";
 
 /**
@@ -75,4 +77,45 @@ export function normalizeDeviceConfigs(raw: unknown): DeviceConfig[] {
     throw new Error("The devices list is empty");
   }
   return raw.map((entry, index) => normalizeDeviceConfig(entry, index));
+}
+
+/** True when the app's config for an appliance differs in anything that matters to the connection. */
+export function configChanged(stored: DeviceConfig, next: DeviceConfig): boolean {
+  return (
+    stored.key !== next.key ||
+    stored.iv !== next.iv ||
+    stored.description?.version !== next.description?.version ||
+    stored.description?.revision !== next.description?.revision ||
+    JSON.stringify(stored.features ?? {}) !== JSON.stringify(next.features ?? {})
+  );
+}
+
+/**
+ * Combine the config a device stored with the app's current one (the source
+ * of truth after a re-login or import) on device init.
+ *
+ * - No stored keys yet (first init after pairing): take the app's config.
+ * - Migration from <= 1.4.2: mDNS pinning used to overwrite `host` with an
+ *   IPv4 address, losing the name. When the stored host is an IP and the app
+ *   still knows a hostname, restore the name and keep the IP as `address`.
+ * - App config changed (new keys / feature map): take it, keep `address`.
+ */
+export function mergeStoredConfig(
+  stored: DeviceConfig | undefined,
+  fromApp: DeviceConfig | undefined,
+): { config: DeviceConfig | undefined; changed: boolean } {
+  if (!stored?.key) {
+    return fromApp?.key ? { config: { ...fromApp }, changed: true } : { config: stored, changed: false };
+  }
+  let config: DeviceConfig = { ...stored };
+  let changed = false;
+  if (net.isIP(config.host) && fromApp?.host && !net.isIP(fromApp.host)) {
+    config = { ...config, host: fromApp.host, address: config.address ?? config.host };
+    changed = true;
+  }
+  if (fromApp?.key && configChanged(config, fromApp)) {
+    config = { ...fromApp, ...(config.address ? { address: config.address } : {}) };
+    changed = true;
+  }
+  return { config, changed };
 }

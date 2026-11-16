@@ -17,6 +17,12 @@ export interface DeviceConfig {
    */
   host: string;
   /**
+   * Last IPv4 address the appliance was seen at (mDNS) or connected on. Kept
+   * next to `host` rather than replacing it, so a stale address can fall back
+   * to the name. Not part of hcpy's devices.json; only on the device store.
+   */
+  address?: string;
+  /**
    * Base64url-encoded pre-shared key.
    * - TLS-PSK appliances (no `iv`): used as the TLS PSK (port 443, wss).
    * - HTTP/AES appliances (`iv` present): used to derive enc/mac keys (port 80).

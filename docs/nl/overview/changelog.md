@@ -6,7 +6,7 @@ description: Wat er per versie veranderd is
 
 ## 1.5.0
 
-De app-instellingen passen nu op een telefoon: een kaart per apparaat met de status, en de reden en details als het niet beschikbaar is. Het koppelen legt beide manieren uit en welke browser je gebruikt. Apparaten die nog niet ondersteund worden, zoals kookplaten, laten dat nu zien. Afzuigkappen krijgen een moduskeuze (uit, handmatig, automatisch, nalooptijd) in de apparaatweergave. Diagnoserapporten tonen nu elke actie op een apparaat en waarom die mislukte. De meestgebruikte Flow-kaarten staan nu bovenaan.
+De app-instellingen passen nu op een telefoon, met per apparaat een kaart met de status en, als het niet beschikbaar is, de reden. Het koppelen legt beide manieren uit en verwijst naar de nieuwe online handleiding. Apparaten die nog niet ondersteund worden, zoals kookplaten, laten dat zien. Afzuigkappen krijgen een moduskeuze: uit, handmatig, automatisch of nalooptijd. Diagnoserapporten loggen elke actie op een apparaat en waarom die mislukte. De meestgebruikte Flow-kaarten staan bovenaan.
 
 ## 1.4.3
 

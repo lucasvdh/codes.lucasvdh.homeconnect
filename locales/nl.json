@@ -76,7 +76,7 @@
     "method_login_body": "Werkt met Chrome of Edge op een computer. Na het inloggen kopieer je één adres uit de ontwikkelaarstools.",
     "method_import_title": "devices.json importeren",
     "method_import_body": "Maak het bestand aan met de homeconnect-profile-downloader voor Windows, Mac of Linux en kies daarin het hcpy-profiel.",
-    "docs_link": "Stap-voor-stap handleiding met screenshots",
+    "docs_link": "Stap-voor-stap handleiding",
     "docs_url": "https://homey-home-connect.gitbook.io/nl",
     "paste_label": "Adres na het inloggen",
     "devices_title": "Apparaten",

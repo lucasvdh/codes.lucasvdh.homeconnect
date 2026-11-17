@@ -76,7 +76,7 @@
     "method_login_body": "Works with Chrome or Edge on a computer. After logging in, you copy one address from the developer tools.",
     "method_import_title": "Import devices.json",
     "method_import_body": "Create the file with the homeconnect-profile-downloader for Windows, Mac or Linux and choose the hcpy profile.",
-    "docs_link": "Step-by-step guide with screenshots",
+    "docs_link": "Step-by-step guide",
     "docs_url": "https://homey-home-connect.gitbook.io/en",
     "paste_label": "Address after logging in",
     "devices_title": "Appliances",

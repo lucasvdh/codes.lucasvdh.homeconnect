@@ -269,14 +269,15 @@ export abstract class ApplianceDriver extends Homey.Driver {
       );
   }
 
+  pairsType(type: string | undefined): boolean {
+    return (type ?? "").toLowerCase() === this.applianceType.toLowerCase();
+  }
+
   async onPairListDevices(): Promise<Array<{ name: string; data: { id: string } }>> {
     const all: DeviceConfig[] = (
       this.homey.app as unknown as { getDevices(): DeviceConfig[] }
     ).getDevices();
-    const devices = all.filter(
-      (cfg) =>
-        (cfg.description?.type ?? "").toLowerCase() === this.applianceType.toLowerCase(),
-    );
+    const devices = all.filter((cfg) => this.pairsType(cfg.description?.type));
     this.log(
       `onPairListDevices: ${devices.length} ${this.applianceType}(s) of ${all.length} stored`,
     );

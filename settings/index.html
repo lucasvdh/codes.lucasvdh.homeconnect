@@ -1,100 +1,184 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <base target="_parent"/>
   <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
   <style>
-    html, body { height: 100%; margin: 0; }
-    body { padding: 1rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #18181b; }
-    h1 { font-size: 1.2rem; margin: 0 0 0.25rem 0; }
-    h2 { font-size: 1rem; margin: 1.25rem 0 0.5rem 0; }
-    p.lead { color: #555; margin: 0 0 1rem 0; line-height: 1.45; font-size: 0.92rem; }
-    ol.steps { margin: 0 0 0.75rem 1.1rem; padding: 0; color: #555; font-size: 0.86rem; line-height: 1.5; }
-    .tabs { display: flex; gap: 0.25rem; margin-bottom: 1rem; border-bottom: 1px solid #ddd; }
-    .tab { padding: 0.5rem 0.9rem; cursor: pointer; border: 1px solid transparent; border-bottom: none; border-radius: 4px 4px 0 0; font-size: 0.9rem; color: #555; background: transparent; }
-    .tab.active { background: white; border-color: #ddd; color: #EA0016; margin-bottom: -1px; font-weight: 600; }
-    .pane { display: none; }
-    .pane.active { display: block; }
-    .row { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; }
-    input[type="text"] { flex: 1 1 220px; min-width: 0; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem; }
-    input[readonly] { background: #f4f4f5; color: #555; }
-    button { padding: 0.5rem 1rem; border-radius: 4px; border: 1px solid #EA0016; background: #EA0016; color: white; cursor: pointer; font-size: 0.92rem; }
-    button.secondary { background: white; color: #EA0016; }
-    button:disabled { opacity: 0.5; cursor: not-allowed; }
-    textarea { width: 100%; height: 180px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.78rem; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-    .hint { color: #666; font-size: 0.82rem; margin: -0.25rem 0 0.75rem 0; line-height: 1.4; }
-    .status { margin-top: 0.5rem; padding: 0.5rem 0.75rem; border-radius: 4px; font-size: 0.86rem; display: none; }
-    .status.show { display: block; }
-    .status.ok { background: #e6f4ea; color: #1e6c33; }
-    .status.err { background: #fce8e8; color: #9b2222; }
-    .status.info { background: #eef2fb; color: #2a4a8b; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
-    th, td { text-align: left; padding: 0.4rem 0.5rem; border-bottom: 1px solid #eee; }
-    th { color: #777; font-weight: 600; }
-    .muted { color: #888; font-size: 0.82rem; }
-    .conn { font-weight: 600; }
-    .conn.connected { color: #1e6c33; }
-    .conn.unavailable { color: #9b2222; }
-    .conn-detail { display: block; color: #666; font-size: 0.78rem; line-height: 1.35; word-break: break-word; }
-    a { color: #EA0016; word-break: break-all; }
+    :root {
+      --hc-bg: var(--homey-background-color, #f4f4f6);
+      --hc-card: #ffffff;
+      --hc-text: var(--homey-text-color, #18181b);
+      --hc-text-light: var(--homey-text-color-light, #5f6168);
+      --hc-line: var(--homey-line-color, #e3e3e8);
+      --hc-link: #0a6fd8;
+      --hc-danger: #c62828;
+      --hc-ok-bg: #e3f4e8;
+      --hc-ok-text: #1b6b30;
+      --hc-err-bg: #fde7e6;
+      --hc-err-text: #b3261e;
+      --hc-neutral-bg: #ececf0;
+      --hc-note-bg: #fff4e0;
+      --hc-note-text: #7a4a00;
+      --hc-radius: 12px;
+    }
+    html, body { margin: 0; }
+    [hidden] { display: none !important; }
+    body { font-family: -apple-system, BlinkMacSystemFont, Roboto, "Segoe UI", system-ui, sans-serif; background: var(--hc-bg); color: var(--hc-text); font-size: 17px; line-height: 24px; -webkit-text-size-adjust: 100%; }
+    .page { box-sizing: border-box; max-width: 640px; margin: 0 auto; padding: 24px 16px 32px; display: flex; flex-direction: column; gap: 24px; }
+    .homey-header { display: flex; flex-direction: column; gap: 4px; }
+    .homey-title, .homey-subtitle { margin: 0; }
+    .homey-subtitle { font-size: 14px; line-height: 20px; color: var(--hc-text-light); }
+    h2 { margin: 0; font-size: 20px; line-height: 28px; font-weight: 700; }
+    h3 { margin: 0; font-size: 17px; line-height: 24px; font-weight: 500; }
+    p { margin: 0; }
+    a { color: var(--hc-link); }
+    .muted { font-size: 14px; line-height: 20px; color: var(--hc-text-light); }
+    .stack { display: flex; flex-direction: column; gap: 12px; }
+    .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+    .card { background: var(--hc-card); border: 1px solid var(--hc-line); border-radius: var(--hc-radius); padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+    .card-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+    .card p { font-size: 14px; line-height: 20px; }
+    .card p.muted, .nowrap { white-space: nowrap; }
+    .pill { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 999px; font-size: 14px; line-height: 20px; font-weight: 500; background: var(--hc-neutral-bg); color: var(--hc-text-light); }
+    .pill.connected { background: var(--hc-ok-bg); color: var(--hc-ok-text); }
+    .pill.unavailable { background: var(--hc-err-bg); color: var(--hc-err-text); }
+    .pill.connected::before, .pill.unavailable::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+    .badge { padding: 0 8px; border-radius: 999px; background: #e6f0fc; color: #0a5bb5; font-size: 13px; line-height: 20px; font-weight: 500; }
+    details.tech { border-top: 1px solid var(--hc-line); margin-top: 4px; padding-top: 4px; }
+    details > summary { list-style: none; cursor: pointer; }
+    details > summary::-webkit-details-marker { display: none; }
+    details.tech > summary { display: flex; align-items: center; gap: 6px; min-height: 44px; font-size: 14px; font-weight: 500; color: var(--hc-link); }
+    .chev { flex: none; transition: transform .15s; }
+    details[open] > summary .chev { transform: rotate(90deg); }
+    dl { margin: 0; display: grid; grid-template-columns: max-content minmax(0, 1fr); column-gap: 12px; row-gap: 4px; font-size: 14px; line-height: 20px; }
+    dt { color: var(--hc-text-light); }
+    dd { margin: 0; overflow-wrap: anywhere; }
+    .note { display: flex; gap: 12px; padding: 12px 16px; border-radius: var(--hc-radius); background: var(--hc-note-bg); color: var(--hc-note-text); font-size: 15px; line-height: 22px; }
+    .note svg { flex: none; margin-top: 1px; }
+    .link-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; color: var(--hc-text); text-decoration: none; }
+    .link-row span { display: flex; flex-direction: column; }
+    .link-row strong { font-weight: 500; }
+    .inline-link { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-size: 15px; font-weight: 500; text-decoration: none; }
+    .footer { border-top: 1px solid var(--hc-line); padding-top: 16px; display: flex; flex-direction: column; gap: 4px; }
+    .danger-link { min-height: 48px; padding: 0; border: 0; background: transparent; color: var(--hc-danger); font: inherit; font-weight: 500; text-align: start; cursor: pointer; }
+    .danger-link:disabled { opacity: .5; cursor: not-allowed; }
+    .pairing-body { display: flex; flex-direction: column; gap: 16px; padding-top: 12px; }
+    .segmented { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding: 4px; background: #e6e6eb; border-radius: var(--hc-radius); }
+    .segmented button { min-height: 44px; border: 0; border-radius: 9px; background: transparent; color: var(--hc-text-light); font: inherit; font-size: 15px; font-weight: 500; cursor: pointer; }
+    .segmented button[aria-selected="true"] { background: #ffffff; color: var(--hc-text); box-shadow: 0 1px 2px rgba(0, 0, 0, .08); }
+    .pane { gap: 16px; }
+    ol.steps { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; counter-reset: step; }
+    ol.steps li { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; align-items: start; font-size: 15px; line-height: 22px; counter-increment: step; }
+    ol.steps li::before { content: counter(step); width: 28px; height: 28px; border-radius: 50%; background: #e6f0fc; color: var(--hc-link); font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .row .homey-form-input { flex: 1 1 200px; min-width: 0; }
+    textarea.homey-form-textarea { box-sizing: border-box; width: 100%; height: 160px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13px; }
+    .status { padding: 12px 16px; border-radius: var(--hc-radius); font-size: 15px; line-height: 22px; overflow-wrap: anywhere; }
+    .status.ok { background: var(--hc-ok-bg); color: var(--hc-ok-text); }
+    .status.err { background: var(--hc-err-bg); color: var(--hc-err-text); }
+    .status.info { background: #e6f0fc; color: #0a4c94; }
+    .no-devices #devices-section, .no-devices #pairing > summary, .no-devices .footer { display: none; }
   </style>
 </head>
 <body>
-  <h1 data-i18n="settings.title">Home Connect - pair appliances</h1>
-  <p class="lead" data-i18n="settings.lead">Use the one-time cloud login to retrieve the local keys for your Bosch/Siemens appliances. After that, the app talks locally and you can block the appliances from the internet. Add discovered appliances via Add device > Home Connect.</p>
+  <main class="page" id="page">
+    <header class="homey-header">
+      <h1 class="homey-title" data-i18n="settings.title">Home Connect</h1>
+      <p class="homey-subtitle" id="lead"></p>
+    </header>
 
-  <div class="tabs">
-    <button class="tab active" data-tab="manual" data-i18n="settings.tab_login">Login</button>
-    <button class="tab" data-tab="import" data-i18n="settings.tab_import">Import devices.json</button>
-  </div>
+    <div class="status" id="status" role="status" hidden></div>
 
-  <div class="pane active" id="pane-manual">
-    <p class="hint" data-i18n="settings.login_hint">The SingleKey ID login cannot run inside the app because the login page is protected by hCaptcha. Log in with your own browser instead.</p>
-    <ol class="steps">
-      <li data-i18n="settings.login_step_generate">Generate the login link and open it in your browser, or copy it.</li>
-      <li data-i18n="settings.login_step_signin">Log in with SingleKey ID. Your browser will try to open hcauth://auth/prod?code=... and show an error. That is expected.</li>
-      <li data-i18n="settings.login_step_paste">Copy the complete hcauth://auth/prod?code=... URL and paste it below. If your browser doesn't show it in the address bar, open the developer tools (F12) before logging in, go to the Network tab, tick &quot;Preserve log&quot;, type hcauth in the filter and copy the Request URL of the failed request. Chrome and Edge work best.</li>
-    </ol>
-    <p class="hint" data-i18n="settings.login_alternative">Can't get the login to work (for example on a Chromebook, iPhone or in Firefox)? Use the homeconnect-profile-downloader tool, choose the hcpy profile and import the resulting devices.json in the other tab.</p>
-    <div class="row">
-      <button id="manual-generate" data-i18n="settings.generate_login_link">Generate login link</button>
-    </div>
-    <div id="manual-link-block" style="display:none">
-      <div class="row">
-        <input type="text" id="manual-link-field" readonly />
-        <button id="manual-copy" class="secondary" data-i18n="settings.copy">Copy</button>
-        <a id="manual-link" href="#" target="_blank" rel="noopener" data-i18n="settings.open">Open</a>
+    <section class="stack" id="devices-section">
+      <div class="section-head">
+        <h2 data-i18n="settings.devices_title">Appliances</h2>
+        <span class="muted" id="devices-count"></span>
       </div>
-      <input type="text" id="manual-url" placeholder="hcauth://auth/prod?code=...&state=..." />
-      <div class="row" style="margin-top:0.5rem">
-        <button id="manual-submit" data-i18n="settings.submit_and_fetch">Submit and fetch appliances</button>
+      <div class="stack" id="device-list"></div>
+      <button id="refresh-devices" class="homey-button-primary-full" disabled data-i18n="settings.refresh_devices">Refresh appliances</button>
+      <p class="muted" data-i18n="settings.refresh_hint"></p>
+    </section>
+
+    <details id="pairing">
+      <summary class="link-row">
+        <span><strong data-i18n="settings.repair_title">Pair again</strong><span class="muted" data-i18n="settings.repair_subtitle"></span></span>
+        <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+      </summary>
+      <div class="pairing-body">
+        <div class="note" id="mobile-note" role="note" hidden>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
+          <span data-i18n="settings.mobile_note"></span>
+        </div>
+
+        <section class="stack">
+          <h2 data-i18n="settings.methods_title">Choose a method</h2>
+          <div class="card">
+            <div class="row">
+              <h3 data-i18n="settings.method_login_title"></h3>
+              <span class="badge" data-i18n="settings.method_recommended"></span>
+            </div>
+            <p data-i18n="settings.method_login_body"></p>
+          </div>
+          <div class="card">
+            <h3 data-i18n="settings.method_import_title"></h3>
+            <p data-i18n="settings.method_import_body"></p>
+          </div>
+          <a class="inline-link" id="docs-link" href="#" data-external>
+            <span data-i18n="settings.docs_link"></span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg>
+          </a>
+        </section>
+
+        <div class="segmented" role="tablist">
+          <button type="button" role="tab" class="tab" data-tab="manual" aria-selected="true" data-i18n="settings.tab_login">Log in</button>
+          <button type="button" role="tab" class="tab" data-tab="import" aria-selected="false" data-i18n="settings.tab_import">devices.json</button>
+        </div>
+
+        <div class="card pane" id="pane-manual" role="tabpanel">
+          <ol class="steps">
+            <li data-i18n="settings.login_step_generate"></li>
+            <li data-i18n="settings.login_step_signin"></li>
+            <li data-i18n="settings.login_step_paste"></li>
+          </ol>
+          <button id="manual-generate" class="homey-button-primary-full" data-i18n="settings.generate_login_link">Create login link</button>
+          <div class="stack" id="manual-link-block" hidden>
+            <div class="row">
+              <input type="text" id="manual-link-field" class="homey-form-input" readonly />
+              <button id="manual-copy" class="homey-button-transparent" data-i18n="settings.copy">Copy</button>
+              <a id="manual-link" href="#" target="_blank" rel="noopener" data-i18n="settings.open">Open</a>
+            </div>
+            <div class="homey-form-group">
+              <label class="homey-form-label" for="manual-url" data-i18n="settings.paste_label"></label>
+              <input type="url" id="manual-url" class="homey-form-input" placeholder="hcauth://auth/prod?code=…" />
+            </div>
+            <button id="manual-submit" class="homey-button-primary-full" data-i18n="settings.submit_and_fetch">Pair</button>
+          </div>
+        </div>
+
+        <div class="card pane" id="pane-import" role="tabpanel" hidden>
+          <p data-i18n="settings.import_hint"></p>
+          <input type="file" id="import-file" accept=".json,application/json" />
+          <textarea id="import-text" class="homey-form-textarea"></textarea>
+          <button id="import-submit" class="homey-button-primary-full" data-i18n="settings.import_devices">Import appliances</button>
+        </div>
       </div>
-    </div>
-  </div>
+    </details>
 
-  <div class="pane" id="pane-import">
-    <p class="hint" data-i18n="settings.import_hint">Already have a devices.json, for example from hcpy? Paste its contents or choose a file.</p>
-    <div class="row">
-      <input type="file" id="import-file" accept=".json,application/json" />
+    <div class="footer">
+      <a class="link-row" id="docs-row" href="#" data-external>
+        <span><strong data-i18n="settings.docs_title"></strong><span class="muted" data-i18n="settings.docs_subtitle"></span></span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg>
+      </a>
+      <button id="clear-devices" class="danger-link" disabled data-i18n="settings.clear_all">Remove all appliances</button>
     </div>
-    <textarea id="import-text" placeholder='[ { "name": "oven", "host": "...", "key": "...", "description": {...}, "features": {...} } ]'></textarea>
-    <div class="row" style="margin-top:0.5rem">
-      <button id="import-submit" data-i18n="settings.import_devices">Import appliances</button>
-    </div>
-  </div>
-
-  <div class="status" id="status"></div>
-
-  <h2 data-i18n="settings.found_devices">Discovered appliances</h2>
-  <div id="device-list"></div>
-  <div class="row" style="margin-top:0.75rem">
-    <button id="refresh-devices" class="secondary" disabled data-i18n="settings.refresh_devices">Refresh appliances</button>
-    <button id="clear-devices" class="secondary" disabled data-i18n="settings.clear_all">Clear all</button>
-  </div>
-  <p class="hint" data-i18n="settings.refresh_hint">Refresh appliances fetches the list again with the saved session. Useful after adding a new appliance.</p>
+  </main>
 
   <script type="text/javascript">
     function onHomeyReady(Homey) {
+    const ISSUES_URL = 'https://github.com/lucasvdh/codes.lucasvdh.homeconnect/issues';
+    const CHEVRON = '<svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
+
     function __(key, tags) {
       return Homey.__(key, tags || {});
     }
@@ -115,34 +199,77 @@
       });
     }
 
-    function formatTime(ms) {
-      if (!ms) return '';
-      try { return new Date(ms).toLocaleString(); } catch (e) { return String(ms); }
+    function openExternal(url) {
+      if (typeof Homey.openURL === 'function') Homey.openURL(url);
+      else window.open(url, '_blank', 'noopener');
     }
 
-    // One cell per appliance with what a screenshot needs: state, reason and
-    // its technical detail, the address used and the last mDNS sighting.
-    function connectionCell(c) {
-      c = c || {};
-      const lines = [];
-      if (!c.state) {
-        lines.push('<span class="conn">' + escapeHtml(__('settings.conn_not_added')) + '</span>');
+    function formatTime(ms) {
+      if (!ms) return '';
+      try {
+        const date = new Date(ms);
+        const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        if (date.toDateString() === new Date().toDateString()) return time;
+        return date.toLocaleDateString([], { day: 'numeric', month: 'short' }) + ' ' + time;
+      } catch (e) {
+        return String(ms);
+      }
+    }
+
+    function translatedOr(key, fallback) {
+      const text = __(key);
+      return text && text !== key ? text : fallback;
+    }
+
+    function applianceTitle(d) {
+      const brand = d.brand ? d.brand.charAt(0).toUpperCase() + d.brand.slice(1).toLowerCase() : '';
+      return (brand + ' ' + translatedOr('settings.type_' + d.type, d.type)).trim();
+    }
+
+    function pill(kind, text) {
+      return '<span class="pill ' + kind + '">' + escapeHtml(text) + '</span>';
+    }
+
+    // An unavailable appliance opens its details, so a screenshot shows what we need.
+    const detailsOpen = new Map();
+
+    function technicalDetails(d) {
+      const c = d.connection || {};
+      const open = detailsOpen.has(d.haId) ? detailsOpen.get(d.haId) : c.state === 'unavailable';
+      const rows = [];
+      if (c.reason) rows.push([__('settings.detail_reason'), c.reason + (c.detail ? ' (' + c.detail + ')' : '')]);
+      rows.push([__('settings.detail_mdns'), c.mdns
+        ? __('settings.mdns_seen', { address: c.mdns.address || '?', time: formatTime(c.mdns.at) })
+        : __('settings.mdns_never')]);
+      if (c.address) rows.push([__('settings.detail_address'), c.address]);
+      rows.push([__('settings.detail_protocol'), d.protocol]);
+      return '<details class="tech" data-ha-id="' + escapeHtml(d.haId) + '"' + (open ? ' open' : '') + '>' +
+        '<summary>' + CHEVRON + escapeHtml(__('settings.details_title')) + '</summary><dl>' +
+        rows.map(([k, v]) => '<dt>' + escapeHtml(k) + '</dt><dd>' + escapeHtml(v) + '</dd>').join('') +
+        '</dl></details>';
+    }
+
+    function deviceCard(d) {
+      const c = d.connection || {};
+      let status;
+      let body;
+      if (!d.supported) {
+        status = pill('', __('settings.conn_unsupported'));
+        body = '<p>' + escapeHtml(__('settings.unsupported_hint')) + ' <a href="' + ISSUES_URL + '" data-external>' +
+          escapeHtml(__('settings.unsupported_link')) + '</a></p>';
+      } else if (!c.state) {
+        status = pill('', __('settings.conn_not_added'));
+        body = '<p>' + escapeHtml(__('settings.not_added_hint')) + '</p>';
       } else {
-        lines.push('<span class="conn ' + escapeHtml(c.state) + '">' +
-          escapeHtml(__('settings.conn_' + c.state)) + '</span>' +
-          (c.since ? ' <span class="muted">' + escapeHtml(__('settings.conn_since', { time: formatTime(c.since) })) + '</span>' : ''));
+        status = pill(c.state, __('settings.conn_' + c.state));
+        const since = c.since ? __('settings.conn_since', { time: formatTime(c.since) }) : '';
+        body = c.state === 'unavailable' && c.reason
+          ? '<p>' + escapeHtml(translatedOr('device.unavailable.' + c.reason, c.reason)) + '</p>'
+          : '<p class="muted">' + (c.address ? '<span class="nowrap">' + escapeHtml(c.address) + '</span> · ' : '') + escapeHtml(since) + '</p>';
+        body += technicalDetails(d);
       }
-      if (c.reason) {
-        lines.push('<span class="conn-detail">' + escapeHtml(__('settings.conn_reason', { reason: c.reason })) +
-          (c.detail ? ' (' + escapeHtml(c.detail) + ')' : '') + '</span>');
-      }
-      if (c.address) {
-        lines.push('<span class="conn-detail">' + escapeHtml(__('settings.conn_address', { address: c.address })) + '</span>');
-      }
-      lines.push('<span class="conn-detail">' + escapeHtml(c.mdns
-        ? __('settings.conn_mdns_seen', { address: c.mdns.address || '?', time: formatTime(c.mdns.at) })
-        : __('settings.conn_mdns_never')) + '</span>');
-      return lines.join('');
+      return '<article class="card"><div class="card-head"><h3>' + escapeHtml(applianceTitle(d)) + '</h3>' + status + '</div>' +
+        '<p class="muted">' + escapeHtml(d.model) + '</p>' + body + '</article>';
     }
 
     function localizeRuntimeMessage(message) {
@@ -165,42 +292,48 @@
     let currentRunId = null;
 
     $('import-text').setAttribute('placeholder', __('settings.import_placeholder'));
+    $('docs-link').href = __('settings.docs_url');
+    $('docs-row').href = __('settings.docs_url');
+    $('mobile-note').hidden = !window.matchMedia('(hover: none) and (pointer: coarse)').matches;
 
     function setStatus(kind, message) {
-      statusEl.className = 'status show ' + kind;
+      statusEl.className = 'status ' + kind;
       statusEl.textContent = message;
+      statusEl.hidden = false;
+      statusEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     }
     function clearStatus() {
-      statusEl.className = 'status';
+      statusEl.hidden = true;
     }
+
+    document.addEventListener('click', (e) => {
+      const link = e.target.closest('a[data-external]');
+      if (!link || !link.href || link.getAttribute('href') === '#') return;
+      e.preventDefault();
+      openExternal(link.href);
+    });
+    document.addEventListener('toggle', (e) => {
+      const id = e.target.dataset && e.target.dataset.haId;
+      if (id) detailsOpen.set(id, e.target.open);
+    }, true);
 
     document.querySelectorAll('.tab').forEach((tab) => {
       tab.addEventListener('click', () => {
-        document.querySelectorAll('.tab').forEach((t) => t.classList.remove('active'));
-        document.querySelectorAll('.pane').forEach((p) => p.classList.remove('active'));
-        tab.classList.add('active');
-        $('pane-' + tab.dataset.tab).classList.add('active');
+        document.querySelectorAll('.tab').forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
+        document.querySelectorAll('.pane').forEach((p) => { p.hidden = p.id !== 'pane-' + tab.dataset.tab; });
       });
     });
 
     async function refreshStatus() {
       const status = await api('GET', '/status');
-      const list = $('device-list');
-      if (!status.devices.length) {
-        list.innerHTML = '<p class="muted">' + __('settings.no_devices') + '</p>';
-      } else {
-        const rows = status.devices.map((d) =>
-          '<tr><td>' + escapeHtml(d.name) + '</td><td>' + escapeHtml(d.brand + ' ' + d.type) + '</td>' +
-          '<td>' + escapeHtml(d.model) + '</td><td><span class="muted">' + escapeHtml(d.protocol) + '</span></td>' +
-          '<td>' + connectionCell(d.connection) + '</td></tr>'
-        ).join('');
-        list.innerHTML = '<table><thead><tr><th>' + __('settings.table_name') + '</th><th>' +
-          __('settings.table_brand_type') + '</th><th>' + __('settings.table_model') + '</th><th>' +
-          __('settings.table_protocol') + '</th><th>' + __('settings.connection_title') +
-          '</th></tr></thead><tbody>' + rows + '</tbody></table>';
-      }
+      const hasDevices = status.devices.length > 0;
+      $('page').classList.toggle('no-devices', !hasDevices);
+      $('lead').textContent = __(hasDevices ? 'settings.lead_devices' : 'settings.lead_setup');
+      if (!hasDevices) $('pairing').open = true;
+      $('devices-count').textContent = hasDevices ? __('settings.devices_count', { count: status.devices.length }) : '';
+      $('device-list').innerHTML = status.devices.map(deviceCard).join('');
       $('refresh-devices').disabled = !status.hasRefreshToken;
-      $('clear-devices').disabled = status.devices.length === 0 && !status.hasRefreshToken;
+      $('clear-devices').disabled = !hasDevices && !status.hasRefreshToken;
     }
 
     Homey.on('homeconnect:run:progress', (p) => {
@@ -226,17 +359,16 @@
         manualPkceId = res.pkceId;
         $('manual-link-field').value = res.authorizeUrl;
         $('manual-link').href = res.authorizeUrl;
-        $('manual-link-block').style.display = 'block';
+        $('manual-link-block').hidden = false;
       } catch (err) {
         setStatus('err', __('settings.login_link_failed', { message: err.message || err }));
       }
     });
-    // Inside the Homey app the settings page runs in a webview where a plain
-    // link navigates nowhere; hand the URL to Homey to open in a real browser.
+    // Inside the Homey app a plain link navigates nowhere; Homey opens it in a real browser.
     $('manual-link').addEventListener('click', (e) => {
       const url = $('manual-link').href;
       if (!url || url.endsWith('#')) return;
-      if (typeof Homey !== 'undefined' && typeof Homey.openURL === 'function') {
+      if (typeof Homey.openURL === 'function') {
         e.preventDefault();
         Homey.openURL(url);
       }
@@ -307,7 +439,6 @@
 
     Homey.ready();
     refreshStatus();
-    // Keep the connection column current while the page is open.
     setInterval(() => { refreshStatus().catch(() => {}); }, 10000);
     }
   </script>

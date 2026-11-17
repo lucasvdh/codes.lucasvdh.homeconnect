@@ -14,6 +14,7 @@ import {
 } from "./lib/home-connect-oauth";
 import { discoverAppliances } from "./lib/home-connect-discovery";
 import { normalizeDeviceConfigs } from "./lib/device-config";
+import type { ApplianceDriver } from "./lib/appliance-driver";
 
 // The SingleKey login can't be proxied (hCaptcha is host-locked to singlekey-id.com), so the
 // user signs in in their own browser and pastes the hcauth:// redirect back.
@@ -36,6 +37,7 @@ const manualSessions = new Map<string, PkcePair>();
 module.exports = {
   async getStatus({ homey }: ApiArgs) {
     const devices: DeviceConfig[] = homey.app.getDevices();
+    const drivers = Object.values(homey.drivers.getDrivers()) as ApplianceDriver[];
     return {
       hasRefreshToken: homey.app.getRefreshToken() != null,
       devices: devices.map((d) => ({
@@ -43,6 +45,7 @@ module.exports = {
         name: d.name,
         brand: d.description?.brand ?? "",
         type: d.description?.type ?? "",
+        supported: drivers.some((driver) => driver.pairsType(d.description?.type)),
         model: d.description?.model ?? "",
         protocol: d.iv ? "AES" : "TLS-PSK",
         connection: d.haId ? homey.app.connectionStatus.get(d.haId) : {},

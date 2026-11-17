@@ -4,6 +4,10 @@ description: Wat er per versie veranderd is
 
 # Wijzigingen
 
+## 1.5.0
+
+De app-instellingen passen nu op een telefoon: een kaart per apparaat met de status, en de reden en details als het niet beschikbaar is. Het koppelen legt beide manieren uit en welke browser je gebruikt. Apparaten die nog niet ondersteund worden, zoals kookplaten, laten dat nu zien. Afzuigkappen krijgen een moduskeuze (uit, handmatig, automatisch, nalooptijd) in de apparaatweergave. Diagnoserapporten tonen nu elke actie op een apparaat en waarom die mislukte. De meestgebruikte Flow-kaarten staan nu bovenaan.
+
 ## 1.4.3
 
 Apparaten die niet beschikbaar blijven, vertellen nu waarom, bijvoorbeeld niet gevonden op het netwerk, geen antwoord of sleutel niet geaccepteerd. De app-instellingen tonen de verbindingsstatus per apparaat. Apparaten die via mDNS gevonden worden, worden direct verbonden, en hun netwerknaam blijft bewaard als het adres verandert. Ook de beschrijving, leesmij en app-afbeelding in de App Store zijn bijgewerkt.

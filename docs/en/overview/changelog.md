@@ -4,6 +4,10 @@ description: What changed in each version
 
 # Changelog
 
+## 1.5.0
+
+The app settings now fit on a phone: a card per appliance with its status, and the reason and details when it is unavailable. Pairing explains both methods and which browser to use. Appliance types without support yet, such as hobs, now say so. Extractor hoods get a mode picker (off, manual, automatic, run-on) in the device view. Diagnostics reports now show every action you take on a device and why it failed. The most used Flow cards are shown first.
+
 ## 1.4.3
 
 Appliances that stay unavailable now say why, for example not found on the network, no answer, or key not accepted. The app settings show the connection status per appliance. Appliances found via mDNS are connected directly, and their network name is kept when the address changes. Also updated the App Store description, readme and app image.

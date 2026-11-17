@@ -179,6 +179,7 @@
     },
     {
       "id": "hood_grease_filter_saturated",
+      "highlight": true,
       "title": {
         "en": "Grease filter is saturated",
         "nl": "Vetfilter is verzadigd",
@@ -189,6 +190,7 @@
   "conditions": [
     {
       "id": "hood_is_running",
+      "highlight": true,
       "title": {
         "en": "!{{Is|Is not}} running",
         "nl": "!{{Is|Is niet}} bezig",
@@ -395,6 +397,7 @@
     },
     {
       "id": "hood_set_venting_level",
+      "highlight": true,
       "title": {
         "en": "Set fan level",
         "nl": "Zet ventilatorstand",

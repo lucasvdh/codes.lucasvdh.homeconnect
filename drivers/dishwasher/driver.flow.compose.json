@@ -2,6 +2,7 @@
   "triggers": [
     {
       "id": "dishwasher_program_finished",
+      "highlight": true,
       "title": {
         "en": "A program finished",
         "nl": "Een programma is klaar",
@@ -347,6 +348,7 @@
     },
     {
       "id": "dishwasher_rinse_aid_low",
+      "highlight": true,
       "title": {
         "en": "Rinse aid is low",
         "nl": "Glansspoelmiddel bijna op",
@@ -437,6 +439,7 @@
   "conditions": [
     {
       "id": "dishwasher_is_running",
+      "highlight": true,
       "title": {
         "en": "!{{Is|Is not}} running",
         "nl": "!{{Is|Is niet}} bezig",
@@ -485,6 +488,7 @@
     },
     {
       "id": "dishwasher_door_is_open",
+      "highlight": true,
       "title": {
         "en": "The door !{{is|is not}} open",
         "nl": "De deur !{{is|is niet}} open",
@@ -677,6 +681,7 @@
   "actions": [
     {
       "id": "dishwasher_start_program",
+      "highlight": true,
       "title": {
         "en": "Start a program",
         "nl": "Start een programma",

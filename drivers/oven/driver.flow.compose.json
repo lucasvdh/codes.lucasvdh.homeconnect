@@ -2,6 +2,7 @@
   "triggers": [
     {
       "id": "oven_program_finished",
+      "highlight": true,
       "title": {
         "en": "A program finished",
         "nl": "Een programma is klaar",
@@ -299,6 +300,7 @@
     },
     {
       "id": "oven_preheat_finished",
+      "highlight": true,
       "title": {
         "en": "Preheat finished",
         "nl": "Voorverwarmen klaar",
@@ -485,6 +487,7 @@
   "conditions": [
     {
       "id": "oven_is_running",
+      "highlight": true,
       "title": {
         "en": "!{{Is|Is not}} running",
         "nl": "!{{Is|Is niet}} bezig",
@@ -783,6 +786,7 @@
   "actions": [
     {
       "id": "oven_start_program",
+      "highlight": true,
       "title": {
         "en": "Start a program",
         "nl": "Start een programma",

@@ -6,7 +6,13 @@ import Homey from "homey";
 import { DeviceConfig, FeatureDescriptor } from "./types";
 import { HomeConnectClient } from "./home-connect-client";
 import { mergeStoredConfig } from "./device-config";
-import { ConnectionReason, classifyClose, classifyError } from "./connection-errors";
+import {
+  ConnectionReason,
+  QUIET_RETRY_MS,
+  classifyClose,
+  classifyError,
+  retryQuietly,
+} from "./connection-errors";
 import { ConnectionStatusStore } from "./connection-status";
 import { matchMdnsResult } from "./mdns-match";
 import { describeFeatureState, isFeatureWritableNow } from "./feature-state";
@@ -593,6 +599,7 @@ export class ApplianceDevice extends Homey.Device {
   private refreshValuesTimer: NodeJS.Timeout | null = null;
   private connectionGeneration = 0;
   private reconnectAttempts = 0;
+  private connectedAt = 0;
   private stopped = false;
   private readonly eventStates = new Map<string, unknown>();
   private readonly lastTriggeredValues = new Map<string, unknown>();
@@ -730,6 +737,7 @@ export class ApplianceDevice extends Homey.Device {
     client.on("connected", () => {
       if (!isCurrent()) return;
       this.reconnectAttempts = 0;
+      this.connectedAt = Date.now();
       this.setAvailable().catch(this.error);
       const address = client.address ?? undefined;
       this.log(`[conn] connected via ${address ?? "?"}`);
@@ -766,6 +774,14 @@ export class ApplianceDevice extends Homey.Device {
         `[conn] websocket closed code=${code} reason=${reason || "-"} ` +
           `handshake=${handshakeDone ? "done" : "not finished"} lastError=${client.lastError?.message ?? "-"}`,
       );
+      const connectedForMs = this.connectedAt ? Date.now() - this.connectedAt : 0;
+      this.connectedAt = 0;
+      if (retryQuietly(classified.reason, { handshakeDone, connectedForMs })) {
+        this.log(`[conn] reconnecting in ${QUIET_RETRY_MS / 1000}s, staying available`);
+        this.app.connectionStatus.setState(this.haId, "connecting");
+        this.scheduleReconnect(QUIET_RETRY_MS);
+        return;
+      }
       this.markUnavailable(classified.reason, classified.detail);
     });
 

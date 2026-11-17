@@ -1,6 +1,7 @@
 "use strict";
 
 import { ApplianceDevice } from "../../lib/appliance-device";
+import { HoodMode, PickedMode, hoodModeFor, modeToShow } from "../../lib/hood-mode";
 
 const VENTING_PROGRAM = "Cooking.Common.Program.Hood.Venting";
 const AUTOMATIC_PROGRAM = "Cooking.Common.Program.Hood.Automatic";
@@ -18,12 +19,11 @@ const PROGRAM_BY_MODE: Record<string, string> = {
 // The fan stage is an option of the running program, not a setting: picking one starts Venting
 // unless it already runs.
 class HoodDevice extends ApplianceDevice {
+  private pickedMode: PickedMode | null = null;
+
   async onInit(): Promise<void> {
     await super.onInit();
-    // Not in CAPABILITY_MAP, so syncCapabilities won't add it to hoods paired earlier.
-    if (!this.hasCapability("homeconnect_hood_mode") && this.findUid(VENTING_PROGRAM) != null) {
-      await this.addCapability("homeconnect_hood_mode").catch(this.error);
-    }
+    await this.syncModeCapability();
     if (this.hasCapability("homeconnect_hood_mode")) {
       this.registerCapabilityListener("homeconnect_hood_mode", (value: unknown) =>
         this.setMode(String(value)),
@@ -64,6 +64,16 @@ class HoodDevice extends ApplianceDevice {
   }
 
   async setMode(mode: string): Promise<void> {
+    this.pickedMode = { mode: mode as HoodMode, atMs: Date.now() };
+    try {
+      await this.startMode(mode);
+    } catch (err) {
+      this.pickedMode = null;
+      throw err;
+    }
+  }
+
+  private async startMode(mode: string): Promise<void> {
     if (mode === "Off") {
       await this.stopFan();
     } else if (mode === "Venting") {
@@ -71,7 +81,7 @@ class HoodDevice extends ApplianceDevice {
       await this.startProgramWithOptions(VENTING_PROGRAM, {
         [VENTING_LEVEL]: this.currentOrLowestFanStage(),
       });
-    } else if (PROGRAM_BY_MODE[mode]) {
+    } else if (Object.prototype.hasOwnProperty.call(PROGRAM_BY_MODE, mode)) {
       await this.startProgramWithOptions(PROGRAM_BY_MODE[mode]);
     } else {
       throw new Error(this.homey.__("device.error.invalid_value"));
@@ -87,16 +97,23 @@ class HoodDevice extends ApplianceDevice {
     await this.syncModeFromProgram();
   }
 
+  // Not in CAPABILITY_MAP: it exists exactly when the hood has the Venting program.
+  private async syncModeCapability(): Promise<void> {
+    const supported = this.findUid(VENTING_PROGRAM) != null;
+    const has = this.hasCapability("homeconnect_hood_mode");
+    if (supported && !has) await this.addCapability("homeconnect_hood_mode").catch(this.error);
+    if (!supported && has) await this.removeCapability("homeconnect_hood_mode").catch(this.error);
+  }
+
   private async syncModeFromProgram(): Promise<void> {
     if (!this.hasCapability("homeconnect_hood_mode")) return;
-    const program = this.getCapabilityValue("homeconnect_program");
-    const mode =
-      this.isProgramRunning() && typeof program === "string" && program in PROGRAM_BY_MODE
-        ? program
-        : "Off";
-    if (mode !== this.getCapabilityValue("homeconnect_hood_mode")) {
-      await this.setCapabilityValue("homeconnect_hood_mode", mode).catch(this.error);
-    }
+    const reported = hoodModeFor(
+      this.isProgramRunning(),
+      this.getCapabilityValue("homeconnect_program"),
+    );
+    const mode = modeToShow(reported, this.pickedMode, Date.now());
+    if (mode === undefined || mode === this.getCapabilityValue("homeconnect_hood_mode")) return;
+    await this.setCapabilityValue("homeconnect_hood_mode", mode as never).catch(this.error);
   }
 
   async startAutomatic(): Promise<void> {

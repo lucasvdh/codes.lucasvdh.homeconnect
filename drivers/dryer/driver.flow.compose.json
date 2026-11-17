@@ -2,6 +2,7 @@
   "triggers": [
     {
       "id": "dryer_program_finished",
+      "highlight": true,
       "title": {
         "en": "A program finished",
         "nl": "Een programma is klaar",
@@ -301,6 +302,7 @@
   "conditions": [
     {
       "id": "dryer_is_running",
+      "highlight": true,
       "title": {
         "en": "!{{Is|Is not}} running",
         "nl": "!{{Is|Is niet}} bezig",
@@ -493,6 +495,7 @@
   "actions": [
     {
       "id": "dryer_start_program",
+      "highlight": true,
       "title": {
         "en": "Start a program",
         "nl": "Start een programma",

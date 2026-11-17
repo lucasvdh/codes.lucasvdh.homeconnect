@@ -179,6 +179,7 @@
     },
     {
       "id": "coffeemaker_bean_container_empty",
+      "highlight": true,
       "title": {
         "en": "Bean container is empty",
         "nl": "Bonenreservoir is leeg",
@@ -187,6 +188,7 @@
     },
     {
       "id": "coffeemaker_water_tank_empty",
+      "highlight": true,
       "title": {
         "en": "Water tank is empty",
         "nl": "Waterreservoir is leeg",
@@ -237,6 +239,7 @@
   "conditions": [
     {
       "id": "coffeemaker_is_running",
+      "highlight": true,
       "title": {
         "en": "!{{Is|Is not}} running",
         "nl": "!{{Is|Is niet}} bezig",
@@ -348,6 +351,7 @@
     },
     {
       "id": "coffeemaker_make_beverage",
+      "highlight": true,
       "title": {
         "en": "Make a drink",
         "nl": "Zet een drankje",

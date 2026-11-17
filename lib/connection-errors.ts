@@ -107,3 +107,19 @@ export function classifyClose(
   }
   return { reason: "closed_by_appliance", detail: closeDetail };
 }
+
+// Some appliances drop a working session now and then ("close 1000 Removing resource."), and
+// usually take a new one right away. The uptime check stops a loop when they close straight away.
+export const QUIET_RETRY_MS = 2_000;
+const QUIET_RETRY_MIN_UPTIME_MS = 30_000;
+
+export function retryQuietly(
+  reason: ConnectionReason,
+  opts: { handshakeDone: boolean; connectedForMs: number },
+): boolean {
+  return (
+    reason === "closed_by_appliance" &&
+    opts.handshakeDone &&
+    opts.connectedForMs >= QUIET_RETRY_MIN_UPTIME_MS
+  );
+}

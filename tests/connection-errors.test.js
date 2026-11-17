@@ -11,6 +11,7 @@ const {
   classifyError,
   classifyClose,
   mostSpecific,
+  retryQuietly,
 } = require(path.resolve(__dirname, "..", ".homeybuild", "lib", "connection-errors.js"));
 
 const errno = (code, message = code) => Object.assign(new Error(message), { code });
@@ -65,4 +66,16 @@ test("of several per-address failures the most specific reason wins", () => {
   assert.equal(mostSpecific(["connect_timeout", "tls_failed", "connection_refused"]), "tls_failed");
   assert.equal(mostSpecific(["host_unreachable", "connect_timeout"]), "connect_timeout");
   assert.equal(mostSpecific([]), "unknown");
+});
+
+test("a session the appliance drops after a while is retried quietly", () => {
+  const opts = { handshakeDone: true, connectedForMs: 79_000 };
+  assert.equal(retryQuietly("closed_by_appliance", opts), true);
+});
+
+test("no quiet retry when the appliance closes straight away, refuses us or never finished the handshake", () => {
+  const up = { handshakeDone: true, connectedForMs: 79_000 };
+  assert.equal(retryQuietly("closed_by_appliance", { ...up, connectedForMs: 5_000 }), false);
+  assert.equal(retryQuietly("closed_by_appliance", { ...up, handshakeDone: false }), false);
+  assert.equal(retryQuietly("ws_rejected", up), false);
 });

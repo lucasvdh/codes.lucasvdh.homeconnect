@@ -10,7 +10,6 @@ import { OpenOptions, openConnection } from "./home-connect-socket";
 
 // The client must not speak first: the appliance opens with POST /ei/initialValues. Speaking
 // first, or answering with an empty data array, closes the socket with "Header Error" (1008).
-// Events: connected, values, description, raw, close, error.
 export class HomeConnectClient extends EventEmitter {
   private readonly dev: DeviceConfig;
   private ws: WebSocket | null = null;

@@ -9,6 +9,7 @@ import { mergeStoredConfig } from "./device-config";
 import { ConnectionReason, classifyClose, classifyError } from "./connection-errors";
 import { ConnectionStatusStore } from "./connection-status";
 import { matchMdnsResult } from "./mdns-match";
+import { describeFeatureState, isFeatureWritableNow } from "./feature-state";
 
 // Gentle on purpose: an appliance that refuses us (other controller, wrong key)
 // shouldn't be hammered.
@@ -746,7 +747,10 @@ export class ApplianceDevice extends Homey.Device {
 
     client.on("description", (changed: string[]) => {
       if (!isCurrent()) return;
-      this.log(`description changed: ${changed.join(", ")}`);
+      const described = changed.map(
+        (name) => `${name} (${describeFeatureState(this.findFeature(name))})`,
+      );
+      this.log(`description changed: ${described.join(", ")}`);
       // No syncCapabilities() here, see capabilitySyncFeatures.
       this.scheduleValueRefresh();
     });
@@ -892,7 +896,7 @@ export class ApplianceDevice extends Homey.Device {
     const uid = this.findUid("BSH.Common.Command.AcknowledgeEvent");
     if (uid == null) return;
     const feature = this.config.features?.[String(uid)];
-    if (!this.isFeatureWritableNow(feature)) return;
+    if (!isFeatureWritableNow(feature)) return;
     this.client?.setValue(uid, true).catch((err) => {
       // Some appliances reject it once the event has cleared by itself.
       this.log(`AcknowledgeEvent ignored: ${(err as Error).message}`);
@@ -1196,25 +1200,25 @@ export class ApplianceDevice extends Homey.Device {
     return undefined;
   }
 
-  private isFeatureWritableNow(feature?: FeatureDescriptor): boolean {
-    if (!feature) return false;
-    const available = feature.available as unknown;
-    if (
-      available === false ||
-      available === 0 ||
-      String(available).toLowerCase() === "false" ||
-      String(available) === "0"
-    ) {
-      return false;
-    }
-    const access = typeof feature.access === "string" ? feature.access.toLowerCase() : "";
-    return access === "" || access.includes("write");
-  }
-
   private assertFeatureWritableNow(feature?: FeatureDescriptor): void {
-    if (!this.isFeatureWritableNow(feature)) {
+    if (!isFeatureWritableNow(feature)) {
+      this.log(`[write] ${feature?.name ?? "?"} not writable now (${describeFeatureState(feature)})`);
       throw new Error(this.homey.__("device.error.feature_not_available"));
     }
+  }
+
+  // Without this, a write our own checks refuse leaves no trace in a diagnostics report.
+  registerCapabilityListener(capability: string, listener: Homey.Device.CapabilityCallback): void {
+    super.registerCapabilityListener(capability, async (value, opts) => {
+      const write = `${capability} -> ${JSON.stringify(value)}`;
+      this.log(`[write] ${write}`);
+      try {
+        return await listener(value, opts);
+      } catch (err) {
+        this.error(`[write] ${write} failed: ${(err as Error).message}`);
+        throw err;
+      }
+    });
   }
 
   protected enumValue(uid: number, memberName: string): number | null {

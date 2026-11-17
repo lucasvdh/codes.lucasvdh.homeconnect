@@ -859,7 +859,10 @@ export class ApplianceDevice extends Homey.Device {
     }
     if (wasRunning && !this.isProgramRunning()) await this.applyIdleValues();
     this.reconcileDerivedState();
+    await this.onValuesApplied();
   }
+
+  protected async onValuesApplied(): Promise<void> {}
 
   // Fires on the edge to "Present" and acknowledges, or the appliance keeps re-sending it.
   private handleEvent(featureName: string, raw: unknown): void {

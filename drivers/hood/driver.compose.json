@@ -9,6 +9,7 @@
     "onoff",
     "homeconnect_operation_state",
     "homeconnect_program",
+    "homeconnect_hood_mode",
     "homeconnect_venting_level",
     "homeconnect_intensive_level",
     "homeconnect_light",

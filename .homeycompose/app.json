@@ -75,5 +75,7 @@
   "bugs": {
     "url": "https://github.com/lucasvdh/codes.lucasvdh.homeconnect/issues"
   },
-  "source": "https://github.com/lucasvdh/codes.lucasvdh.homeconnect"
+  "source": "https://github.com/lucasvdh/codes.lucasvdh.homeconnect",
+  "homepage": "https://homey-home-connect.gitbook.io/en/",
+  "support": "https://homey-home-connect.gitbook.io/en/overview/faq"
 }

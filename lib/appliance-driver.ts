@@ -5,27 +5,13 @@ import Homey from "homey";
 import { DeviceConfig } from "./types";
 import { ApplianceDevice, EventTriggerSpec } from "./appliance-device";
 
-/**
- * Base class shared by every appliance driver (oven, dishwasher, ...).
- *
- * Pairing is trivial: the one-time cloud key-exchange happens in the app's
- * settings page (see settings/ + api.ts) and stores the discovered
- * DeviceConfig[] on the app instance. onPairListDevices() surfaces just the
- * subset matching this driver's appliance type.
- *
- * Flow cards live in each driver's driver.flow.compose.json with a per-driver
- * id prefix (e.g. "oven_start_program"), because Homey flow-card ids must be
- * unique app-wide. A subclass declares `applianceType` and `cardPrefix`;
- * everything below is shared - the subclass only adds an `eventMap` if it
- * wants per-appliance event triggers.
- */
+// Keys come from the settings page, so pairing only lists the imported appliances of this type.
+// Flow card ids carry a per-driver prefix because Homey card ids are unique app-wide.
 export abstract class ApplianceDriver extends Homey.Driver {
-  /** The DeviceDescription.type this driver pairs, e.g. "Oven", "Dishwasher". */
+  /** DeviceDescription.type, e.g. "Oven". */
   protected abstract readonly applianceType: string;
-  /** Prefix of this driver's flow-card ids, e.g. "oven", "dishwasher". */
   protected abstract readonly cardPrefix: string;
 
-  // --- triggers (fired from ApplianceDevice) ---
   programFinishedTrigger?: Homey.FlowCardTriggerDevice;
   doorChangedTrigger?: Homey.FlowCardTriggerDevice;
   operationStateChangedTrigger?: Homey.FlowCardTriggerDevice;
@@ -55,12 +41,7 @@ export abstract class ApplianceDriver extends Homey.Driver {
 
   private flowCardIds?: Set<string>;
 
-  /**
-   * Look up a flow card, or null when the app manifest doesn't declare it.
-   * Not every appliance has every shared card (a hood has no door or child
-   * lock). Only a missing id is skipped: a declared card that fails to load
-   * still throws, so typos don't go silent.
-   */
+  // Only a missing id is skipped, so a typo in a declared card still throws.
   protected optionalCard<T>(id: string, lookup: () => T): T | null {
     if (!this.flowCardIds) {
       const flow = (this.homey.manifest as { flow?: Record<string, Array<{ id: string }>> }).flow;
@@ -69,24 +50,14 @@ export abstract class ApplianceDriver extends Homey.Driver {
     return this.flowCardIds.has(id) ? lookup() : null;
   }
 
-  // --- subclass extension points ------------------------------------------
-
-  /**
-   * Per-driver map of event feature names → trigger key. The trigger key
-   * matches a `<key>Trigger` property registered on this driver (see
-   * registerEventTriggers below). Default is empty; the device falls back to
-   * `errorOccurredTrigger` for unmapped events.
-   */
+  // Unmapped events fire errorOccurredTrigger.
   protected eventMap(): Record<string, EventTriggerSpec> {
     return {};
   }
 
-  /** ApplianceDevice consults this via `(driver as TriggerDriver).getEventMap?.()`. */
   getEventMap(): Record<string, EventTriggerSpec> {
     return this.eventMap();
   }
-
-  // --- trigger registration -----------------------------------------------
 
   private registerStandardTriggers(): void {
     const p = this.cardPrefix;
@@ -114,11 +85,7 @@ export abstract class ApplianceDriver extends Homey.Driver {
     this.softwareUpdateAvailableTrigger = get("software_update_available");
   }
 
-  /**
-   * For each entry in the subclass's eventMap, attach the corresponding
-   * trigger card from the manifest. Card id == `<prefix>_<trigger_key>` in
-   * snake_case (we accept eventMap triggerKey in either camel or snake).
-   */
+  // Card id is `<prefix>_<trigger_key>` in snake_case; triggerKey may be camel or snake.
   private registerEventTriggers(): void {
     const seen = new Set<string>();
     for (const spec of Object.values(this.eventMap())) {
@@ -133,8 +100,6 @@ export abstract class ApplianceDriver extends Homey.Driver {
       ] = trigger;
     }
   }
-
-  // --- conditions ---------------------------------------------------------
 
   private registerStandardConditions(): void {
     const p = this.cardPrefix;
@@ -220,8 +185,6 @@ export abstract class ApplianceDriver extends Homey.Driver {
     );
   }
 
-  // --- actions ------------------------------------------------------------
-
   private registerStandardActions(): void {
     const p = this.cardPrefix;
     const action = (id: string): Homey.FlowCardAction | null =>
@@ -306,11 +269,6 @@ export abstract class ApplianceDriver extends Homey.Driver {
       );
   }
 
-  /**
-   * Surface the appliances of this driver's type, discovered/imported via the
-   * settings page. The payload is deliberately lean (name + data.id only) -
-   * ApplianceDevice looks the full config up from homey.app on first init.
-   */
   async onPairListDevices(): Promise<Array<{ name: string; data: { id: string } }>> {
     const all: DeviceConfig[] = (
       this.homey.app as unknown as { getDevices(): DeviceConfig[] }
@@ -326,8 +284,7 @@ export abstract class ApplianceDriver extends Homey.Driver {
       throw new Error(this.homey.__("pair.no_devices"));
     }
     if (devices.length === 0) {
-      // Appliances exist but none matches this driver's type string. Name
-      // what we did find, so a mismatched type shows up in user reports.
+      // Name the types we did find, so a type mismatch shows up in user reports.
       const types = [...new Set(all.map((cfg) => cfg.description?.type ?? "?"))].join(", ");
       this.log(`onPairListDevices: no ${this.applianceType}; stored types: ${types}`);
       throw new Error(

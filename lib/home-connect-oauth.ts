@@ -2,19 +2,8 @@
 
 import crypto from "crypto";
 
-/**
- * OAuth 2.0 + PKCE against Home Connect's SingleKey ID, exactly as the
- * official BSH app does it (see hcpy's hc-login.py). This module is the
- * pure-logic half of the one-time cloud key-exchange: no Homey dependency,
- * no network state - just URL building and the token requests.
- *
- * The `redirect_uri` is the fixed custom scheme `hcauth://auth/prod`, which
- * a browser/webview cannot follow. The authorization `code` therefore only
- * reaches exchangeCode() via one of two routes:
- *   - the on-Homey proxy intercepts the hcauth:// redirect server-side, or
- *   - the user pastes the hcauth:// URL back manually.
- * Both end up calling parseRedirectUrl() + exchangeCode() here.
- */
+// As the official app does it (hcpy hc-login.py). A browser can't follow the hcauth:// redirect,
+// so the user pastes it back.
 
 const AUTH_BASE = "https://api.home-connect.com/security/oauth";
 export const REDIRECT_URI = "hcauth://auth/prod";
@@ -31,7 +20,7 @@ export interface PkcePair {
 export interface TokenSet {
   accessToken: string;
   refreshToken?: string;
-  /** Epoch ms at which the access token expires. */
+  /** Epoch ms. */
   expiresAt: number;
 }
 
@@ -39,7 +28,6 @@ function b64url(buf: Buffer): string {
   return buf.toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
-/** Step 1a: a fresh PKCE verifier/challenge plus CSRF state and nonce. */
 export function createPkce(): PkcePair {
   const verifier = b64url(crypto.randomBytes(32));
   const challenge = b64url(crypto.createHash("sha256").update(verifier).digest());
@@ -51,7 +39,6 @@ export function createPkce(): PkcePair {
   };
 }
 
-/** Step 1b: the URL the user signs in at (proxied iframe, or their own browser). */
 export function buildAuthorizeUrl(pkce: PkcePair, clientId: string): string {
   const params = new URLSearchParams({
     response_type: "code",
@@ -67,7 +54,6 @@ export function buildAuthorizeUrl(pkce: PkcePair, clientId: string): string {
   return `${AUTH_BASE}/authorize?${params.toString()}`;
 }
 
-/** Step 3: exchange the authorization `code` for an access + refresh token. */
 export function exchangeCode(
   code: string,
   verifier: string,
@@ -84,7 +70,6 @@ export function exchangeCode(
   );
 }
 
-/** Trade a stored refresh token for a fresh access token (the "Refresh" button). */
 export function refreshAccessToken(refreshToken: string, clientId: string): Promise<TokenSet> {
   return requestToken(
     new URLSearchParams({
@@ -116,15 +101,8 @@ async function requestToken(body: URLSearchParams): Promise<TokenSet> {
   };
 }
 
-/**
- * Parse `code` + `state` out of what the user pasted. Ideally that is the
- * `hcauth://auth/prod?code=...&state=...` URL, but in practice people paste:
- *   - the URL with surrounding text (copied from a DevTools row or error page),
- *   - a URL-encoded copy ("hcauth%3A%2F%2Fauth%2Fprod%3Fcode%3D..."),
- *   - the SingleKey ID / authorize page URL from the address bar instead.
- * The custom scheme isn't reliably handled by the URL constructor, so we
- * slice off the query string ourselves.
- */
+// People paste the URL with surrounding text, URL-encoded, or the login page URL instead (#21).
+// URL() doesn't reliably parse the custom scheme, so the query string is sliced off by hand.
 export function parseRedirectUrl(raw: string): { code: string; state: string } {
   let text = raw.trim();
   if (!text) throw new Error("Paste the hcauth:// URL first");
@@ -170,7 +148,7 @@ export function parseRedirectUrl(raw: string): { code: string; state: string } {
   return { code, state };
 }
 
-/** Decode the `sub` (account id) claim out of a JWT access token, without verifying. */
+// Not verified: only used as an account id.
 export function jwtSubject(accessToken: string): string {
   const parts = accessToken.split(".");
   if (parts.length !== 3) throw new Error("Access token is not a JWT");

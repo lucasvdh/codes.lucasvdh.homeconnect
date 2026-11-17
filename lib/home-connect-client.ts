@@ -8,40 +8,19 @@ import { DeviceConfig, HomeConnectMessage, HomeConnectValue } from "./types";
 import { AesHmacCodec } from "./aes-hmac-codec";
 import { OpenOptions, openConnection } from "./home-connect-socket";
 
-/**
- * High-level client for one appliance. Handles the websocket lifecycle, the
- * Home Connect handshake, replies to server-driven requests, and decodes
- * value updates into a name-keyed object using the device's feature map.
- *
- * Handshake order (validated against a real BOSCH oven; see
- * tests/homeconnect-test.js): the CLIENT MUST NOT speak first. The appliance
- * opens the session by POSTing /ei/initialValues; we adopt its sID and
- * edMsgID, answer with our identity, then ask for /ci/services and - once we
- * know the service versions - request the full state. Speaking first, or
- * replying with an empty data array, gets the connection closed with
- * "Header Error" (close code 1008).
- *
- * Events:
- *   "connected"            -> handshake done, state requested
- *   "values" (Record<...>) -> one or more values changed (keyed by name)
- *   "description"          -> one or more feature descriptors changed
- *                             (access/available/min/max), e.g. when remote
- *                             control becomes (un)available
- *   "raw" (msg)            -> every decoded protocol message (debug)
- *   "close" (code, reason)
- *   "error" (err)
- */
+// The client must not speak first: the appliance opens with POST /ei/initialValues. Speaking
+// first, or answering with an empty data array, closes the socket with "Header Error" (1008).
+// Events: connected, values, description, raw, close, error.
 export class HomeConnectClient extends EventEmitter {
   private readonly dev: DeviceConfig;
   private ws: WebSocket | null = null;
   private codec: AesHmacCodec | null = null;
 
-  /** Session id + tx message id are assigned by the appliance, not us. */
+  // Assigned by the appliance, not by us.
   private sessionId: number | null = null;
   private txMsgId: number | null = null;
   private readonly services: Record<string, { version: number }> = {};
   private servicesKnown = false;
-  /** Set by close(); a closed client never adopts or answers a socket again. */
   private closed = false;
   private readonly pendingRequests = new Map<
     number,
@@ -54,19 +33,11 @@ export class HomeConnectClient extends EventEmitter {
     }
   >();
 
-  /**
-   * UID of the program currently selected on the appliance, as last reported
-   * through BSH.Common.Root.SelectedProgram. Kept raw because the decoded
-   * capability value is only the last name segment (or a BaseProgram fallback).
-   */
+  // Raw, because the capability only holds the last name segment.
   selectedProgramUid: number | null = null;
 
-  /** The address the socket connected to, once connect() resolved. */
   address: string | null = null;
-  /**
-   * Last socket/websocket error, kept so a following "close" can be
-   * explained (an HTTP 403 on the upgrade arrives as an error, then a close).
-   */
+  // An HTTP 403 on the upgrade arrives as an error first, then as a close.
   lastError: Error | null = null;
 
   private readonly openOptions: OpenOptions;
@@ -77,15 +48,13 @@ export class HomeConnectClient extends EventEmitter {
     this.openOptions = openOptions;
   }
 
-  /** True once the appliance answered /ci/services: the session is usable. */
   get handshakeDone(): boolean {
     return this.servicesKnown;
   }
 
   async connect(): Promise<void> {
     const { ws, codec, address } = await openConnection(this.dev, this.openOptions);
-    // close() may have been called while the socket was still opening (e.g.
-    // the device reconnected to a new mDNS address). Don't adopt an orphan.
+    // close() can come while the socket was still opening (e.g. a new mDNS address).
     if (this.closed) {
       ws.terminate();
       return;
@@ -94,17 +63,10 @@ export class HomeConnectClient extends EventEmitter {
     this.codec = codec;
     this.address = address;
 
-    // Per the handshake rule above: do nothing on open, wait for the
-    // appliance to POST /ei/initialValues.
     ws.on("message", (raw: Buffer) => {
-      // A closing socket still delivers frames that were already in flight
-      // (typically the /ci/services RESPONSE right after a reconnect). This
-      // client has given the socket up, so there is nothing to answer.
+      // A replaced socket still delivers in-flight frames (often /ci/services after a reconnect).
       if (this.ws !== ws) return;
-      // Anything thrown here would escape the ws event handler and crash the
-      // whole app. Report it and drop the socket instead: the half-finished
-      // handshake can't be trusted, and the "close" event makes the device
-      // schedule a fresh connection.
+      // A throw here would crash the app. Drop the socket: the "close" triggers a reconnect.
       try {
         this.onMessage(raw);
       } catch (err) {
@@ -133,7 +95,7 @@ export class HomeConnectClient extends EventEmitter {
     this.ws = null;
   }
 
-  /** Emit "error" without the EventEmitter throwing when nobody listens. */
+  // EventEmitter throws on "error" when nobody listens.
   private emitError(err: Error): void {
     if (this.listenerCount("error") > 0) this.emit("error", err);
   }
@@ -142,31 +104,19 @@ export class HomeConnectClient extends EventEmitter {
     return this.ws?.readyState === WebSocket.OPEN && this.servicesKnown;
   }
 
-  /** Pull the current mandatory state without changing device capabilities. */
   refreshValues(): void {
     if (!this.connected) return;
     this.get("/ro/allMandatoryValues");
   }
 
-  /** Write a value to the appliance, e.g. set PowerState or fire a command. */
   async setValue(uid: number, value: unknown): Promise<void> {
     if (this.sessionId == null) throw new Error("not connected (handshake not finished)");
-    // Do not track /ro/values as a request/response command. Some BSH
-    // appliances return code 400 for value writes that still physically apply
-    // and then publish the real state through /ro/values notifications. If we
-    // reject here, Homey rolls the capability back even though the appliance
-    // changed state. Program start/select still use strict request tracking.
+    // Fire-and-forget: some appliances answer 400 to writes that do apply, and rejecting
+    // would make Homey roll the capability back. The real state follows as a NOTIFY.
     this.get("/ro/values", { version: 1, action: "POST", data: [{ uid, value }] });
   }
 
-  /**
-   * Start a program immediately. `program` is the program feature's UID;
-   * `options` is a list of {uid, value} option pairs (e.g. temperature,
-   * duration). Pass BSH.Common.Option.StartInRelative (in seconds) via
-   * `options` to schedule a delayed start. The appliance answers with a
-   * RESPONSE that carries a `code` on failure - see onMessage, which turns
-   * that into an "error" event.
-   */
+  // A delayed start is the StartInRelative option, in seconds.
   async startProgram(
     program: number,
     options: Array<{ uid: number; value: unknown }> = [],
@@ -175,7 +125,6 @@ export class HomeConnectClient extends EventEmitter {
     await this.request("/ro/activeProgram", { action: "POST", data: [{ program, options }] });
   }
 
-  /** Select (but don't start) a program - same payload as startProgram. */
   async selectProgram(
     program: number,
     options: Array<{ uid: number; value: unknown }> = [],
@@ -187,8 +136,6 @@ export class HomeConnectClient extends EventEmitter {
     });
   }
 
-  // --- internals -----------------------------------------------------------
-
   private send(msg: HomeConnectMessage): void {
     if (!this.ws) throw new Error("not connected");
     const txt = JSON.stringify(msg);
@@ -199,7 +146,6 @@ export class HomeConnectClient extends EventEmitter {
     }
   }
 
-  /** Send a request on the current session, with the auto-incrementing msgID. */
   private get(
     resource: string,
     opts: {
@@ -209,7 +155,6 @@ export class HomeConnectClient extends EventEmitter {
     } = {},
   ): number {
     let version = opts.version ?? 1;
-    // Once /ci/services is known, use the version the appliance advertised.
     if (this.servicesKnown) {
       const service = resource.split("/")[1];
       if (this.services[service]) version = this.services[service].version;
@@ -267,7 +212,6 @@ export class HomeConnectClient extends EventEmitter {
     });
   }
 
-  /** RESPONSE to a server-initiated POST/GET, echoing their msgID. */
   private reply(msg: HomeConnectMessage, data: unknown): void {
     this.send({
       sID: msg.sID,
@@ -360,10 +304,7 @@ export class HomeConnectClient extends EventEmitter {
       this.emitValues(msg.data as HomeConnectValue[]);
     }
 
-    // 3a) Description changes: appliance tells us a feature's access /
-    //     available / min / max changed (e.g. remote control toggled). Patch
-    //     the live feature descriptor so dependent code (writable capability
-    //     listeners, dynamic capability sync) sees the new constraints.
+    // 3a) Access / availability / min / max changed, e.g. remote control toggled.
     if (
       (msg.resource === "/ro/descriptionChange" ||
         msg.resource === "/ro/allDescriptionChanges") &&
@@ -374,8 +315,7 @@ export class HomeConnectClient extends EventEmitter {
       this.emitDescriptionValues(changes);
     }
 
-    // 3b) RESPONSE to a startProgram/selectProgram POST: a non-null `code`
-    //     means the appliance refused it (e.g. remote start not enabled).
+    // 3b) A non-null `code` means a program start/select was refused.
     if (
       (msg.resource === "/ro/activeProgram" || msg.resource === "/ro/selectedProgram") &&
       msg.action === "RESPONSE" &&
@@ -392,12 +332,7 @@ export class HomeConnectClient extends EventEmitter {
     }
   }
 
-  /**
-   * Patch the live feature map with delta attributes from the appliance.
-   * Mirrors hcpy HCDevice.handle_message for /ro/descriptionChange (see
-   * hcpy/HCDevice.py:454-487). Emits a "description" event with the names of
-   * features whose mutable attributes changed.
-   */
+  // Mirrors hcpy HCDevice.handle_message for /ro/descriptionChange (HCDevice.py:454-487).
   private applyDescriptionChanges(changes: Array<Record<string, unknown>>): void {
     const features = this.dev.features ?? {};
     const changedNames: string[] = [];
@@ -412,8 +347,6 @@ export class HomeConnectClient extends EventEmitter {
           touched = true;
         }
       }
-      // First time we see this UID - adopt the descriptor wholesale so
-      // subsequent value updates can resolve a name for it.
       if (!features[uid]) {
         features[uid] = change as unknown as (typeof features)[string];
         touched = true;
@@ -423,12 +356,7 @@ export class HomeConnectClient extends EventEmitter {
     if (changedNames.length > 0) this.emit("description", changedNames);
   }
 
-  /**
-   * Home Connect can include a `value` in description-change payloads. hcpy
-   * parses those as state updates too; without this, appliance-side actions
-   * can change descriptor state without Homey seeing the corresponding
-   * capability value.
-   */
+  // Description changes can carry a `value`; hcpy treats it as a state update too.
   private emitDescriptionValues(changes: Array<Record<string, unknown>>): void {
     const values: HomeConnectValue[] = [];
     for (const change of changes) {
@@ -440,7 +368,6 @@ export class HomeConnectClient extends EventEmitter {
     if (values.length > 0) this.emitValues(values);
   }
 
-  /** Resolve UIDs to feature names + enum members and emit a keyed object. */
   private emitValues(values: HomeConnectValue[]): void {
     const features = this.dev.features ?? {};
     const out: Record<string, unknown> = {};
@@ -448,11 +375,7 @@ export class HomeConnectClient extends EventEmitter {
       const feature = features[String(uid)];
       const key = feature?.name ?? `uid:${uid}`;
 
-      // ActiveProgram / SelectedProgram / BaseProgram don't carry an enum
-      // value - their value IS a UID pointing at the program's own feature.
-      // Resolve it to that program's name (last dotted segment), matching
-      // hcpy's parse_values. Without this the raw numeric UID reaches the
-      // string capability `homeconnect_program` and Homey rejects it.
+      // The value of these roots is the UID of the program's own feature (as in hcpy parse_values).
       if (
         key === "BSH.Common.Root.ActiveProgram" ||
         key === "BSH.Common.Root.SelectedProgram" ||

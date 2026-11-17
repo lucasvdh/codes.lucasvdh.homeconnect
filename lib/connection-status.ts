@@ -4,22 +4,15 @@ import { ConnectionReason } from "./connection-errors";
 
 export type ConnectionState = "connecting" | "connected" | "unavailable";
 
-/**
- * What the settings page shows per appliance, so a user can screenshot
- * something useful when an appliance stays unavailable. In memory only: it
- * describes the current app run, and every device reports again on start.
- */
+// In memory only: every device reports again on start.
 export interface ConnectionStatus {
   state?: ConnectionState;
-  /** Set while unavailable. */
   reason?: ConnectionReason;
-  /** Technical detail, e.g. "192.168.1.20: ECONNREFUSED" or "close 1008 Header Error". */
+  /** e.g. "192.168.1.20: ECONNREFUSED" or "close 1008 Header Error" */
   detail?: string;
-  /** Address of the current or last successful connection. */
   address?: string;
-  /** When the state last changed (epoch ms). */
+  /** Epoch ms. */
   since?: number;
-  /** Last mDNS sighting of this appliance. */
   mdns?: { address?: string; at: number; via?: string };
 }
 
@@ -32,7 +25,7 @@ export class ConnectionStatusStore {
     return { ...(this.statuses.get(haId) ?? {}) };
   }
 
-  /** Record a state change. A new state clears the previous reason unless given. */
+  // A new state clears the previous reason unless one is given.
   setState(
     haId: string,
     state: ConnectionState,

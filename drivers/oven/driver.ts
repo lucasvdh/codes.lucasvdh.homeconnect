@@ -82,9 +82,6 @@ class OvenDriver extends ApplianceDriver {
     const cond = (id: string): Homey.FlowCardCondition =>
       this.homey.flow.getConditionCard(`oven_${id}`);
 
-    // Oven-specific actions all just write a capability the user can also
-    // tweak from the device tile; the action exists so it's first-class in
-    // the Flow editor.
     action("set_target_temperature").registerRunListener(
       async ({ device, celsius }: { device: Homey.Device; celsius: number }) =>
         (device as ApplianceDevice).setSettingValue(

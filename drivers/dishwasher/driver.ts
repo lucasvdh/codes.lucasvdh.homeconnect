@@ -9,7 +9,6 @@ class DishwasherDriver extends ApplianceDriver {
   protected readonly applianceType = "Dishwasher";
   protected readonly cardPrefix = "dishwasher";
 
-  /** Fired by ApplianceDevice when homeconnect_program_phase changes. */
   programPhaseChangedTrigger!: Homey.FlowCardTriggerDevice;
 
   protected eventMap(): Record<string, EventTriggerSpec> {
@@ -49,7 +48,6 @@ class DishwasherDriver extends ApplianceDriver {
     };
   }
 
-  // Dishwasher-only Flow conditions exposed in the Flow editor.
   async onInit(): Promise<void> {
     await super.onInit();
 
@@ -60,8 +58,7 @@ class DishwasherDriver extends ApplianceDriver {
     const cond = (id: string): Homey.FlowCardCondition =>
       this.homey.flow.getConditionCard(`dishwasher_${id}`);
 
-    // Program-phase autocomplete: hardcoded since the capability's enum is
-    // fixed at app-manifest time (see homeconnect_program_phase.json).
+    // Must match the values in homeconnect_program_phase.json.
     const PHASES = ["None", "PreRinse", "MainWash", "FinalRinse", "Drying"];
 
     const phaseCond = this.homey.flow.getConditionCard("dishwasher_program_phase_is");

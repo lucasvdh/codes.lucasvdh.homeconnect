@@ -6,7 +6,7 @@ description: What changed in each version
 
 ## 1.5.0
 
-The app settings now fit on a phone, with a card per appliance that shows its status and, when it is unavailable, the reason. Pairing explains both methods and links to the new online guide. Appliances that aren't supported yet, such as hobs, say so. Extractor hoods get a mode picker: off, manual, automatic or run-on. Diagnostics reports log every action on a device and why it failed. The most used Flow cards are shown first.
+The app settings now fit on a phone, with a card per appliance that shows its status and, when it is unavailable, the reason. Pairing explains both methods and links to the new online guide. Appliances that aren't supported yet, such as hobs, say so. Extractor hoods get a mode picker: off, manual, automatic or run-on. Diagnostics reports log every action on a device and why it failed. Appliances that briefly drop the connection now reconnect without showing as unavailable. The most used Flow cards are shown first.
 
 ## 1.4.3
 

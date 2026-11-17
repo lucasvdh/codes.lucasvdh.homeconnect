@@ -78,7 +78,8 @@
     .status.ok { background: var(--hc-ok-bg); color: var(--hc-ok-text); }
     .status.err { background: var(--hc-err-bg); color: var(--hc-err-text); }
     .status.info { background: #e6f0fc; color: #0a4c94; }
-    .no-devices #devices-section, .no-devices #pairing > summary, .no-devices .footer { display: none; }
+    .no-devices #pairing > summary { display: none; }
+    .no-devices:not(.has-token) #devices-section, .no-devices:not(.has-token) .footer { display: none; }
   </style>
 </head>
 <body>
@@ -312,10 +313,11 @@
       e.preventDefault();
       openExternal(link.href);
     });
-    document.addEventListener('toggle', (e) => {
-      const id = e.target.dataset && e.target.dataset.haId;
-      if (id) detailsOpen.set(id, e.target.open);
-    }, true);
+    // Clicks only: a toggle event also fires when a card is rendered open.
+    document.addEventListener('click', (e) => {
+      const details = e.target.closest('details.tech');
+      if (details && e.target.closest('summary')) detailsOpen.set(details.dataset.haId, !details.open);
+    });
 
     document.querySelectorAll('.tab').forEach((tab) => {
       tab.addEventListener('click', () => {
@@ -328,10 +330,13 @@
       const status = await api('GET', '/status');
       const hasDevices = status.devices.length > 0;
       $('page').classList.toggle('no-devices', !hasDevices);
+      $('page').classList.toggle('has-token', status.hasRefreshToken);
       $('lead').textContent = __(hasDevices ? 'settings.lead_devices' : 'settings.lead_setup');
       if (!hasDevices) $('pairing').open = true;
       $('devices-count').textContent = hasDevices ? __('settings.devices_count', { count: status.devices.length }) : '';
-      $('device-list').innerHTML = status.devices.map(deviceCard).join('');
+      $('device-list').innerHTML = hasDevices
+        ? status.devices.map(deviceCard).join('')
+        : '<p class="muted">' + escapeHtml(__('settings.no_devices')) + '</p>';
       $('refresh-devices').disabled = !status.hasRefreshToken;
       $('clear-devices').disabled = !hasDevices && !status.hasRefreshToken;
     }

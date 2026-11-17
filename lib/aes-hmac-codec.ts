@@ -2,27 +2,9 @@
 
 import crypto from "crypto";
 
-/**
- * AES-256-CBC + chained HMAC framing used by the "HTTP" variant of Home
- * Connect appliances (plain ws:// on port 80, no TLS).
- *
- * Each websocket frame is:
- *   [ AES-256-CBC( plaintext || pad ) ][ HMAC-SHA256(...)[0:16] ]
- *
- * Keys are derived from the pre-shared key:
- *   encKey = HMAC(PSK, "ENC")
- *   macKey = HMAC(PSK, "MAC")
- *
- * The CBC IV is chained: the last ciphertext block of a frame becomes the
- * IV of the next frame in the same direction. The HMAC is also chained -
- * the previous frame's HMAC is mixed into the next - which is what prevents
- * replay and reordering by a local attacker.
- *
- * HMAC input = iv || directionByte || previousHmac || ciphertext
- *   direction = 0x45 ('E') for outbound, 0x43 ('C') for inbound.
- *
- * Note: the pad scheme is NOT PKCS#7 - do not swap in a standard CBC helper.
- */
+// Frame: AES-256-CBC(plaintext || pad)
+//        || HMAC-SHA256(iv || direction || previousHmac || ciphertext)[0:16]
+// IV and HMAC chain per direction. The pad is not PKCS#7, so no standard CBC helper.
 export class AesHmacCodec {
   private readonly iv: Buffer;
   private readonly encKey: Buffer;
@@ -101,7 +83,7 @@ export class AesHmacCodec {
   }
 }
 
-/** base64url -> Buffer. Home Connect keys are base64url without padding. */
+// Home Connect keys are base64url without padding.
 export function b64urlDecode(s: string): Buffer {
   let t = s.replace(/-/g, "+").replace(/_/g, "/");
   while (t.length % 4) t += "=";

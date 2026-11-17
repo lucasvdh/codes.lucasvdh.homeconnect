@@ -4,20 +4,7 @@ import { DeviceConfig } from "./types";
 import { TokenSet, jwtSubject } from "./home-connect-oauth";
 import { parseIddfZip } from "./iddf";
 
-/**
- * Cloud discovery - the second half of the one-time key-exchange. Given an
- * access token it fetches the account's paired appliances, their per-device
- * local PSK/AES keys, and the IDDF feature map, and returns the canonical
- * DeviceConfig[] the rest of the app runs on. After this completes the
- * appliances can be cut off from the internet entirely.
- *
- * Endpoints mirror hcpy's hc-login.py:
- *   GET {asset}/api/account/v2/accounts/{sub}/paired-appliances
- *   GET {asset}/api/appliance/v2/appliances/{haId}/encryption-information
- *   GET {asset}/api/iddf/v1/iddf/{haId}                     -> IDDF ZIP
- *
- * The account lives in one geo; we try EU then NA and keep whichever answers.
- */
+// Endpoints as in hcpy's hc-login.py.
 
 const ASSET_URLS = [
   "https://eu.services.home-connect.com",
@@ -35,7 +22,6 @@ interface EncryptionInformation {
   aes?: { key: string; iv: string };
 }
 
-/** Progress callback so the settings page can show what's happening. */
 export type DiscoveryProgress = (message: string) => void;
 
 export async function discoverAppliances(
@@ -45,7 +31,7 @@ export async function discoverAppliances(
   const subject = jwtSubject(token.accessToken);
   const authHeader = { Authorization: `Bearer ${token.accessToken}` };
 
-  // Find the geo that hosts this account.
+  // An account lives in one region: EU or NA.
   onProgress("Looking up your Home Connect account…");
   let assetBase = "";
   let appliances: PairedAppliance[] = [];

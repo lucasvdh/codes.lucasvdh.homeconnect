@@ -1,89 +1,52 @@
 "use strict";
 
-/**
- * One appliance entry in the canonical hcpy `devices.json` shape. This is the
- * single source of truth the app runs on - produced by the cloud
- * key-exchange (lib/home-connect-discovery.ts) or imported verbatim from an
- * hcpy-generated devices.json. After ingestion the app talks to the
- * appliance fully locally; no cloud is needed again.
- */
+/** One entry of hcpy's devices.json, from the cloud key exchange or imported as-is. */
 export interface DeviceConfig {
-  /** hcpy uses the lowercased appliance type, e.g. "oven", "dishwasher". */
+  /** Lowercased appliance type, e.g. "oven". */
   name: string;
-  /**
-   * mDNS / DNS hostname, e.g. "BOSCH-Oven-384100532686002417" (TLS variant)
-   * or the bare haId (AES variant). Resolvable on the local network.
-   * device.ts may swap this for a raw IP when mDNS reports an address change.
-   */
+  /** "BOSCH-Oven-384100532686002417" (TLS) or the bare haId (AES). */
   host: string;
-  /**
-   * Last IPv4 address the appliance was seen at (mDNS) or connected on. Kept
-   * next to `host` rather than replacing it, so a stale address can fall back
-   * to the name. Not part of hcpy's devices.json; only on the device store.
-   */
+  /** Last known IPv4. Kept next to `host` so a stale address falls back to the name. */
   address?: string;
-  /**
-   * Base64url-encoded pre-shared key.
-   * - TLS-PSK appliances (no `iv`): used as the TLS PSK (port 443, wss).
-   * - HTTP/AES appliances (`iv` present): used to derive enc/mac keys (port 80).
-   */
+  /** Base64url. The TLS PSK (port 443), or the source of the AES enc/mac keys (port 80). */
   key: string;
-  /** Base64url IV. Present ONLY for the HTTP/AES variant - its presence is the discriminator. */
+  /** Only present on HTTP/AES appliances; that is how the variant is told apart. */
   iv?: string;
-  /** Appliance identity, from the IDDF DeviceDescription.xml. */
   description: DeviceDescription;
-  /** UID -> feature descriptor, from the IDDF FeatureMapping + DeviceDescription. */
+  /** UID -> descriptor */
   features: Record<string, FeatureDescriptor>;
-  /**
-   * Stable, immutable appliance id (serial / haId). Not part of hcpy's
-   * devices.json - filled in by normalizeDeviceConfig() so it is always
-   * present on a stored config. Used as the Homey device `data.id`.
-   */
+  /** Not in hcpy's devices.json; normalizeDeviceConfig() fills it in. */
   haId?: string;
 }
 
 export interface DeviceDescription {
-  /** "Oven", "Dishwasher", "Washer", ... */
   type: string;
-  /** "BOSCH", "SIEMENS", ... */
   brand: string;
-  /** VIB / model number, e.g. "HBG976MB1". */
   model: string;
-  /** IDDF version. */
   version: string;
-  /** IDDF revision. */
   revision: string;
 }
 
-/**
- * One feature (UID) of an appliance. The shape mirrors hcpy: attributes from
- * the IDDF XML are copied verbatim, so numeric-looking values are strings.
- */
+// Attributes are copied verbatim from the IDDF XML, so numbers arrive as strings.
 export interface FeatureDescriptor {
-  /** Dotted name, e.g. "BSH.Common.Setting.PowerState". */
   name: string;
   /** "read" | "readWrite" | "writeOnly" | "none" (casing as in the XML). */
   access?: string;
-  /** "true" | "false" - a string, as it comes from the XML. */
   available?: string;
   refCID?: string;
   refDID?: string;
-  /** For enum-typed features: numeric value (as string) -> member name. */
+  /** value -> member name */
   values?: Record<string, string>;
-  /** Numeric range for scalar features (strings, as in the XML). */
   min?: string;
   max?: string;
-  /** Any other attribute copied verbatim from the IDDF XML. */
   [attr: string]: unknown;
 }
 
-/** A single value as sent/received over the local websocket. */
 export interface HomeConnectValue {
   uid: number;
   value: unknown;
 }
 
-/** Envelope of the JSON protocol spoken over the local websocket. */
 export interface HomeConnectMessage {
   sID: number;
   msgID: number;

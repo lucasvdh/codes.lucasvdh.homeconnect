@@ -1,33 +1,22 @@
 "use strict";
 
-/**
- * Why a connection to an appliance failed, as a small fixed set of reasons.
- * Each reason has its own localized "unavailable" message (locales:
- * device.unavailable.<reason>), so a screenshot of the device tells us which
- * step broke instead of one generic "unreachable".
- */
+// Each reason has its own message (device.unavailable.<reason>), so a screenshot shows
+// which step broke.
 export type ConnectionReason =
-  /** No address: the name didn't resolve and no mDNS/pinned address worked. */
   | "resolve_failed"
-  /** An address was found, but nothing answered on the port in time. */
   | "connect_timeout"
-  /** The address answered with a TCP reset: wrong device, or port closed. */
   | "connection_refused"
-  /** The OS reports no route to the address (other network/VLAN, device off). */
+  /** Often another network/VLAN, or the appliance is off. */
   | "host_unreachable"
-  /** TCP connected, the TLS-PSK handshake failed: usually a wrong/old key. */
+  /** Usually a wrong or outdated key. */
   | "tls_failed"
-  /** The websocket upgrade got an HTTP error (e.g. 403). */
   | "ws_rejected"
-  /** Connected, then the appliance closed the session. */
   | "closed_by_appliance"
-  /** Anything we can't place. */
   | "unknown";
 
-/** An error with a reason attached, thrown by the socket/resolver layer. */
 export class ConnectionError extends Error {
   readonly reason: ConnectionReason;
-  /** Short technical detail for the log and the settings page, e.g. "ECONNREFUSED". */
+  /** e.g. "ECONNREFUSED" */
   readonly detail: string;
 
   constructor(reason: ConnectionReason, message: string, detail = "") {
@@ -38,7 +27,6 @@ export class ConnectionError extends Error {
   }
 }
 
-/** How specific a reason is: when several addresses fail, the most specific one wins. */
 const SPECIFICITY: Record<ConnectionReason, number> = {
   tls_failed: 7,
   ws_rejected: 6,
@@ -50,7 +38,6 @@ const SPECIFICITY: Record<ConnectionReason, number> = {
   unknown: 0,
 };
 
-/** Pick the most specific reason of several per-address failures. */
 export function mostSpecific(reasons: ConnectionReason[]): ConnectionReason {
   return reasons.reduce<ConnectionReason>(
     (best, r) => (SPECIFICITY[r] > SPECIFICITY[best] ? r : best),
@@ -60,11 +47,6 @@ export function mostSpecific(reasons: ConnectionReason[]): ConnectionReason {
 
 const TLS_CODE = /^(ERR_SSL|ERR_TLS|ERR_OSSL)/;
 
-/**
- * Map an error from the socket, TLS or websocket layer to a reason.
- * `tcpConnected` tells a TLS failure apart from a TCP failure: once TCP is up,
- * a reset or timeout means the TLS handshake was refused.
- */
 export function classifyError(
   err: unknown,
   opts: { tcpConnected?: boolean } = {},
@@ -108,11 +90,7 @@ export function classifyError(
   return { reason: "unknown", detail: code || message };
 }
 
-/**
- * Reason for a websocket close. Before the handshake finished, a preceding
- * error (e.g. an HTTP 403 on the upgrade) is the better explanation; after
- * it, the appliance ended a working session.
- */
+// Before the handshake, a preceding error (an HTTP 403 on the upgrade) explains the close better.
 export function classifyClose(
   code: number,
   reason: string,

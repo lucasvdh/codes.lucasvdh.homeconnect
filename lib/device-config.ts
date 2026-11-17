@@ -4,31 +4,15 @@ import net from "net";
 
 import { DeviceConfig } from "./types";
 
-/**
- * Validation + normalization for DeviceConfig, shared by every ingestion
- * path: cloud discovery, the manual hcauth:// paste-back, and the raw
- * devices.json import. All three must converge on the exact same stored
- * shape, with `haId` guaranteed present so it can serve as the immutable
- * Homey device id.
- */
 
-/**
- * Derive a stable appliance id from a config. Cloud discovery already knows
- * the haId; an imported hcpy devices.json does not, so we recover it from
- * the host - which is either "BRAND-Type-<serial>" (TLS) or the bare serial
- * (AES). The trailing digit run is the serial number.
- */
+// An imported devices.json has no haId: it is the trailing digits of "BRAND-Type-<serial>" or the
+// bare serial.
 export function deriveHaId(cfg: DeviceConfig): string {
   if (cfg.haId) return cfg.haId;
   const match = cfg.host.match(/(\d{6,})\s*$/);
   return match ? match[1] : cfg.host;
 }
 
-/**
- * Validate a single raw entry (e.g. from a pasted devices.json) and return a
- * normalized DeviceConfig. Throws with a human-readable message on anything
- * structurally wrong, since this runs on user-supplied input.
- */
 export function normalizeDeviceConfig(raw: unknown, index = 0): DeviceConfig {
   const where = `appliance #${index + 1}`;
   if (typeof raw !== "object" || raw === null) {
@@ -68,7 +52,6 @@ export function normalizeDeviceConfig(raw: unknown, index = 0): DeviceConfig {
   return cfg;
 }
 
-/** Validate + normalize a whole devices.json array. */
 export function normalizeDeviceConfigs(raw: unknown): DeviceConfig[] {
   if (!Array.isArray(raw)) {
     throw new Error("Expected a JSON array of appliances");
@@ -79,7 +62,6 @@ export function normalizeDeviceConfigs(raw: unknown): DeviceConfig[] {
   return raw.map((entry, index) => normalizeDeviceConfig(entry, index));
 }
 
-/** True when the app's config for an appliance differs in anything that matters to the connection. */
 export function configChanged(stored: DeviceConfig, next: DeviceConfig): boolean {
   return (
     stored.key !== next.key ||
@@ -90,16 +72,8 @@ export function configChanged(stored: DeviceConfig, next: DeviceConfig): boolean
   );
 }
 
-/**
- * Combine the config a device stored with the app's current one (the source
- * of truth after a re-login or import) on device init.
- *
- * - No stored keys yet (first init after pairing): take the app's config.
- * - Migration from <= 1.4.2: mDNS pinning used to overwrite `host` with an
- *   IPv4 address, losing the name. When the stored host is an IP and the app
- *   still knows a hostname, restore the name and keep the IP as `address`.
- * - App config changed (new keys / feature map): take it, keep `address`.
- */
+// Migration from <= 1.4.2: mDNS pinning overwrote `host` with an IP; restore the name and keep the
+// IP as `address`.
 export function mergeStoredConfig(
   stored: DeviceConfig | undefined,
   fromApp: DeviceConfig | undefined,

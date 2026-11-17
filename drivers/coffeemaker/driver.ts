@@ -13,7 +13,6 @@ type CoffeeMaker = Homey.Device & {
   ): Promise<void>;
 };
 
-/** Cleaning and descaling reminders, surfaced through one "maintenance" trigger. */
 const MAINTENANCE_EVENTS = [
   "DescalingIn20Cups",
   "DescalingIn15Cups",

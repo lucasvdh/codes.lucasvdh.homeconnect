@@ -5,30 +5,15 @@ import { XMLParser } from "fast-xml-parser";
 
 import { DeviceDescription, FeatureDescriptor } from "./types";
 
-/**
- * IDDF parser - the Node port of hcpy's HCxml2json.py.
- *
- * Each appliance has an "IDDF" ZIP from Home Connect containing two XML
- * files: `*_FeatureMapping.xml` (UID -> dotted name, plus enum tables) and
- * `*_DeviceDescription.xml` (per-UID access/availability/refCID/refDID and,
- * for enum-typed features, which enum table applies). We collapse both into
- * a single `{ description, features }` object - the exact shape hcpy writes
- * into devices.json, so the local protocol code can stay format-agnostic.
- *
- * UIDs are hex in the XML (`refUID="0200"`, `uid="17C0"`) and decimal-string
- * keyed in the output (`"512"`), matching the websocket payloads.
- */
+// Port of hcpy's HCxml2json.py. UIDs are hex in the XML ("0200") and decimal in the output ("512"),
+// as in the websocket payloads.
 
 export interface ParsedIddf {
   description: DeviceDescription;
   features: Record<string, FeatureDescriptor>;
 }
 
-/**
- * fast-xml-parser in preserveOrder mode yields nodes shaped like
- * `{ tagName: ChildNode[], ":@"?: attrs }` or `{ "#text": string }`. We need
- * order + attributes + recursion, hence this mode rather than the default.
- */
+// fast-xml-parser preserveOrder node: `{ tagName: ChildNode[], ":@"?: attrs }` or `{ "#text" }`.
 type PNode = Record<string, unknown>;
 
 const parser = new XMLParser({
@@ -66,17 +51,13 @@ function findChild(parent: PNode, tag: string): PNode | undefined {
   return childrenOf(parent).find((c) => tagOf(c) === tag);
 }
 
-/** Find the single root element node by tag name in a parsed document. */
 function rootElement(doc: PNode[], tag: string): PNode {
   const root = doc.find((n) => tagOf(n) === tag);
   if (!root) throw new Error(`IDDF: expected a <${tag}> root element`);
   return root;
 }
 
-/**
- * Parse one appliance's IDDF ZIP into `{ description, features }`.
- * The ZIP file names are prefixed with the haId, so we match by suffix.
- */
+// The file names in the ZIP are prefixed with the haId, so they're matched by suffix.
 export function parseIddfZip(zipData: Uint8Array): ParsedIddf {
   const files = unzipSync(zipData);
   const featureMappingName = Object.keys(files).find((n) => n.endsWith("_FeatureMapping.xml"));
@@ -94,14 +75,12 @@ export function parseIddfZip(zipData: Uint8Array): ParsedIddf {
   );
 }
 
-/** Parse the two IDDF XML documents directly (also used by tests). */
 export function parseIddfXml(
   featureMappingXml: string,
   deviceDescriptionXml: string,
 ): ParsedIddf {
   const features: Record<string, FeatureDescriptor> = {};
 
-  // --- FeatureMapping.xml: UID -> name, plus the enum tables ---------------
   const fmRoot = rootElement(parser.parse(featureMappingXml) as PNode[], "featureMappingFile");
 
   const featureList = findChild(fmRoot, "featureDescription");
@@ -129,17 +108,11 @@ export function parseIddfXml(
     }
   }
 
-  // --- DeviceDescription.xml: per-UID attributes + the identity block ------
   const ddRoot = rootElement(parser.parse(deviceDescriptionXml) as PNode[], "device");
   const ddChildren = childrenOf(ddRoot);
 
-  // Recursively copy every uid-bearing element's attributes onto its feature,
-  // resolving `enumerationType` into the concrete `values` table.
-  //
-  // Note: hcpy only processes the *descendants* of each top-level element,
-  // never the top-level element itself - so the bare uids on <statusList>,
-  // <activeProgram>, etc. carry just their name and no attributes. We match
-  // that by walking childrenOf() each top-level item rather than the item.
+  // Like hcpy, only the descendants of each top-level element: the uids on <statusList>,
+  // <activeProgram> etc. themselves keep just their name.
   const walk = (nodes: PNode[]): void => {
     for (const node of nodes) {
       const attrs = attrsOf(node);
@@ -163,7 +136,6 @@ export function parseIddfXml(
     walk(childrenOf(topLevel));
   }
 
-  // The <description> block holds the appliance identity.
   const descEl = findChild(ddRoot, "description");
   const description: Partial<DeviceDescription> = {};
   if (descEl) {

@@ -10,56 +10,39 @@ import { ConnectionReason, classifyClose, classifyError } from "./connection-err
 import { ConnectionStatusStore } from "./connection-status";
 import { matchMdnsResult } from "./mdns-match";
 
-/**
- * Reconnect delays after a failed or dropped connection, growing per failure
- * and reset once connected. Gentle on purpose: an appliance that refuses us
- * (another controller, wrong key) shouldn't be hammered every few seconds.
- */
+// Gentle on purpose: an appliance that refuses us (other controller, wrong key)
+// shouldn't be hammered.
 const RECONNECT_DELAYS_MS = [15_000, 30_000, 60_000, 120_000, 300_000];
 
-/** What the device needs from the app instance. */
 interface AppApi {
   getDevice(id: string): DeviceConfig | undefined;
   connectionStatus: ConnectionStatusStore;
   findMdnsAddress(haId: string): { address: string; via?: string } | null;
 }
 
-/** Operation states in which the appliance actively pushes progress updates. */
 const RUNNING_STATES = new Set(["Run", "DelayedStart", "Pause", "ActionRequired"]);
 
-/**
- * Features that only carry meaningful values while a program is running. When
- * idle the appliance may still emit stale values for these; applying them would
- * fight reconcileDerivedState() (which clears them), making the tiles flicker.
- * We skip them in applyValues() unless the program is actually running.
- */
+// An idle appliance still sends stale values for these; applying them fights
+// reconcileDerivedState() and makes the tiles flicker.
 const RUNNING_ONLY_FEATURES = new Set([
   "BSH.Common.Option.RemainingProgramTime",
   "BSH.Common.Option.ElapsedProgramTime",
   "BSH.Common.Option.StartInRelative",
 ]);
 
-/** Decode a value coming from the appliance into a Homey capability value. */
 type Decoder = (v: unknown, feature?: FeatureDescriptor) => unknown;
-/** Encode a Homey capability value into the wire form the appliance expects. */
 type Encoder = (v: unknown, feature?: FeatureDescriptor) => unknown;
 
 interface CapabilityMapEntry {
   capability: string;
   decode: Decoder;
-  /** Only present for writable capabilities. */
+  /** Absent for capabilities that are read-only in Homey. */
   encode?: Encoder;
-  /**
-   * Value the capability falls back to once the appliance stops running,
-   * for values the appliance doesn't reset itself (a hood's fan stage is an
-   * option of the running program). Applied on the running -> idle edge only.
-   */
+  /** Set on the running -> idle edge, for values the appliance doesn't reset (hood fan stage). */
   idleValue?: unknown;
   /** Fire `<key>Trigger` on the driver with the new value as `token` on change. */
   trigger?: { key: string; token: string };
 }
-
-// --- decode/encode helpers ---------------------------------------------------
 
 const passthrough: Decoder = (v) => v;
 
@@ -67,19 +50,12 @@ const passthrough: Decoder = (v) => v;
 const decodeLastSegment: Decoder = (v) =>
   typeof v === "string" && v.includes(".") ? v.split(".").pop() : v;
 
-/**
- * Capabilities derived from another capability rather than from a feature.
- * They follow their source in syncCapabilities() and are kept in step by
- * updateDerivedCapabilities().
- */
+/** derived capability -> the capability it is computed from */
 const DERIVED_CAPABILITIES: Record<string, string> = {
   homeconnect_remaining_time_display: "homeconnect_remaining_time",
 };
 
-/**
- * Minutes -> "h:mm" like the appliance display ("1:05", "0:45"). A string
- * capability can be picked as a device's status indicator, a number can't.
- */
+// "h:mm" like the appliance display. A string, because a number can't be a status indicator.
 export function formatMinutes(minutes: unknown): string | null {
   if (typeof minutes !== "number" || !Number.isFinite(minutes) || minutes < 0) return null;
   const total = Math.round(minutes);
@@ -100,17 +76,8 @@ const decodeNumber: Decoder = (v) => {
   return Number.isFinite(n) ? n : v;
 };
 
-/**
- * Decode an enum/scalar option to a plain integer so values like spin speed
- * and wash temperature can carry a unit label and be compared numerically in
- * Flows. Extracts the number embedded in the member name, passes a raw number
- * through (numeric-range feature), and maps non-numeric members (Off / Cold) to
- * null — i.e. "no numeric value", rendered as "-" rather than a misleading 0.
- *   "LaundryCare.Washer.EnumType.SpinSpeed.RPM1200" -> 1200
- *   "GC40"                                           -> 40
- *   1200                                             -> 1200
- *   "Off" / "Cold"                                   -> null
- */
+// "...SpinSpeed.RPM1200" -> 1200, "GC40" -> 40.
+// "Off" / "Cold" -> null, shown as "-" rather than a misleading 0.
 const decodeEnumToNumber: Decoder = (v) => {
   if (typeof v === "number") return Number.isFinite(v) ? v : null;
   if (typeof v !== "string") return null;
@@ -121,10 +88,7 @@ const decodeEnumToNumber: Decoder = (v) => {
   return Number.isFinite(n) ? n : null;
 };
 
-/**
- * Progress and energy/water forecasts arrive as plain 0-100 percentages
- * (refCID 11 / refDID A0 in the IDDF feature descriptor), so no scaling.
- */
+// Already 0-100 (IDDF refCID 11 / refDID A0), so no scaling (#9).
 const decodePercent: Decoder = (v) => {
   if (v == null) return null;
   const n = typeof v === "number" ? v : Number(v);
@@ -138,11 +102,6 @@ const encodeNumber: Encoder = (v) => (typeof v === "number" ? v : Number(v));
 const encodeMinutesToSeconds: Encoder = (v) =>
   typeof v === "number" ? Math.round(v * 60) : v;
 
-/**
- * Encode a Homey enum capability value back to the numeric index the
- * appliance expects, by reverse-looking-up the matching member name in
- * `feature.values`.
- */
 const encodeEnumIndex: Encoder = (v, feature) => {
   if (!feature?.values) return null;
   const target = String(v);
@@ -181,18 +140,7 @@ const encodePowerState: Encoder = (v, feature) => {
 const decodePowerState: Decoder = (v) =>
   v === "On" || v === 2 || v === "BSH.Common.EnumType.PowerState.On";
 
-/**
- * Maps a Home Connect feature name to a Homey capability plus value
- * transforms. The map is shared by every appliance type - a device only
- * applies the rows whose capability it actually declares (see the
- * hasCapability guard in applyValues), so oven- and dishwasher-specific
- * rows can coexist here harmlessly.
- *
- * Each row carries:
- *   - decode: how to project the wire value onto the Homey capability
- *   - encode (optional): how to project the capability value back. Rows
- *     without encode are read-only on the Homey side.
- */
+// Shared by all appliance types: a device only applies the rows whose capability it declares.
 const CAPABILITY_MAP: Record<string, CapabilityMapEntry> = {
   // ===== Shared (BSH.Common) ===============================================
   "BSH.Common.Setting.PowerState": {
@@ -266,10 +214,8 @@ const CAPABILITY_MAP: Record<string, CapabilityMapEntry> = {
     capability: "measure_temperature",
     decode: decodeNumber,
   },
-  // Cooking.Oven.Option.SetpointTemperature is intentionally not a capability:
-  // the Homey thermostat UI doesn't match oven semantics (setpoint is only
-  // meaningful while a program is selected). Exposed as a Flow action instead
-  // - see drivers/oven/driver.ts → oven_set_target_temperature.
+  // SetpointTemperature is deliberately a Flow action (oven_set_target_temperature), not a
+  // capability: it only means something while a program is selected.
   "Cooking.Oven.Status.Cavity.001.MeatprobePlugged": {
     capability: "homeconnect_meat_probe_plugged",
     decode: decodeBool,
@@ -280,8 +226,7 @@ const CAPABILITY_MAP: Record<string, CapabilityMapEntry> = {
   },
   "Cooking.Oven.Option.MeatProbeTemperatureV2": {
     capability: "homeconnect_meat_probe_target",
-    // The appliance enumerates "Off", "30dC", "31dC", ... up to "99dC".
-    // Surface as a plain °C number (0 == off).
+    // Enum "Off", "30dC" .. "99dC"; 0 means off.
     decode: (v) => {
       if (typeof v !== "string") return v;
       if (v === "Off") return 0;
@@ -323,7 +268,6 @@ const CAPABILITY_MAP: Record<string, CapabilityMapEntry> = {
   },
   "Cooking.Oven.Setting.CountUpTimer": {
     capability: "homeconnect_count_up_timer",
-    // Reported as enum "On"/"Off"; expose as boolean.
     decode: (v) => v === "On" || v === true,
     encode: (v, feature) => {
       if (feature?.values) {
@@ -337,7 +281,7 @@ const CAPABILITY_MAP: Record<string, CapabilityMapEntry> = {
   },
   "Cooking.Oven.Setting.DisplayBrightness": {
     capability: "homeconnect_display_brightness",
-    // Reported 0..4; surface as 0..100% for a nicer slider.
+    // Reported as 0..4.
     decode: (v) => (typeof v === "number" ? Math.round((v / 4) * 100) : v),
     encode: (v) => (typeof v === "number" ? Math.round((v / 100) * 4) : v),
   },
@@ -546,9 +490,7 @@ const CAPABILITY_MAP: Record<string, CapabilityMapEntry> = {
   },
 
   // --- Hood ---------------------------------------------------------------
-  // Fan stages are options of the running program, so writes go through
-  // HoodDevice (start Venting / change the option / stop) rather than a
-  // plain /ro/values encode.
+  // Fan stages are options of the running program, so HoodDevice handles the writes.
   "Cooking.Common.Option.Hood.VentingLevel": {
     capability: "homeconnect_venting_level",
     decode: decodeLastSegment,
@@ -600,17 +542,12 @@ const CAPABILITY_MAP: Record<string, CapabilityMapEntry> = {
   },
 };
 
-/**
- * Read-only numeric mirrors: when a primary (enum) option updates, also publish
- * a plain integer on a companion capability for Flow comparisons like
- * "spin speed > 1000 rpm". Non-numeric members (Off / Cold) decode to null.
- */
+// Numeric copies of enum options, for Flow comparisons like "spin speed > 1000 rpm".
 const NUMERIC_MIRRORS: Record<string, string> = {
   homeconnect_spin_speed: "homeconnect_spin_speed_rpm",
   homeconnect_wash_temperature: "homeconnect_wash_temperature_celsius",
 };
 
-/** Insert spaces so a program's last segment reads nicely in the UI. */
 function prettify(segment: string): string {
   return segment
     .replace(/([a-z])([A-Z])/g, "$1 $2")
@@ -618,11 +555,7 @@ function prettify(segment: string): string {
     .trim();
 }
 
-/**
- * Shape of the driver as far as the device cares: it owns the trigger cards.
- * Each property is optional because not every driver needs every trigger
- * (an undefined card means "this driver chose not to fire this event").
- */
+// Optional: a driver leaves out the cards it doesn't declare.
 type TriggerDriver = Homey.Driver & {
   programFinishedTrigger?: Homey.FlowCardTriggerDevice;
   doorChangedTrigger?: Homey.FlowCardTriggerDevice;
@@ -639,38 +572,20 @@ type TriggerDriver = Homey.Driver & {
   elapsedTimeChangedTrigger?: Homey.FlowCardTriggerDevice;
   childLockChangedTrigger?: Homey.FlowCardTriggerDevice;
   errorOccurredTrigger?: Homey.FlowCardTriggerDevice;
-  /** Dishwasher-only; undefined on drivers that don't declare the card. */
   programPhaseChangedTrigger?: Homey.FlowCardTriggerDevice;
   getEventMap?: () => Record<string, EventTriggerSpec>;
 };
 
-/** Translates an appliance event (Off→Present transition) into a Flow trigger. */
 export interface EventTriggerSpec {
-  /** Flow trigger property name on the driver, e.g. "saltLow". */
+  /** Fires `<triggerKey>Trigger` on the driver. */
   triggerKey: string;
-  /** Optional token producer; receives the feature name that fired. */
   tokens?: (featureName: string) => Record<string, unknown>;
 }
 
-/**
- * Base class shared by every appliance driver's device (oven, dishwasher,
- * ...). It owns the whole local-protocol lifecycle: looking up the config,
- * the websocket connection + reconnect, decoding value updates onto Homey
- * capabilities, firing the Flow triggers, and the program-control helpers
- * the Flow actions delegate to. Per-type drivers subclass this with nothing
- * more than their own capability set (declared in driver.compose.json).
- */
 export class ApplianceDevice extends Homey.Device {
   protected config!: DeviceConfig;
-  /**
-   * Static feature map used for Homey capability add/remove decisions.
-   *
-   * The appliance can send /ro/descriptionChange notifications while running
-   * (for example when remote-control access temporarily changes). Those
-   * changes should affect command validation, not the shape of the Homey
-   * device. Capability shape is therefore synced from this startup snapshot,
-   * not from the live descriptors patched by the websocket client.
-   */
+  // Capabilities follow this startup snapshot, not the live descriptors: /ro/descriptionChange
+  // flips access/availability with the appliance's mode, so tiles would appear and vanish.
   private capabilitySyncFeatures: Record<string, FeatureDescriptor> = {};
   private client: HomeConnectClient | null = null;
   private reconnectTimer: NodeJS.Timeout | null = null;
@@ -683,9 +598,7 @@ export class ApplianceDevice extends Homey.Device {
 
   async onInit(): Promise<void> {
     this.stopped = false;
-    // The pairing payload is lean (just data.id), so on first init the store
-    // is empty - look the full config up from the app (the source of truth)
-    // and persist it so the device stays self-contained afterwards.
+    // Pairing only stores data.id; the full config comes from the app on first init.
     const haId = String(this.getData().id);
     const merged = mergeStoredConfig(
       this.getStoreValue("config") as DeviceConfig | undefined,
@@ -706,26 +619,17 @@ export class ApplianceDevice extends Homey.Device {
 
     this.capabilitySyncFeatures = this.cloneFeatureMap(this.config.features ?? {});
 
-    // Migration: target_temperature briefly shipped as a writable capability
-    // but didn't match oven semantics. Pull it off existing paired devices.
+    // Migration: early oven builds had target_temperature.
     if (this.hasCapability("target_temperature")) {
       await this.removeCapability("target_temperature").catch(this.error);
     }
 
-    // Drop capabilities whose backing feature is absent from this particular
-    // appliance. This is a device-shape sync and must not run from live
-    // description notifications, because access/availability can reflect
-    // transient state rather than what the appliance fundamentally supports.
     await this.syncCapabilities();
-
-    // Register a write-back listener for every writable capability this
-    // device actually declares (post-sync), wired through CAPABILITY_MAP.
     this.registerWritableCapabilities();
 
     await this.connect();
   }
 
-  /** Clone the static feature map before the client mutates live descriptors. */
   private cloneFeatureMap(
     features: Record<string, FeatureDescriptor>,
   ): Record<string, FeatureDescriptor> {
@@ -742,14 +646,6 @@ export class ApplianceDevice extends Homey.Device {
     return String(this.config?.haId ?? this.getData().id);
   }
 
-  /**
-   * Walk the driver-declared capabilities; for each row in CAPABILITY_MAP whose
-   * feature isn't present in the startup feature map, remove the capability so
-   * the user never sees a capability this appliance model cannot support. Do
-   * not use `access` or `available` here: Home Connect may change those while
-   * the appliance changes mode or remote-control state, and Homey capabilities
-   * should describe model support, not current writeability.
-   */
   private async syncCapabilities(): Promise<void> {
     const declared = new Set<string>(this.driver.manifest.capabilities ?? []);
 
@@ -765,8 +661,6 @@ export class ApplianceDevice extends Homey.Device {
       }
     }
 
-    // Derived capabilities exist exactly when their source does. This also
-    // adds them to devices paired before the derived capability existed.
     for (const [derived, source] of Object.entries(DERIVED_CAPABILITIES)) {
       if (!declared.has(derived)) continue;
       const want = this.hasCapability(source);
@@ -780,7 +674,6 @@ export class ApplianceDevice extends Homey.Device {
     await this.updateDerivedCapabilities();
   }
 
-  /** Recompute every derived capability from its source's current value. */
   private async updateDerivedCapabilities(): Promise<void> {
     if (this.hasCapability("homeconnect_remaining_time_display")) {
       const text = formatMinutes(this.getCapabilityValue("homeconnect_remaining_time"));
@@ -792,13 +685,11 @@ export class ApplianceDevice extends Homey.Device {
     }
   }
 
-  /** Per-driver event spec, falling back to {} if the driver doesn't define one. */
   private eventMap(): Record<string, EventTriggerSpec> {
     const d = this.driver as TriggerDriver;
     return typeof d.getEventMap === "function" ? d.getEventMap() : {};
   }
 
-  /** Set up registerCapabilityListener for every writable capability. */
   private registerWritableCapabilities(): void {
     for (const [featureName, entry] of Object.entries(CAPABILITY_MAP)) {
       if (!entry.encode) continue;
@@ -814,8 +705,7 @@ export class ApplianceDevice extends Homey.Device {
     const generation = ++this.connectionGeneration;
     const previous = this.client;
 
-    // Known addresses first: a current mDNS sighting, then the last address
-    // that worked. The hostname is still resolved when both fail.
+    // The hostname is only resolved when both known addresses fail.
     const mdns = this.app.findMdnsAddress(this.haId);
     const preferred = [mdns?.address, this.config.address].filter(
       (a, i, all): a is string => typeof a === "string" && net.isIPv4(a) && all.indexOf(a) === i,
@@ -857,11 +747,7 @@ export class ApplianceDevice extends Homey.Device {
     client.on("description", (changed: string[]) => {
       if (!isCurrent()) return;
       this.log(`description changed: ${changed.join(", ")}`);
-      // Deliberately do not call syncCapabilities() here. Description changes
-      // are live protocol state (access/availability/min/max), and using them
-      // to add/remove Homey capabilities makes device tiles glitch while the
-      // appliance changes mode. The client has already patched the live
-      // descriptors used by writes; only capability values should change here.
+      // No syncCapabilities() here, see capabilitySyncFeatures.
       this.scheduleValueRefresh();
     });
 
@@ -894,10 +780,6 @@ export class ApplianceDevice extends Homey.Device {
     }
   }
 
-  /**
-   * Mark the device unavailable with a message naming the failing step, record
-   * it for the settings page, and schedule the next attempt.
-   */
   private markUnavailable(reason: ConnectionReason, detail: string): void {
     const delay =
       RECONNECT_DELAYS_MS[Math.min(this.reconnectAttempts, RECONNECT_DELAYS_MS.length - 1)];
@@ -908,14 +790,10 @@ export class ApplianceDevice extends Homey.Device {
     this.scheduleReconnect(delay);
   }
 
-  /** Push a batch of decoded feature values onto Homey capabilities. */
   private async applyValues(values: Record<string, unknown>): Promise<void> {
     const wasRunning = this.isProgramRunning();
     for (const [name, raw] of Object.entries(values)) {
-      // Some dishwashers report Root.ActiveProgram / Root.SelectedProgram as
-      // numeric IDs such as "001", while BSH.Common.Option.BaseProgram carries
-      // the readable program name, for example "PreRinse". Use BaseProgram as a
-      // fallback so the device tile does not show an internal numeric ID.
+      // Some dishwashers report the program roots as "001"; BaseProgram has the readable name.
       if (name === "BSH.Common.Option.BaseProgram" && typeof raw === "string" && raw.trim()) {
         const fallback = decodeLastSegment(raw);
         const isNumericProgramId = (value: unknown): boolean =>
@@ -936,7 +814,6 @@ export class ApplianceDevice extends Homey.Device {
         }
       }
 
-      // Events don't represent state, they fire triggers and get acked.
       if (name.includes(".Event.")) {
         this.handleEvent(name, raw);
         continue;
@@ -945,8 +822,7 @@ export class ApplianceDevice extends Homey.Device {
       const mapping = CAPABILITY_MAP[name];
       if (!mapping || !this.hasCapability(mapping.capability)) continue;
 
-      // Some dishwashers report program roots as numeric IDs like "001".
-      // Keep the readable BaseProgram fallback instead of overwriting it.
+      // Keep the readable BaseProgram name over a numeric "001" (see above).
       if (
         (name === "BSH.Common.Root.ActiveProgram" || name === "BSH.Common.Root.SelectedProgram") &&
         typeof raw === "string" &&
@@ -956,8 +832,6 @@ export class ApplianceDevice extends Homey.Device {
         continue;
       }
 
-      // Stale running-only value while idle: skip it so we don't set a value
-      // reconcileDerivedState() will immediately clear again (flicker loop).
       if (RUNNING_ONLY_FEATURES.has(name) && !this.isProgramRunning()) continue;
 
       const feature = this.findFeature(name);
@@ -987,12 +861,7 @@ export class ApplianceDevice extends Homey.Device {
     this.reconcileDerivedState();
   }
 
-  /**
-   * An appliance event arrived (e.g. salt low). hcpy treats values like
-   * "Off" / "Present" / "Confirmed". We fire a Flow trigger on the
-   * Off->Present edge and immediately acknowledge so the appliance stops
-   * re-firing it.
-   */
+  // Fires on the edge to "Present" and acknowledges, or the appliance keeps re-sending it.
   private handleEvent(featureName: string, raw: unknown): void {
     const previous = this.eventStates.get(featureName);
     this.eventStates.set(featureName, raw);
@@ -1010,8 +879,6 @@ export class ApplianceDevice extends Homey.Device {
         this.error(`event ${featureName} mapped to unknown trigger ${spec.triggerKey}`);
       }
     } else if (driver.errorOccurredTrigger) {
-      // Unmapped event: surface as a generic error_occurred trigger with the
-      // bare event name as a token, so users can still react to unknowns.
       const code = featureName.split(".").pop() ?? featureName;
       driver.errorOccurredTrigger.trigger(this, { error_code: code }, {}).catch(this.error);
     }
@@ -1024,14 +891,11 @@ export class ApplianceDevice extends Homey.Device {
     const feature = this.config.features?.[String(uid)];
     if (!this.isFeatureWritableNow(feature)) return;
     this.client?.setValue(uid, true).catch((err) => {
-      // AcknowledgeEvent is best-effort cleanup after a notification. Some
-      // appliances reject it when the event already cleared; that should not
-      // surface as a Homey device error.
+      // Some appliances reject it once the event has cleared by itself.
       this.log(`AcknowledgeEvent ignored: ${(err as Error).message}`);
     });
   }
 
-  /** Fire the relevant Flow triggers for a capability that just changed. */
   private fireTriggers(capability: string, value: unknown): void {
     const driver = this.driver as TriggerDriver;
     if (capability === "homeconnect_operation_state") {
@@ -1099,11 +963,7 @@ export class ApplianceDevice extends Homey.Device {
     this.fireMappedChangeTrigger(capability, value);
   }
 
-  /**
-   * Fire the change trigger a CAPABILITY_MAP row declares. Deduplicated per
-   * value, because a change can be reported twice: once by a write from the
-   * device tile (Homey sets the value itself) and once by the appliance.
-   */
+  // Deduplicated: a tile write is reported by Homey and again by the appliance.
   protected fireMappedChangeTrigger(capability: string, value: unknown): void {
     const row = Object.values(CAPABILITY_MAP).find((e) => e.capability === capability && e.trigger);
     if (!row?.trigger) return;
@@ -1115,7 +975,6 @@ export class ApplianceDevice extends Homey.Device {
     trigger?.trigger(this, { [row.trigger.token]: String(value) }, {}).catch(this.error);
   }
 
-  /** Reset capabilities that declare an idleValue, on the running -> idle edge. */
   private async applyIdleValues(): Promise<void> {
     for (const entry of Object.values(CAPABILITY_MAP)) {
       if (entry.idleValue === undefined || !this.hasCapability(entry.capability)) continue;
@@ -1130,24 +989,13 @@ export class ApplianceDevice extends Homey.Device {
     }
   }
 
-  /**
-   * True when the appliance is powered on and in a state where it actively
-   * pushes progress/remaining-time updates. Used both to gate stale
-   * running-only values in applyValues() and to decide when to clear derived
-   * state here.
-   */
   protected isProgramRunning(): boolean {
     const state = this.getCapabilityValue("homeconnect_operation_state");
     const power = this.getCapabilityValue("onoff");
     return power !== false && typeof state === "string" && RUNNING_STATES.has(state);
   }
 
-  /**
-   * The appliance stops pushing progress / remaining-time updates the moment
-   * it is no longer running (program ended, aborted, or powered off), so the
-   * last values would otherwise stay frozen on screen. Once we observe a
-   * non-running state we clear the derived capabilities ourselves.
-   */
+  // The appliance stops sending progress once it stops running, so the last values would freeze.
   private reconcileDerivedState(): void {
     if (this.isProgramRunning()) return;
 
@@ -1168,9 +1016,6 @@ export class ApplianceDevice extends Homey.Device {
     }
   }
 
-  // --- program control (delegated to from the driver's Flow cards) ---------
-
-  /** The appliance's programs as Homey autocomplete results, filtered by query. */
   listPrograms(query = ""): Array<{ name: string; id: string }> {
     const q = query.trim().toLowerCase();
     return Object.values(this.config.features ?? {})
@@ -1181,11 +1026,6 @@ export class ApplianceDevice extends Homey.Device {
       .sort((a, b) => a.name.localeCompare(b.name));
   }
 
-  /**
-   * Start a program now. `opts` may include legacy oven extras (temperature
-   * °C / duration min) and an optional `delayMinutes` which adds the
-   * BSH.Common.Option.StartInRelative option.
-   */
   async startProgram(
     programName: string,
     opts: { temperature?: number; duration?: number; delayMinutes?: number } = {},
@@ -1196,26 +1036,18 @@ export class ApplianceDevice extends Homey.Device {
     if (opts.temperature != null && this.findUid(setpoint) != null) {
       options[setpoint] = Math.round(opts.temperature);
     }
-    // The Duration option is in seconds; the Flow argument is in minutes.
     if (opts.duration != null && this.findUid("BSH.Common.Option.Duration") != null) {
       options["BSH.Common.Option.Duration"] = Math.round(opts.duration * 60);
     }
-    // A delay is the point of the delayed-start card, so it must exist.
     if (opts.delayMinutes != null && opts.delayMinutes > 0) {
       options["BSH.Common.Option.StartInRelative"] = Math.round(opts.delayMinutes * 60);
     }
     await this.startProgramWithOptions(programName, options);
   }
 
-  /**
-   * Start whatever program is currently selected on the appliance, with the
-   * options the user already set there. Lets a Flow decide *when* to run
-   * (e.g. on cheap energy) without having to pick the program in the Flow.
-   */
   async startSelectedProgram(): Promise<void> {
     let programUid = this.client?.selectedProgramUid ?? null;
     if (programUid == null) {
-      // Fall back to the decoded capability value (last name segment).
       const selected = this.getCapabilityValue("homeconnect_selected_program");
       if (typeof selected === "string" && selected) {
         const match = this.listPrograms().find((p) => p.id.split(".").pop() === selected);
@@ -1233,10 +1065,6 @@ export class ApplianceDevice extends Homey.Device {
     await this.client.startProgram(programUid, []);
   }
 
-  /**
-   * Refuse a remote start the appliance would reject (or that would be
-   * unsafe), with a message the user can act on in the Flow.
-   */
   private assertCanStartRemotely(): void {
     if (this.getCapabilityValue("homeconnect_remote_start") === false) {
       throw new Error(this.homey.__("device.error.remote_start_not_allowed"));
@@ -1246,12 +1074,7 @@ export class ApplianceDevice extends Homey.Device {
     }
   }
 
-  /**
-   * Start a program with options given by feature name, e.g.
-   * { "Cooking.Common.Option.Hood.VentingLevel": "FanStage02" }. Enum member
-   * names are resolved to their wire index; options the appliance lacks are an
-   * error, so callers drop optional ones they don't need first.
-   */
+  // Options the appliance lacks are an error, so callers drop optional ones first.
   async startProgramWithOptions(
     programName: string,
     options: Record<string, unknown> = {},
@@ -1274,7 +1097,6 @@ export class ApplianceDevice extends Homey.Device {
     await this.client.startProgram(programUid, wire);
   }
 
-  /** Queue a program without starting it (sets BSH.Common.Root.SelectedProgram). */
   async selectProgram(programName: string): Promise<void> {
     const programUid = this.findUid(programName);
     if (programUid == null) throw new Error(this.homey.__("device.error.unknown_program"));
@@ -1283,7 +1105,6 @@ export class ApplianceDevice extends Homey.Device {
     await this.client.selectProgram(programUid, []);
   }
 
-  /** Fire a BSH.Common.Command.* (AbortProgram / PauseProgram / ResumeProgram). */
   async sendCommand(command: "AbortProgram" | "PauseProgram" | "ResumeProgram"): Promise<void> {
     const uid = this.findUid(`BSH.Common.Command.${command}`);
     if (uid == null) throw new Error(`This appliance does not support ${command}`);
@@ -1293,7 +1114,7 @@ export class ApplianceDevice extends Homey.Device {
     await this.client.setValue(uid, true);
   }
 
-  /** Write a mapped writable capability to the appliance without faking local state. */
+  // Doesn't set the capability: the appliance reports the new value itself.
   async setMappedCapabilityValue(capability: string, value: unknown): Promise<void> {
     const row = Object.entries(CAPABILITY_MAP).find(([, entry]) => entry.capability === capability);
     if (!row) {
@@ -1322,11 +1143,6 @@ export class ApplianceDevice extends Homey.Device {
     await this.client.setValue(uid, encoded);
   }
 
-  /**
-   * Write a value to a feature by name, without a capability in the loop.
-   * Used by per-driver Flow actions that target a setting/option which we
-   * intentionally don't surface as a Homey capability (e.g. oven setpoint).
-   */
   async setSettingValue(featureName: string, value: unknown): Promise<void> {
     const uid = this.findUid(featureName);
     if (uid == null) {
@@ -1342,16 +1158,11 @@ export class ApplianceDevice extends Homey.Device {
     await this.client.setValue(uid, encoded);
   }
 
-  /**
-   * Wire form of a value for a feature: an enum member name ("FanStage02")
-   * becomes its numeric index, anything else is sent as-is.
-   */
   private encodeForFeature(uid: number, value: unknown): unknown {
     const feature = this.config.features?.[String(uid)];
     return feature?.values && typeof value === "string" ? encodeEnumIndex(value, feature) : value;
   }
 
-  /** Send AcknowledgeEvent (clears whatever event is currently signalled). */
   async acknowledgeCurrentEvent(): Promise<void> {
     const uid = this.findUid("BSH.Common.Command.AcknowledgeEvent");
     if (uid == null) {
@@ -1364,9 +1175,6 @@ export class ApplianceDevice extends Homey.Device {
     await this.client.setValue(uid, true);
   }
 
-  // --- feature-map helpers -------------------------------------------------
-
-  /** Look up the appliance-specific numeric UID for a feature name. */
   protected findUid(featureName: string): number | null {
     const features = this.config.features ?? {};
     for (const [uid, descriptor] of Object.entries(features)) {
@@ -1375,7 +1183,6 @@ export class ApplianceDevice extends Homey.Device {
     return null;
   }
 
-  /** Look up a feature descriptor by name (for value-enum reverse lookup). */
   protected findFeature(
     featureName: string,
     features: Record<string, FeatureDescriptor> = this.config.features ?? {},
@@ -1386,11 +1193,6 @@ export class ApplianceDevice extends Homey.Device {
     return undefined;
   }
 
-  /**
-   * `/ro/descriptionChange` mutates access/availability while the appliance
-   * changes state. Respect that live descriptor for writes, but never for
-   * adding/removing Homey capabilities.
-   */
   private isFeatureWritableNow(feature?: FeatureDescriptor): boolean {
     if (!feature) return false;
     const available = feature.available as unknown;
@@ -1412,7 +1214,6 @@ export class ApplianceDevice extends Homey.Device {
     }
   }
 
-  /** Reverse-resolve an enum member name to its numeric value for a feature. */
   protected enumValue(uid: number, memberName: string): number | null {
     const values = this.config.features?.[String(uid)]?.values;
     if (!values) return null;
@@ -1423,8 +1224,6 @@ export class ApplianceDevice extends Homey.Device {
     }
     return null;
   }
-
-  // --- reconnect bookkeeping ----------------------------------------------
 
   private scheduleReconnect(delayMs: number): void {
     this.clearReconnect();
@@ -1457,11 +1256,8 @@ export class ApplianceDevice extends Homey.Device {
     }
   }
 
-  // --- mDNS discovery: keep the host in sync if the appliance's IP moves ---
-
   onDiscoveryResult(result: Homey.DiscoveryResult): boolean {
-    // Homey may ask before onInit loaded the config; fall back to data.id.
-    // connect() also looks mDNS up itself, so a miss here isn't fatal.
+    // Homey may ask before onInit has loaded the config.
     const haId = this.config?.haId ?? String(this.getData().id);
     return matchMdnsResult(result as never, haId).matched;
   }
@@ -1479,9 +1275,6 @@ export class ApplianceDevice extends Homey.Device {
       this.config.address = address;
       await this.setStoreValue("config", this.config);
     }
-    // Retry right away when we're waiting for a reconnect anyway, or when the
-    // live session uses another address. Don't interrupt an attempt that is
-    // still in progress or a working session on this address.
     const waitingToRetry = this.reconnectTimer != null;
     const elsewhere = this.client?.handshakeDone === true && this.client.address !== address;
     if (waitingToRetry || elsewhere) {

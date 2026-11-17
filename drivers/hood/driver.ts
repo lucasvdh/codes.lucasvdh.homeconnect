@@ -13,7 +13,6 @@ type Hood = ApplianceDevice & {
 };
 
 class HoodDriver extends ApplianceDriver {
-  /** Fired by ApplianceDevice.fireTriggers when the fan stage changes. */
   ventingLevelChangedTrigger?: Homey.FlowCardTriggerDevice;
 
   protected readonly applianceType = "Hood";

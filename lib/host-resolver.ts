@@ -7,7 +7,6 @@ import { ConnectionError } from "./connection-errors";
 
 const LOOKUP_TIMEOUT_MS = 5_000;
 
-/** dns.lookup(name, { all: true }), injectable for tests. */
 export type LookupFn = (name: string) => Promise<Array<{ address: string; family: number }>>;
 
 const defaultLookup: LookupFn = (name) => dns.lookup(name, { all: true });
@@ -15,19 +14,11 @@ const defaultLookup: LookupFn = (name) => dns.lookup(name, { all: true });
 export interface ResolveOptions {
   lookup?: LookupFn;
   timeoutMs?: number;
-  /** Receives one line per attempt, for the app log. */
   log?: (line: string) => void;
 }
 
-/**
- * Hostnames to try for an appliance, most likely first.
- *
- * hcpy stores the bare mDNS name ("BOSCH-Oven-3841..."), which only resolves
- * when the router happens to register DHCP hostnames in DNS. The appliances
- * always announce themselves over mDNS, so for a bare name we try the
- * `.local` variant first and fall back to the name as given. IPs and names
- * that already carry a domain are used verbatim.
- */
+// The bare hcpy name only resolves if the router registers DHCP names in DNS,
+// so `.local` first (#8).
 export function hostCandidates(host: string): string[] {
   const h = host.trim().replace(/\.$/, "");
   if (net.isIP(h) || h.includes(".")) return [h];
@@ -42,12 +33,7 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
   return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
 }
 
-/**
- * Resolve an appliance host to the addresses worth connecting to, IPv4
- * first. On networks with IPv6 enabled a name can also resolve to an IPv6
- * address the appliance doesn't actually listen on, so v6 is only a fallback.
- * Throws a ConnectionError("resolve_failed") listing every attempt.
- */
+// IPv6 only as a fallback: a name can resolve to a v6 address the appliance doesn't listen on.
 export async function resolveAddresses(host: string, opts: ResolveOptions = {}): Promise<string[]> {
   const lookup = opts.lookup ?? defaultLookup;
   const timeoutMs = opts.timeoutMs ?? LOOKUP_TIMEOUT_MS;
@@ -83,7 +69,6 @@ export async function resolveAddresses(host: string, opts: ResolveOptions = {}):
   );
 }
 
-/** Format an address for use in a URL authority (brackets around IPv6). */
 export function urlHost(address: string): string {
   return net.isIPv6(address) ? `[${address}]` : address;
 }

@@ -4,32 +4,23 @@ import { ApplianceDevice } from "../../lib/appliance-device";
 
 const OPTION = "ConsumerProducts.CoffeeMaker.Option.";
 
-/** Flow value meaning "use the machine's own setting for this drink". */
 export const MACHINE_DEFAULT = "default";
 
 export interface BeverageOptions {
-  /** BeanAmount member, e.g. "Strong", or MACHINE_DEFAULT. */
   strength?: string;
-  /** Fill quantity in ml, 0 for the machine's own; the machine enforces its range. */
+  /** ml; 0 = the machine's own. The machine enforces its range. */
   quantity?: number;
-  /** CoffeeTemperature member suffix, e.g. "92C", or MACHINE_DEFAULT. */
+  /** e.g. "92C" */
   temperature?: string;
 }
 
-/** Only real drinks; the program list also holds cleaning and descaling runs. */
 const DRINK_PROGRAMS = [
   "ConsumerProducts.CoffeeMaker.Program.Beverage.",
   "ConsumerProducts.CoffeeMaker.Program.CoffeeWorld.",
 ];
 
-/**
- * Coffee machine. Every drink is a program (ConsumerProducts.CoffeeMaker.
- * Program.Beverage.* / CoffeeWorld.*); strength, quantity and temperature are
- * options of that program. Which drinks and ranges exist differs per model,
- * so the appliance is the judge: it rejects what it doesn't support.
- */
+// Drinks and ranges differ per model, so the machine is the judge: it rejects what it can't make.
 class CoffeeMakerDevice extends ApplianceDevice {
-  /** Drinks this machine offers, for the Flow card autocomplete. */
   listBeverages(query = ""): Array<{ name: string; id: string }> {
     return this.listPrograms(query).filter((p) =>
       DRINK_PROGRAMS.some((prefix) => p.id.startsWith(prefix)),
@@ -51,8 +42,7 @@ class CoffeeMakerDevice extends ApplianceDevice {
     if (opts.temperature && opts.temperature !== MACHINE_DEFAULT) {
       wanted[`${OPTION}CoffeeTemperature`] = opts.temperature;
     }
-    // Not every model has every option (e.g. no temperature choice): leave
-    // those to the machine instead of failing the whole drink.
+    // Options the model lacks are left to the machine instead of failing the drink.
     const options: Record<string, unknown> = {};
     for (const [feature, value] of Object.entries(wanted)) {
       if (this.findUid(feature) != null) options[feature] = value;

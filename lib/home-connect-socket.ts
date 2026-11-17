@@ -15,51 +15,29 @@ const CONNECT_TIMEOUT_MS = 8_000;
 
 export interface OpenedConnection {
   ws: WebSocket;
-  /** Present only for the HTTP/AES variant; null for TLS-PSK appliances. */
   codec: AesHmacCodec | null;
-  /** The address the socket actually connected to. */
   address: string;
 }
 
 export interface OpenOptions {
-  /**
-   * Addresses to try before resolving the hostname, e.g. a fresh mDNS
-   * sighting and the last address that worked. Tried in order; the name is
-   * still resolved when they all fail.
-   */
+  /** Tried in order before the hostname is resolved. */
   preferredAddresses?: string[];
-  /** One line per attempt, for the app log. */
   log?: (line: string) => void;
-  /** Per-address connect timeout (tests use a short one). */
   connectTimeoutMs?: number;
-  /** Passed through to the resolver (tests inject a fake lookup). */
   resolve?: Omit<ResolveOptions, "log">;
 }
 
-/**
- * `ws` opens its underlying socket via http(s).Agent.createConnection().
- * We pre-open the (TLS-PSK) socket ourselves and hand the exact same socket
- * back, so `ws` only does the HTTP Upgrade handshake and frame parsing on
- * top of a connection we fully control.
- */
+// Hands `ws` our own pre-opened (TLS-PSK) socket, so it only does the upgrade and framing.
 function makeStaticAgent(socket: net.Socket, useTls: boolean): http.Agent {
   const Base = useTls ? https.Agent : http.Agent;
   return new (class extends Base {
     createConnection(): net.Socket {
-      // The socket already exists and (for TLS) is already handshaked.
       return socket;
     }
   })({ keepAlive: false });
 }
 
-/**
- * Open a local websocket to an appliance. Picks the protocol variant from
- * the device config: an `iv` means the HTTP/AES variant, otherwise TLS-PSK.
- *
- * Tries the preferred addresses first, then every resolved address (IPv4
- * first). When all fail it throws a ConnectionError with the most specific
- * reason seen, so the device can say *why* it is unavailable.
- */
+// Throws the most specific ConnectionError seen, so the device can say why it is unavailable.
 export async function openConnection(
   dev: DeviceConfig,
   opts: OpenOptions = {},
@@ -120,19 +98,14 @@ export async function openConnection(
 
   const ws = new WebSocket(url, {
     agent: makeStaticAgent(socket, useTls),
-    // Send no Origin header at all, like hcpy and the official app. An empty
-    // Origin is not the same as none: some firmware rejects it with a 403.
+    // No Origin header at all: some firmware rejects an empty one with a 403 (#7).
     rejectUnauthorized: false,
   });
 
   return { ws, codec, address };
 }
 
-/**
- * Open the raw (TLS-PSK or plain TCP) socket to one resolved address. A
- * rejection carries `tcpConnected` so a TLS failure (TCP up, handshake
- * refused) can be told apart from an unreachable address.
- */
+// A rejection carries `tcpConnected`, to tell a refused TLS handshake from an unreachable address.
 export function connectSocket(
   address: string,
   host: string,

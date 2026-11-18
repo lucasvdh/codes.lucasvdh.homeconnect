@@ -580,7 +580,7 @@ type TriggerDriver = Homey.Driver & {
   childLockChangedTrigger?: Homey.FlowCardTriggerDevice;
   errorOccurredTrigger?: Homey.FlowCardTriggerDevice;
   programPhaseChangedTrigger?: Homey.FlowCardTriggerDevice;
-  getEventMap?: () => Record<string, EventTriggerSpec>;
+  getEventMap?: () => Record<string, EventSpec>;
 };
 
 export interface EventTriggerSpec {
@@ -588,6 +588,13 @@ export interface EventTriggerSpec {
   triggerKey: string;
   tokens?: (featureName: string) => Record<string, unknown>;
 }
+
+// Logged only: not an error, and left for the user to dismiss on the appliance.
+export interface IgnoredEvent {
+  ignore: true;
+}
+
+export type EventSpec = EventTriggerSpec | IgnoredEvent;
 
 export class ApplianceDevice extends Homey.Device {
   protected config!: DeviceConfig;
@@ -633,6 +640,7 @@ export class ApplianceDevice extends Homey.Device {
     }
 
     await this.syncCapabilities();
+    await this.syncDriverCapabilities(this.capabilitySyncFeatures);
     this.registerWritableCapabilities();
 
     await this.connect();
@@ -693,7 +701,10 @@ export class ApplianceDevice extends Homey.Device {
     }
   }
 
-  private eventMap(): Record<string, EventTriggerSpec> {
+  // For capabilities outside CAPABILITY_MAP; runs before the first values arrive.
+  protected async syncDriverCapabilities(_features: Record<string, FeatureDescriptor>): Promise<void> {}
+
+  private eventMap(): Record<string, EventSpec> {
     const d = this.driver as TriggerDriver;
     return typeof d.getEventMap === "function" ? d.getEventMap() : {};
   }
@@ -879,10 +890,10 @@ export class ApplianceDevice extends Homey.Device {
     }
     if (wasRunning && !this.isProgramRunning()) await this.applyIdleValues();
     this.reconcileDerivedState();
-    await this.onValuesApplied();
+    await this.onValuesApplied(values);
   }
 
-  protected async onValuesApplied(): Promise<void> {}
+  protected async onValuesApplied(_values: Record<string, unknown>): Promise<void> {}
 
   // Fires on the edge to "Present" and acknowledges, or the appliance keeps re-sending it.
   private handleEvent(featureName: string, raw: unknown): void {
@@ -891,10 +902,12 @@ export class ApplianceDevice extends Homey.Device {
     if (raw !== "Present" || previous === "Present") return;
     const driver = this.driver as TriggerDriver;
     const spec = this.eventMap()[featureName];
+    if (spec && "ignore" in spec) {
+      this.log(`[event] ${featureName} ignored`);
+      return;
+    }
     if (spec) {
-      const trigger = (driver as unknown as Record<string, Homey.FlowCardTriggerDevice>)[
-        `${spec.triggerKey}Trigger`
-      ];
+      const trigger = this.driverTrigger(spec.triggerKey);
       if (trigger) {
         const tokens = spec.tokens ? spec.tokens(featureName) : {};
         trigger.trigger(this, tokens, {}).catch(this.error);
@@ -992,10 +1005,7 @@ export class ApplianceDevice extends Homey.Device {
     if (!row?.trigger) return;
     if (this.lastTriggeredValues.get(capability) === value) return;
     this.lastTriggeredValues.set(capability, value);
-    const trigger = (this.driver as unknown as Record<string, Homey.FlowCardTriggerDevice | undefined>)[
-      `${row.trigger.key}Trigger`
-    ];
-    trigger?.trigger(this, { [row.trigger.token]: String(value) }, {}).catch(this.error);
+    this.driverTrigger(row.trigger.key)?.trigger(this, { [row.trigger.token]: String(value) }, {}).catch(this.error);
   }
 
   private async applyIdleValues(): Promise<void> {
@@ -1010,6 +1020,12 @@ export class ApplianceDevice extends Homey.Device {
       }
       this.fireTriggers(entry.capability, entry.idleValue);
     }
+  }
+
+  protected driverTrigger(key: string): Homey.FlowCardTriggerDevice | undefined {
+    return (this.driver as unknown as Record<string, Homey.FlowCardTriggerDevice | undefined>)[
+      `${key}Trigger`
+    ];
   }
 
   protected isProgramRunning(): boolean {

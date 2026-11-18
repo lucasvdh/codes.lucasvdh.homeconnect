@@ -1,16 +1,18 @@
 import { FeatureDescriptor } from "./types";
 
-export function isFeatureWritableNow(feature?: FeatureDescriptor): boolean {
-  if (!feature) return false;
+// Description changes carry JSON booleans; the IDDF carries strings.
+export function isFeatureAvailable(feature: FeatureDescriptor): boolean {
   const available = feature.available as unknown;
-  if (
+  return !(
     available === false ||
     available === 0 ||
     String(available).toLowerCase() === "false" ||
     String(available) === "0"
-  ) {
-    return false;
-  }
+  );
+}
+
+export function isFeatureWritableNow(feature?: FeatureDescriptor): boolean {
+  if (!feature || !isFeatureAvailable(feature)) return false;
   const access = typeof feature.access === "string" ? feature.access.toLowerCase() : "";
   return access === "" || access.includes("write");
 }

@@ -6,7 +6,7 @@ description: Documentation for the Home Connect (Local) Homey app
 
 Home Connect (Local) controls your Bosch, Siemens and Neff appliances from Homey over your own network. After a one-time pairing with your Home Connect account, Homey talks to the appliances directly, without the Home Connect cloud.
 
-Supported appliance types: ovens, dishwashers, washing machines, tumble dryers, extractor hoods and coffee machines. Hobs, fridges and other types are not supported yet.
+Supported appliance types: ovens, dishwashers, washing machines, tumble dryers, extractor hoods, coffee machines and hobs. Fridges and other types are not supported yet.
 
 This is an independent community app. It is not affiliated with or endorsed by BSH, Bosch, Siemens or Athom.
 

@@ -6,7 +6,7 @@ description: What the app can do per appliance type
 
 Each appliance only shows the options its model reports. If something is missing, your model most likely doesn't offer it.
 
-## All appliances
+## All appliances with programs
 
 - Power, operation state, active program and program progress
 - Remaining and elapsed time, with the remaining time as `h:mm` that you can pick as the device's status indicator
@@ -40,6 +40,18 @@ Mode (off, manual, automatic, run-on), fan level, intensive level, light, light 
 Hood support is new and built from the Home Connect documentation. Please report how it works for your model.
 {% endhint %}
 
+## Hob
+
+The cooking zones can't be controlled remotely. A tile per cooking zone shows its level (including keep warm, boost and residual heat), plus the number of zones in use, child lock and on/off. Triggers for cooking started or stopped (first zone on, last zone off), a zone changed, overheating, a zone reaching its time limit and the frying sensor reaching its temperature. Conditions for the hob or a specific zone being in use, and actions to switch the hob off or set the child lock.
+
+It also gets the operation state, local control, error and software update cards. Everyday hob notifications such as a zone timer or the minute minder running out don't count as errors.
+
+A typical Flow: when cooking starts, start the extractor hood in automatic mode.
+
+{% hint style="info" %}
+Hob support is new and built from one tester's appliance data. Please report how it works for your model.
+{% endhint %}
+
 ## Coffee machine
 
 Strength, fill quantity, cup warmer and drink counter. Actions to make a drink with the machine's own settings or with your own strength, quantity and temperature. Triggers for an empty bean container or water tank, a full drip tray, the milk container and cleaning or descaling.
@@ -50,4 +62,4 @@ Coffee machine support is new and built from the Home Connect documentation. Ple
 
 ## Not supported yet
 
-Hobs, fridges, freezers and other appliance types don't have a driver yet. They show as **Not supported yet** in the app settings. Hobs are the most requested; follow [issue #12](https://github.com/lucasvdh/codes.lucasvdh.homeconnect/issues/12).
+Fridges, freezers and other appliance types don't have a driver yet. They show as **Not supported yet** in the app settings.

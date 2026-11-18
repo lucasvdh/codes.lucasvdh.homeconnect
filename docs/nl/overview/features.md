@@ -6,7 +6,7 @@ description: Wat de app per type apparaat kan
 
 Elk apparaat toont alleen de opties die het model zelf meldt. Ontbreekt er iets, dan biedt jouw model het waarschijnlijk niet.
 
-## Alle apparaten
+## Alle apparaten met programma's
 
 - Aan/uit, bedrijfsstatus, actief programma en voortgang
 - Resterende en verstreken tijd, met de resterende tijd als `u:mm` die je als statusindicator van het apparaat kunt kiezen
@@ -40,6 +40,18 @@ Modus (uit, handmatig, automatisch, nalooptijd), ventilatorstand, intensiefstand
 Ondersteuning voor afzuigkappen is nieuw en gebouwd op basis van de Home Connect-documentatie. Laat weten hoe het werkt met jouw model.
 {% endhint %}
 
+## Kookplaat
+
+De kookzones zijn niet op afstand te bedienen. Per kookzone een tegel met de stand (ook warmhouden, boost en restwarmte), plus het aantal zones in gebruik, kinderslot en aan/uit. Triggers voor koken begonnen of gestopt (eerste zone aan, laatste zone uit), een zone gewijzigd, oververhitting, een zone die de tijdslimiet bereikt en de braadsensor die op temperatuur is. Condities voor de kookplaat of een bepaalde zone in gebruik, en acties om de kookplaat uit te zetten of het kinderslot in te stellen.
+
+Daarnaast zijn er de kaarten voor bedrijfsstatus, lokale bediening, fouten en software-updates. Gewone meldingen van de kookplaat, zoals een zonetimer of de kookwekker die afloopt, tellen niet als fout.
+
+Een voorbeeld-Flow: als het koken begint, zet de afzuigkap op automatisch.
+
+{% hint style="info" %}
+Ondersteuning voor kookplaten is nieuw en gebouwd op de gegevens van één tester. Laat weten hoe het werkt met jouw model.
+{% endhint %}
+
 ## Koffiemachine
 
 Sterkte, hoeveelheid, kopjeswarmer en drankenteller. Acties om een drankje te maken met de instellingen van de machine of met je eigen sterkte, hoeveelheid en temperatuur. Triggers voor een leeg bonenreservoir of waterreservoir, een volle lekbak, het melkreservoir en schoonmaken of ontkalken.
@@ -50,4 +62,4 @@ Ondersteuning voor koffiemachines is nieuw en gebouwd op basis van de Home Conne
 
 ## Nog niet ondersteund
 
-Kookplaten, koelkasten, vriezers en andere types hebben nog geen driver. In de app-instellingen staan ze als **Nog niet ondersteund**. Kookplaten worden het vaakst gevraagd; volg [issue #12](https://github.com/lucasvdh/codes.lucasvdh.homeconnect/issues/12).
+Koelkasten, vriezers en andere types hebben nog geen driver. In de app-instellingen staan ze als **Nog niet ondersteund**.

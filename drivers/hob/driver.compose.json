@@ -1,0 +1,47 @@
+{
+  "name": {
+    "en": "Hob",
+    "nl": "Kookplaat",
+    "de": "Kochfeld"
+  },
+  "class": "cooktop",
+  "capabilities": [
+    "onoff",
+    "homeconnect_operation_state",
+    "homeconnect_hob_active_zones",
+    "homeconnect_child_lock",
+    "homeconnect_local_control_active"
+  ],
+  "discovery": "homeconnect-mdns",
+  "images": {
+    "small": "/drivers/hob/assets/images/small.png",
+    "large": "/drivers/hob/assets/images/large.png",
+    "xlarge": "/drivers/hob/assets/images/xlarge.png"
+  },
+  "platforms": [
+    "local"
+  ],
+  "connectivity": [
+    "lan"
+  ],
+  "pair": [
+    {
+      "id": "list_devices",
+      "template": "list_devices",
+      "navigation": {
+        "next": "add_devices"
+      },
+      "options": {
+        "title": {
+          "en": "Select the hobs to add",
+          "nl": "Selecteer de kookplaten om toe te voegen",
+          "de": "Wähle die Kochfelder aus, die hinzugefügt werden sollen"
+        }
+      }
+    },
+    {
+      "id": "add_devices",
+      "template": "add_devices"
+    }
+  ]
+}

@@ -385,6 +385,7 @@ const NOUNS = {
   washer: { en: "washing machine", nl: "wasmachine", de: "an der Waschmaschine" },
   dryer: { en: "dryer", nl: "droger", de: "am Trockner" },
   hood: { en: "hood", nl: "afzuigkap", de: "an der Dunstabzugshaube" },
+  hob: { en: "hob", nl: "kookplaat", de: "am Kochfeld" },
   coffeemaker: { en: "coffee machine", nl: "koffiemachine", de: "am Kaffeevollautomaten" },
 };
 
@@ -1294,6 +1295,152 @@ const HOOD_ACTIONS = [
   },
 ];
 
+// ---- Hob -----------------------------------------------------------------
+
+// The zone tiles (homeconnect_hob_zone.<id>) are added at runtime per zone the hob has.
+const HOB_CAPS = [
+  "onoff",
+  "homeconnect_operation_state",
+  "homeconnect_hob_active_zones",
+  "homeconnect_child_lock",
+  "homeconnect_local_control_active",
+];
+
+// No programs, door or remote start.
+const HOB_SHARED = {
+  triggers: [
+    "operation_state_changed",
+    "local_control_changed",
+    "child_lock_changed",
+    "error_occurred",
+    "software_update_available",
+  ],
+  conditions: ["has_error", "local_control_is_active", "child_lock_is_on"],
+  actions: ["set_child_lock", "acknowledge_event", "power_off"],
+};
+
+// Members of Cooking.Hob.EnumType.ZoneSelector; must stay in step with ZONE_TITLES in lib/hob-zones.ts.
+const HOB_ZONES = [
+  { id: "100", title: { en: "Front left", nl: "Linksvoor", de: "Vorne links" } },
+  { id: "120", title: { en: "Left", nl: "Links", de: "Links" } },
+  { id: "121", title: { en: "Left (extension)", nl: "Links (uitbreiding)", de: "Links (Erweiterung)" } },
+  { id: "200", title: { en: "Rear left", nl: "Linksachter", de: "Hinten links" } },
+  { id: "201", title: { en: "Rear left (extension)", nl: "Linksachter (uitbreiding)", de: "Hinten links (Erweiterung)" } },
+  { id: "300", title: { en: "Rear right", nl: "Rechtsachter", de: "Hinten rechts" } },
+  { id: "301", title: { en: "Rear right (extension)", nl: "Rechtsachter (uitbreiding)", de: "Hinten rechts (Erweiterung)" } },
+  { id: "340", title: { en: "Right", nl: "Rechts", de: "Rechts" } },
+  { id: "341", title: { en: "Right (extension)", nl: "Rechts (uitbreiding)", de: "Rechts (Erweiterung)" } },
+  { id: "400", title: { en: "Front right", nl: "Rechtsvoor", de: "Vorne rechts" } },
+];
+
+const zoneArg = (values) => ({
+  name: "zone",
+  type: "dropdown",
+  title: { en: "Zone", nl: "Zone", de: "Kochzone" },
+  values,
+});
+
+const HOB_TRIGGERS = [
+  {
+    id: "hob_cooking_started",
+    highlight: true,
+    title: { en: "Cooking started", nl: "Koken is begonnen", de: "Kochvorgang gestartet" },
+    hint: {
+      en: "Triggers when the first zone is switched on.",
+      nl: "Wordt geactiveerd wanneer de eerste zone aangaat.",
+      de: "Wird ausgelöst, wenn die erste Kochzone eingeschaltet wird.",
+    },
+  },
+  {
+    id: "hob_cooking_stopped",
+    highlight: true,
+    title: { en: "Cooking stopped", nl: "Koken is gestopt", de: "Kochvorgang beendet" },
+    hint: {
+      en: "Triggers when the last zone is switched off.",
+      nl: "Wordt geactiveerd wanneer de laatste zone uitgaat.",
+      de: "Wird ausgelöst, wenn die letzte Kochzone ausgeschaltet wird.",
+    },
+  },
+  {
+    id: "hob_zone_changed",
+    title: { en: "A zone changed", nl: "Een zone is gewijzigd", de: "Eine Kochzone hat sich geändert" },
+    titleFormatted: {
+      en: "[[zone]] changed",
+      nl: "[[zone]] is gewijzigd",
+      de: "[[zone]] hat sich geändert",
+    },
+    args: [
+      zoneArg([{ id: "any", title: { en: "Any zone", nl: "Elke zone", de: "Beliebige Kochzone" } }, ...HOB_ZONES]),
+    ],
+    tokens: [
+      {
+        name: "zone",
+        type: "string",
+        title: { en: "Zone", nl: "Zone", de: "Kochzone" },
+        example: { en: "Front left", nl: "Linksvoor", de: "Vorne links" },
+      },
+      {
+        name: "level",
+        type: "string",
+        title: { en: "Level", nl: "Stand", de: "Stufe" },
+        example: { en: "4.5", nl: "4,5", de: "4,5" },
+      },
+    ],
+  },
+  {
+    id: "hob_overheated",
+    title: { en: "The hob overheated", nl: "De kookplaat is oververhit", de: "Das Kochfeld ist überhitzt" },
+  },
+  {
+    id: "hob_operating_time_limit_reached",
+    title: {
+      en: "A zone reached its time limit",
+      nl: "Een zone heeft de tijdslimiet bereikt",
+      de: "Eine Kochzone hat die Zeitbegrenzung erreicht",
+    },
+    hint: {
+      en: "The hob switches a zone off after it has run too long without a change.",
+      nl: "De kookplaat zet een zone uit als die te lang zonder wijziging aanstaat.",
+      de: "Das Kochfeld schaltet eine Kochzone ab, die zu lange ohne Änderung läuft.",
+    },
+  },
+  {
+    id: "hob_preheat_finished",
+    title: { en: "Preheating finished", nl: "Voorverwarmen is klaar", de: "Vorheizen ist beendet" },
+    hint: {
+      en: "For the frying sensor: the pan has reached its temperature.",
+      nl: "Bij de braadsensor: de pan heeft de temperatuur bereikt.",
+      de: "Beim Bratsensor: Die Pfanne hat die Temperatur erreicht.",
+    },
+  },
+];
+
+const HOB_CONDITIONS = [
+  {
+    id: "hob_is_cooking",
+    highlight: true,
+    title: {
+      en: "The hob !{{is|is not}} in use",
+      nl: "De kookplaat !{{is|is niet}} in gebruik",
+      de: "Das Kochfeld !{{ist|ist nicht}} in Betrieb",
+    },
+  },
+  {
+    id: "hob_zone_is_cooking",
+    title: {
+      en: "A zone !{{is|is not}} on",
+      nl: "Een zone !{{is|is niet}} aan",
+      de: "Eine Kochzone !{{ist|ist nicht}} eingeschaltet",
+    },
+    titleFormatted: {
+      en: "[[zone]] !{{is|is not}} on",
+      nl: "[[zone]] !{{is|is niet}} aan",
+      de: "[[zone]] !{{ist|ist nicht}} eingeschaltet",
+    },
+    args: [zoneArg(HOB_ZONES)],
+  },
+];
+
 // ---- Coffee machine ------------------------------------------------------
 
 const COFFEEMAKER_CAPS = [
@@ -1534,6 +1681,18 @@ if (want("hood")) {
       ...HOOD_CONDITIONS,
     ],
     actions: [...pick(sharedActions("hood"), "hood", HOOD_SHARED.actions), ...HOOD_ACTIONS],
+  });
+}
+
+if (want("hob")) {
+  const hobCompose = readJson("drivers/hob/driver.compose.json");
+  hobCompose.capabilities = HOB_CAPS;
+  writeJson("drivers/hob/driver.compose.json", hobCompose);
+
+  writeFlow("drivers/hob/driver.flow.compose.json", {
+    triggers: [...pick(sharedTriggers("hob"), "hob", HOB_SHARED.triggers), ...HOB_TRIGGERS],
+    conditions: [...pick(sharedConditions("hob"), "hob", HOB_SHARED.conditions), ...HOB_CONDITIONS],
+    actions: pick(sharedActions("hob"), "hob", HOB_SHARED.actions),
   });
 }
 

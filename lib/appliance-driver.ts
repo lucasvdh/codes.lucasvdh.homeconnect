@@ -3,7 +3,7 @@
 import Homey from "homey";
 
 import { DeviceConfig } from "./types";
-import { ApplianceDevice, EventTriggerSpec } from "./appliance-device";
+import { ApplianceDevice, EventSpec } from "./appliance-device";
 
 // Keys come from the settings page, so pairing only lists the imported appliances of this type.
 // Flow card ids carry a per-driver prefix because Homey card ids are unique app-wide.
@@ -51,11 +51,11 @@ export abstract class ApplianceDriver extends Homey.Driver {
   }
 
   // Unmapped events fire errorOccurredTrigger.
-  protected eventMap(): Record<string, EventTriggerSpec> {
+  protected eventMap(): Record<string, EventSpec> {
     return {};
   }
 
-  getEventMap(): Record<string, EventTriggerSpec> {
+  getEventMap(): Record<string, EventSpec> {
     return this.eventMap();
   }
 
@@ -89,7 +89,7 @@ export abstract class ApplianceDriver extends Homey.Driver {
   private registerEventTriggers(): void {
     const seen = new Set<string>();
     for (const spec of Object.values(this.eventMap())) {
-      if (seen.has(spec.triggerKey)) continue;
+      if ("ignore" in spec || seen.has(spec.triggerKey)) continue;
       seen.add(spec.triggerKey);
       const snake = spec.triggerKey.replace(/[A-Z]/g, (m) => `_${m.toLowerCase()}`);
       const cardId = `${this.cardPrefix}_${snake}`;

@@ -6,7 +6,7 @@ description: Documentatie voor de Homey-app Home Connect (Lokaal)
 
 Met Home Connect (Lokaal) bedien je je apparaten van Bosch, Siemens en Neff vanuit Homey via je eigen netwerk. Na een eenmalige koppeling met je Home Connect-account praat Homey rechtstreeks met de apparaten, zonder de Home Connect-cloud.
 
-Ondersteunde apparaten: ovens, vaatwassers, wasmachines, wasdrogers, afzuigkappen en koffiemachines. Kookplaten, koelkasten en andere apparaten worden nog niet ondersteund.
+Ondersteunde apparaten: ovens, vaatwassers, wasmachines, wasdrogers, afzuigkappen, koffiemachines en kookplaten. Koelkasten en andere apparaten worden nog niet ondersteund.
 
 Dit is een onafhankelijke community-app, niet gelieerd aan of goedgekeurd door BSH, Bosch, Siemens of Athom.
 

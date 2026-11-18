@@ -1,0 +1,190 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Zone",
+    "nl": "Zone",
+    "de": "Kochzone"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capability/homeconnect_hob_zone.svg",
+  "values": [
+    {
+      "id": "Off",
+      "title": {
+        "en": "Off",
+        "nl": "Uit",
+        "de": "Aus"
+      }
+    },
+    {
+      "id": "ResidualHeat",
+      "title": {
+        "en": "Residual heat",
+        "nl": "Restwarmte",
+        "de": "Restwärme"
+      }
+    },
+    {
+      "id": "KeepWarm",
+      "title": {
+        "en": "Keep warm",
+        "nl": "Warmhouden",
+        "de": "Warmhalten"
+      }
+    },
+    {
+      "id": "10",
+      "title": {
+        "en": "1",
+        "nl": "1",
+        "de": "1"
+      }
+    },
+    {
+      "id": "15",
+      "title": {
+        "en": "1.5",
+        "nl": "1,5",
+        "de": "1,5"
+      }
+    },
+    {
+      "id": "20",
+      "title": {
+        "en": "2",
+        "nl": "2",
+        "de": "2"
+      }
+    },
+    {
+      "id": "25",
+      "title": {
+        "en": "2.5",
+        "nl": "2,5",
+        "de": "2,5"
+      }
+    },
+    {
+      "id": "30",
+      "title": {
+        "en": "3",
+        "nl": "3",
+        "de": "3"
+      }
+    },
+    {
+      "id": "35",
+      "title": {
+        "en": "3.5",
+        "nl": "3,5",
+        "de": "3,5"
+      }
+    },
+    {
+      "id": "40",
+      "title": {
+        "en": "4",
+        "nl": "4",
+        "de": "4"
+      }
+    },
+    {
+      "id": "45",
+      "title": {
+        "en": "4.5",
+        "nl": "4,5",
+        "de": "4,5"
+      }
+    },
+    {
+      "id": "50",
+      "title": {
+        "en": "5",
+        "nl": "5",
+        "de": "5"
+      }
+    },
+    {
+      "id": "55",
+      "title": {
+        "en": "5.5",
+        "nl": "5,5",
+        "de": "5,5"
+      }
+    },
+    {
+      "id": "60",
+      "title": {
+        "en": "6",
+        "nl": "6",
+        "de": "6"
+      }
+    },
+    {
+      "id": "65",
+      "title": {
+        "en": "6.5",
+        "nl": "6,5",
+        "de": "6,5"
+      }
+    },
+    {
+      "id": "70",
+      "title": {
+        "en": "7",
+        "nl": "7",
+        "de": "7"
+      }
+    },
+    {
+      "id": "75",
+      "title": {
+        "en": "7.5",
+        "nl": "7,5",
+        "de": "7,5"
+      }
+    },
+    {
+      "id": "80",
+      "title": {
+        "en": "8",
+        "nl": "8",
+        "de": "8"
+      }
+    },
+    {
+      "id": "85",
+      "title": {
+        "en": "8.5",
+        "nl": "8,5",
+        "de": "8,5"
+      }
+    },
+    {
+      "id": "90",
+      "title": {
+        "en": "9",
+        "nl": "9",
+        "de": "9"
+      }
+    },
+    {
+      "id": "Boost1",
+      "title": {
+        "en": "Boost 1",
+        "nl": "Boost 1",
+        "de": "Boost 1"
+      }
+    },
+    {
+      "id": "Boost2",
+      "title": {
+        "en": "Boost 2",
+        "nl": "Boost 2",
+        "de": "Boost 2"
+      }
+    }
+  ]
+}

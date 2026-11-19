@@ -1,0 +1,92 @@
+{
+  "id": "appliance_maintenance",
+  "title": {
+    "en": "An appliance needs maintenance",
+    "nl": "Een apparaat heeft onderhoud nodig",
+    "de": "Ein Gerät braucht Wartung"
+  },
+  "titleFormatted": {
+    "en": "[[appliance]] needs maintenance",
+    "nl": "[[appliance]] heeft onderhoud nodig",
+    "de": "[[appliance]] braucht Wartung"
+  },
+  "hint": {
+    "en": "Refills, filters and cleaning, such as salt, rinse aid, a grease filter or descaling.",
+    "nl": "Bijvullen, filters en schoonmaken, zoals zout, glansspoelmiddel, een vetfilter of ontkalken.",
+    "de": "Nachfüllen, Filter und Reinigung, etwa Salz, Klarspüler, ein Fettfilter oder Entkalken."
+  },
+  "args": [
+    {
+      "type": "autocomplete",
+      "name": "appliance",
+      "title": {
+        "en": "Appliance",
+        "nl": "Apparaat",
+        "de": "Gerät"
+      },
+      "placeholder": {
+        "en": "Any appliance",
+        "nl": "Elk apparaat",
+        "de": "Jedes Gerät"
+      }
+    }
+  ],
+  "tokens": [
+    {
+      "name": "appliance",
+      "type": "string",
+      "title": {
+        "en": "Appliance",
+        "nl": "Apparaat",
+        "de": "Gerät"
+      },
+      "example": {
+        "en": "Dishwasher",
+        "nl": "Vaatwasser",
+        "de": "Geschirrspüler"
+      }
+    },
+    {
+      "name": "appliance_type",
+      "type": "string",
+      "title": {
+        "en": "Type",
+        "nl": "Type",
+        "de": "Typ"
+      },
+      "example": {
+        "en": "Dishwasher",
+        "nl": "Vaatwasser",
+        "de": "Geschirrspüler"
+      }
+    },
+    {
+      "name": "message",
+      "type": "string",
+      "title": {
+        "en": "Message",
+        "nl": "Melding",
+        "de": "Meldung"
+      },
+      "example": {
+        "en": "Salt is running low",
+        "nl": "Het zout raakt op",
+        "de": "Das Salz geht zur Neige"
+      }
+    },
+    {
+      "name": "code",
+      "type": "string",
+      "title": {
+        "en": "Code",
+        "nl": "Code",
+        "de": "Code"
+      },
+      "example": {
+        "en": "SaltNearlyEmpty",
+        "nl": "SaltNearlyEmpty",
+        "de": "SaltNearlyEmpty"
+      }
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "id": "appliance_unreachable",
+  "highlight": true,
+  "title": {
+    "en": "An appliance became unreachable",
+    "nl": "Een apparaat is niet meer bereikbaar",
+    "de": "Ein Gerät ist nicht mehr erreichbar"
+  },
+  "titleFormatted": {
+    "en": "[[appliance]] became unreachable",
+    "nl": "[[appliance]] is niet meer bereikbaar",
+    "de": "[[appliance]] ist nicht mehr erreichbar"
+  },
+  "hint": {
+    "en": "After the appliance has been unreachable for 5 minutes, so a short drop doesn't count.",
+    "nl": "Nadat het apparaat 5 minuten onbereikbaar is, dus een korte onderbreking telt niet mee.",
+    "de": "Nachdem das Gerät 5 Minuten nicht erreichbar war, kurze Unterbrechungen zählen also nicht."
+  },
+  "args": [
+    {
+      "type": "autocomplete",
+      "name": "appliance",
+      "title": {
+        "en": "Appliance",
+        "nl": "Apparaat",
+        "de": "Gerät"
+      },
+      "placeholder": {
+        "en": "Any appliance",
+        "nl": "Elk apparaat",
+        "de": "Jedes Gerät"
+      }
+    }
+  ],
+  "tokens": [
+    {
+      "name": "appliance",
+      "type": "string",
+      "title": {
+        "en": "Appliance",
+        "nl": "Apparaat",
+        "de": "Gerät"
+      },
+      "example": {
+        "en": "Dishwasher",
+        "nl": "Vaatwasser",
+        "de": "Geschirrspüler"
+      }
+    },
+    {
+      "name": "appliance_type",
+      "type": "string",
+      "title": {
+        "en": "Type",
+        "nl": "Type",
+        "de": "Typ"
+      },
+      "example": {
+        "en": "Dishwasher",
+        "nl": "Vaatwasser",
+        "de": "Geschirrspüler"
+      }
+    },
+    {
+      "name": "reason",
+      "type": "string",
+      "title": {
+        "en": "Reason",
+        "nl": "Reden",
+        "de": "Grund"
+      },
+      "example": {
+        "en": "The appliance doesn't answer.",
+        "nl": "Het apparaat reageert niet.",
+        "de": "Das Gerät antwortet nicht."
+      }
+    }
+  ]
+}

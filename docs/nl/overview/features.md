@@ -16,6 +16,14 @@ Elk apparaat toont alleen de opties die het model zelf meldt. Ontbreekt er iets,
 
 De meeste types hebben ook deurstatus, kinderslot, uitgesteld starten en de actie **Start het geselecteerde programma**: stel alles in op het apparaat en laat een Flow bepalen wanneer het start, bijvoorbeeld als stroom goedkoop is.
 
+## Flows voor alle apparaten
+
+Deze kaarten horen niet bij één apparaat. Kies een apparaat, of **Elk apparaat** zodat één Flow ze allemaal afvangt.
+
+- **Er is iets mis met een apparaat:** storingen en veiligheidsmeldingen zoals Aqua-Stop, lage waterdruk of oververhitting, met het probleem als token.
+- **Een apparaat heeft onderhoud nodig:** bijvullen, filters en schoonmaken, zoals zout, glansspoelmiddel, een vetfilter of ontkalken.
+- **Een apparaat is niet meer bereikbaar** en **is weer bereikbaar:** pas na 5 minuten, dus een korte onderbreking telt niet mee.
+
 ## Oven
 
 Ovenruimtetemperatuur, kerntemperatuurmeter (aangesloten, temperatuur, doel), snel voorverwarmen, ovenlamp, kookwekker, pyrolyseniveau en display-instellingen. Triggers voor voorverwarmen klaar, kerntemperatuur bereikt, kookwekker afgelopen, gerecht plaatsen of omdraaien en schoonmaakherinneringen. Acties om een programma te starten en de doeltemperatuur, kerntemperatuur, kookwekker, ovenlamp en snel voorverwarmen in te stellen.

@@ -39,15 +39,16 @@ class CoffeeMakerDriver extends ApplianceDriver {
   protected eventMap(): Record<string, EventTriggerSpec> {
     const ev = "ConsumerProducts.CoffeeMaker.Event.";
     const map: Record<string, EventTriggerSpec> = {
-      [`${ev}BeanContainerEmpty`]: { triggerKey: "beanContainerEmpty" },
-      [`${ev}WaterTankEmpty`]: { triggerKey: "waterTankEmpty" },
-      [`${ev}DripTrayFull`]: { triggerKey: "dripTrayFull" },
+      [`${ev}BeanContainerEmpty`]: { triggerKey: "beanContainerEmpty", alert: "maintenance" },
+      [`${ev}WaterTankEmpty`]: { triggerKey: "waterTankEmpty", alert: "maintenance" },
+      [`${ev}DripTrayFull`]: { triggerKey: "dripTrayFull", alert: "maintenance" },
       [`${ev}KeepMilkTankCool`]: { triggerKey: "keepMilkTankCool" },
       "BSH.Common.Event.SoftwareUpdateAvailable": { triggerKey: "softwareUpdateAvailable" },
     };
     for (const name of MAINTENANCE_EVENTS) {
       map[`${ev}${name}`] = {
         triggerKey: "maintenanceRequired",
+        alert: "maintenance",
         tokens: () => ({ reminder: name }),
       };
     }

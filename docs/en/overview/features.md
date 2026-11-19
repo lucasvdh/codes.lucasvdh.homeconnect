@@ -16,6 +16,14 @@ Each appliance only shows the options its model reports. If something is missing
 
 Most types also have door state, child lock, delayed start, and the **Start the selected program** action: set everything up on the appliance and let a Flow decide when it starts, for example when energy is cheap.
 
+## Flows for all appliances
+
+These cards aren't tied to one appliance. Pick a specific appliance, or **Any appliance** so one Flow covers them all.
+
+- **Something is wrong with an appliance:** errors and safety alerts such as an Aqua-Stop, low water pressure or overheating, with the problem as a token.
+- **An appliance needs maintenance:** refills, filters and cleaning, such as salt, rinse aid, a grease filter or descaling.
+- **An appliance became unreachable** and **is reachable again:** only after 5 minutes, so a short drop doesn't count.
+
 ## Oven
 
 Cavity temperature, meat probe (plugged in, temperature, target), fast preheat, oven light, kitchen timer, pyrolysis level and display settings. Triggers for preheat finished, meat probe target reached, kitchen timer elapsed, insert or turn food, and cleaning reminders. Actions to start a program, set the target temperature, meat probe target, kitchen timer, oven light and fast preheat.

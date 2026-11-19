@@ -4,6 +4,10 @@ description: Wat er per versie veranderd is
 
 # Wijzigingen
 
+## 1.6.0
+
+Nieuw: kookplaten, met per kookzone een tegel met de stand, en Flows voor koken gestart of gestopt, een zone die verandert en oververhitting. Ondersteuning voor kookplaten is nieuw, laat weten hoe het werkt. Ook nieuw zijn Flow-kaarten voor al je apparaten tegelijk: er is iets mis met een apparaat, een apparaat heeft onderhoud nodig, en een apparaat is niet meer bereikbaar (na 5 minuten) of weer bereikbaar.
+
 ## 1.5.0
 
 De app-instellingen passen nu op een telefoon, met per apparaat een kaart met de status en, als het niet beschikbaar is, de reden. Het koppelen legt beide manieren uit en verwijst naar de nieuwe online handleiding. Apparaten die nog niet ondersteund worden, zoals kookplaten, laten dat zien. Afzuigkappen krijgen een moduskeuze: uit, handmatig, automatisch of nalooptijd. Diagnoserapporten loggen elke actie op een apparaat en waarom die mislukte. Apparaten die de verbinding kort verbreken, verbinden nu opnieuw zonder op niet beschikbaar te springen. De meestgebruikte Flow-kaarten staan bovenaan.

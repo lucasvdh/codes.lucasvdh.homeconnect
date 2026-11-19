@@ -4,6 +4,10 @@ description: What changed in each version
 
 # Changelog
 
+## 1.6.0
+
+New: hobs, with a tile per cooking zone showing its level, and Flows for cooking started or stopped, a zone changing and overheating. Hob support is new, please report how it works for you. Also new are Flow cards for all your appliances at once: something is wrong with an appliance, an appliance needs maintenance, and an appliance became unreachable (after 5 minutes) or is reachable again.
+
 ## 1.5.0
 
 The app settings now fit on a phone, with a card per appliance that shows its status and, when it is unavailable, the reason. Pairing explains both methods and links to the new online guide. Appliances that aren't supported yet, such as hobs, say so. Extractor hoods get a mode picker: off, manual, automatic or run-on. Diagnostics reports log every action on a device and why it failed. Appliances that briefly drop the connection now reconnect without showing as unavailable. The most used Flow cards are shown first.

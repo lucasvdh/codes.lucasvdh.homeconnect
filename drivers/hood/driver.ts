@@ -22,9 +22,11 @@ class HoodDriver extends ApplianceDriver {
     return {
       "Cooking.Common.Event.Hood.GreaseFilterMaxSaturationNearlyReached": {
         triggerKey: "greaseFilterNearlySaturated",
+        alert: "maintenance",
       },
       "Cooking.Common.Event.Hood.GreaseFilterMaxSaturationReached": {
         triggerKey: "greaseFilterSaturated",
+        alert: "maintenance",
       },
       "BSH.Common.Event.SoftwareUpdateAvailable": { triggerKey: "softwareUpdateAvailable" },
     };

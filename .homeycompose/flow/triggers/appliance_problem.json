@@ -1,0 +1,93 @@
+{
+  "id": "appliance_problem",
+  "highlight": true,
+  "title": {
+    "en": "Something is wrong with an appliance",
+    "nl": "Er is iets mis met een apparaat",
+    "de": "Mit einem Gerät stimmt etwas nicht"
+  },
+  "titleFormatted": {
+    "en": "Something is wrong with [[appliance]]",
+    "nl": "Er is iets mis met [[appliance]]",
+    "de": "Mit [[appliance]] stimmt etwas nicht"
+  },
+  "hint": {
+    "en": "Errors and safety alerts from any appliance, such as an Aqua-Stop, low water pressure or overheating.",
+    "nl": "Storingen en veiligheidsmeldingen van elk apparaat, zoals Aqua-Stop, lage waterdruk of oververhitting.",
+    "de": "Störungen und Sicherheitsmeldungen aller Geräte, etwa Aqua-Stop, niedriger Wasserdruck oder Überhitzung."
+  },
+  "args": [
+    {
+      "type": "autocomplete",
+      "name": "appliance",
+      "title": {
+        "en": "Appliance",
+        "nl": "Apparaat",
+        "de": "Gerät"
+      },
+      "placeholder": {
+        "en": "Any appliance",
+        "nl": "Elk apparaat",
+        "de": "Jedes Gerät"
+      }
+    }
+  ],
+  "tokens": [
+    {
+      "name": "appliance",
+      "type": "string",
+      "title": {
+        "en": "Appliance",
+        "nl": "Apparaat",
+        "de": "Gerät"
+      },
+      "example": {
+        "en": "Dishwasher",
+        "nl": "Vaatwasser",
+        "de": "Geschirrspüler"
+      }
+    },
+    {
+      "name": "appliance_type",
+      "type": "string",
+      "title": {
+        "en": "Type",
+        "nl": "Type",
+        "de": "Typ"
+      },
+      "example": {
+        "en": "Dishwasher",
+        "nl": "Vaatwasser",
+        "de": "Geschirrspüler"
+      }
+    },
+    {
+      "name": "message",
+      "type": "string",
+      "title": {
+        "en": "Problem",
+        "nl": "Probleem",
+        "de": "Problem"
+      },
+      "example": {
+        "en": "Aqua-Stop triggered",
+        "nl": "Aqua-Stop is geactiveerd",
+        "de": "Aqua-Stop ausgelöst"
+      }
+    },
+    {
+      "name": "code",
+      "type": "string",
+      "title": {
+        "en": "Code",
+        "nl": "Code",
+        "de": "Code"
+      },
+      "example": {
+        "en": "AquaStopOccured",
+        "nl": "AquaStopOccured",
+        "de": "AquaStopOccured"
+      }
+    }
+  ]
+}

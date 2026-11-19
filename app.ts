@@ -6,6 +6,7 @@ import net from "net";
 
 import { DeviceConfig } from "./lib/types";
 import { ConnectionStatusStore } from "./lib/connection-status";
+import { AppFlowCards } from "./lib/app-flow";
 import { MdnsResultLike, describeMdnsResult, matchMdnsResult } from "./lib/mdns-match";
 
 const SETTINGS_DEVICES = "devices";
@@ -16,11 +17,13 @@ type MdnsResult = MdnsResultLike & { address?: string; lastSeen?: Date | string 
 
 class HomeConnectApp extends Homey.App {
   readonly connectionStatus = new ConnectionStatusStore();
+  flow!: AppFlowCards;
   // So periodic re-announcements don't flood the log.
   private readonly loggedMdns = new Set<string>();
 
   async onInit(): Promise<void> {
     this.log("Home Connect (Local) app is running...");
+    this.flow = new AppFlowCards(this.homey);
     this.watchMdns();
   }
 

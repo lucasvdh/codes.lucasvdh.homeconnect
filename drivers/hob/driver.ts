@@ -21,8 +21,8 @@ class HobDriver extends ApplianceDriver {
   protected eventMap(): Record<string, EventSpec> {
     const ignore: EventSpec = { ignore: true };
     return {
-      "Cooking.Common.Event.ApplianceOverheated": { triggerKey: "overheated" },
-      "Cooking.Hob.Event.Error.OperatingTimeLimitReached": { triggerKey: "operatingTimeLimitReached" },
+      "Cooking.Common.Event.ApplianceOverheated": { triggerKey: "overheated", alert: "problem" },
+      "Cooking.Hob.Event.Error.OperatingTimeLimitReached": { triggerKey: "operatingTimeLimitReached", alert: "problem" },
       "Cooking.Common.Event.PreheatFinished": { triggerKey: "preheatFinished" },
       "BSH.Common.Event.SoftwareUpdateAvailable": { triggerKey: "softwareUpdateAvailable" },
       // Everyday hob notifications, not errors (a zone timer or the minute minder running out).

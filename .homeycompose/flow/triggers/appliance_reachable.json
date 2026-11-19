@@ -1,0 +1,64 @@
+{
+  "id": "appliance_reachable",
+  "title": {
+    "en": "An appliance is reachable again",
+    "nl": "Een apparaat is weer bereikbaar",
+    "de": "Ein Gerät ist wieder erreichbar"
+  },
+  "titleFormatted": {
+    "en": "[[appliance]] is reachable again",
+    "nl": "[[appliance]] is weer bereikbaar",
+    "de": "[[appliance]] ist wieder erreichbar"
+  },
+  "hint": {
+    "en": "Only after the card 'An appliance became unreachable' fired for it.",
+    "nl": "Alleen nadat de kaart 'Een apparaat is niet meer bereikbaar' ervoor is afgegaan.",
+    "de": "Nur nachdem die Karte 'Ein Gerät ist nicht mehr erreichbar' dafür ausgelöst hat."
+  },
+  "args": [
+    {
+      "type": "autocomplete",
+      "name": "appliance",
+      "title": {
+        "en": "Appliance",
+        "nl": "Apparaat",
+        "de": "Gerät"
+      },
+      "placeholder": {
+        "en": "Any appliance",
+        "nl": "Elk apparaat",
+        "de": "Jedes Gerät"
+      }
+    }
+  ],
+  "tokens": [
+    {
+      "name": "appliance",
+      "type": "string",
+      "title": {
+        "en": "Appliance",
+        "nl": "Apparaat",
+        "de": "Gerät"
+      },
+      "example": {
+        "en": "Dishwasher",
+        "nl": "Vaatwasser",
+        "de": "Geschirrspüler"
+      }
+    },
+    {
+      "name": "appliance_type",
+      "type": "string",
+      "title": {
+        "en": "Type",
+        "nl": "Type",
+        "de": "Typ"
+      },
+      "example": {
+        "en": "Dishwasher",
+        "nl": "Vaatwasser",
+        "de": "Geschirrspüler"
+      }
+    }
+  ]
+}

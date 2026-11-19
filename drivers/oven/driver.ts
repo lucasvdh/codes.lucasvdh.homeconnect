@@ -54,8 +54,9 @@ class OvenDriver extends ApplianceDriver {
       "Cooking.Oven.Event.Cavity.001.OpenDoorInfrequently": doorAttn("open_infrequently"),
       "Cooking.Oven.Event.Cavity.001.CavityTemperatureTooHigh": {
         triggerKey: "cavityTempTooHigh",
+        alert: "problem",
       },
-      "Cooking.Oven.Event.Cavity.001.EasyClean": { triggerKey: "easyCleanRequired" },
+      "Cooking.Oven.Event.Cavity.001.EasyClean": { triggerKey: "easyCleanRequired", alert: "maintenance" },
       "Cooking.Oven.Event.Cavity.001.PyrolysisRemoveTank": {
         triggerKey: "pyrolysisRemoveTank",
       },
@@ -64,12 +65,13 @@ class OvenDriver extends ApplianceDriver {
       },
       "Cooking.Oven.Event.Cavity.001.OperatingTimeLimitReached": {
         triggerKey: "operatingTimeLimitReached",
+        alert: "problem",
       },
       "Cooking.Oven.Event.Cavity.001.OvenLockWhileCoolingDown": {
         triggerKey: "coolingLockActive",
       },
-      "BSH.Common.Event.AquaStopOccured": { triggerKey: "aquaStopOccurred" },
-      "BSH.Common.Event.LowWaterPressure": { triggerKey: "lowWaterPressure" },
+      "BSH.Common.Event.AquaStopOccured": { triggerKey: "aquaStopOccurred", alert: "problem" },
+      "BSH.Common.Event.LowWaterPressure": { triggerKey: "lowWaterPressure", alert: "problem" },
       "BSH.Common.Event.SoftwareUpdateAvailable": { triggerKey: "softwareUpdateAvailable" },
     };
   }

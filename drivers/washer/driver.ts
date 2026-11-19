@@ -12,13 +12,14 @@ class WasherDriver extends ApplianceDriver {
   protected eventMap(): Record<string, EventTriggerSpec> {
     const idosLow = (dispenser: string): EventTriggerSpec => ({
       triggerKey: "idosLow",
+      alert: "maintenance",
       tokens: () => ({ dispenser }),
     });
     return {
       "LaundryCare.Washer.Event.IDos1FillLevelPoor": idosLow("1"),
       "LaundryCare.Washer.Event.IDos2FillLevelPoor": idosLow("2"),
-      "BSH.Common.Event.AquaStopOccured": { triggerKey: "aquaStopOccurred" },
-      "BSH.Common.Event.LowWaterPressure": { triggerKey: "lowWaterPressure" },
+      "BSH.Common.Event.AquaStopOccured": { triggerKey: "aquaStopOccurred", alert: "problem" },
+      "BSH.Common.Event.LowWaterPressure": { triggerKey: "lowWaterPressure", alert: "problem" },
       "BSH.Common.Event.SoftwareUpdateAvailable": { triggerKey: "softwareUpdateAvailable" },
     };
   }

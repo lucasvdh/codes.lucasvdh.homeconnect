@@ -14,14 +14,17 @@ class DishwasherDriver extends ApplianceDriver {
   protected eventMap(): Record<string, EventTriggerSpec> {
     const saltLow = (severity: string): EventTriggerSpec => ({
       triggerKey: "saltLow",
+      alert: "maintenance",
       tokens: () => ({ severity }),
     });
     const rinseAidLow = (severity: string): EventTriggerSpec => ({
       triggerKey: "rinseAidLow",
+      alert: "maintenance",
       tokens: () => ({ severity }),
     });
     const drainingIssue = (kind: string): EventTriggerSpec => ({
       triggerKey: "drainingIssue",
+      alert: "problem",
       tokens: () => ({ kind }),
     });
     return {
@@ -29,21 +32,23 @@ class DishwasherDriver extends ApplianceDriver {
       "Dishcare.Dishwasher.Event.SaltNearlyEmpty": saltLow("nearly_empty"),
       "Dishcare.Dishwasher.Event.RinseAidLack": rinseAidLow("empty"),
       "Dishcare.Dishwasher.Event.RinseAidNearlyEmpty": rinseAidLow("nearly_empty"),
-      "Dishcare.Dishwasher.Event.CheckFilterSystem": { triggerKey: "filterCheckRequired" },
+      "Dishcare.Dishwasher.Event.CheckFilterSystem": { triggerKey: "filterCheckRequired", alert: "maintenance" },
       "Dishcare.Dishwasher.Event.SmartFilterCleaningReminder": {
         triggerKey: "filterCheckRequired",
+        alert: "maintenance",
       },
-      "Dishcare.Dishwasher.Event.MachineCareReminder": { triggerKey: "machineCareReminder" },
+      "Dishcare.Dishwasher.Event.MachineCareReminder": { triggerKey: "machineCareReminder", alert: "maintenance" },
       "Dishcare.Dishwasher.Event.MachineCareAndFilterCleaningReminder": {
         triggerKey: "machineCareReminder",
+        alert: "maintenance",
       },
       "Dishcare.Dishwasher.Event.DrainingNotPossible": drainingIssue("draining_not_possible"),
       "Dishcare.Dishwasher.Event.DrainPumpBlocked": drainingIssue("pump_blocked"),
-      "Dishcare.Dishwasher.Event.LowVoltage": { triggerKey: "lowVoltage" },
-      "Dishcare.Dishwasher.Event.WaterheaterCalcified": { triggerKey: "waterHeaterCalcified" },
-      "Dishcare.Dishwasher.Event.InternalError": { triggerKey: "internalError" },
-      "BSH.Common.Event.AquaStopOccured": { triggerKey: "aquaStopOccurred" },
-      "BSH.Common.Event.LowWaterPressure": { triggerKey: "lowWaterPressure" },
+      "Dishcare.Dishwasher.Event.LowVoltage": { triggerKey: "lowVoltage", alert: "problem" },
+      "Dishcare.Dishwasher.Event.WaterheaterCalcified": { triggerKey: "waterHeaterCalcified", alert: "maintenance" },
+      "Dishcare.Dishwasher.Event.InternalError": { triggerKey: "internalError", alert: "problem" },
+      "BSH.Common.Event.AquaStopOccured": { triggerKey: "aquaStopOccurred", alert: "problem" },
+      "BSH.Common.Event.LowWaterPressure": { triggerKey: "lowWaterPressure", alert: "problem" },
       "BSH.Common.Event.SoftwareUpdateAvailable": { triggerKey: "softwareUpdateAvailable" },
     };
   }

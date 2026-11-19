@@ -16,6 +16,8 @@ import {
 import { ConnectionStatusStore } from "./connection-status";
 import { matchMdnsResult } from "./mdns-match";
 import { describeFeatureState, isFeatureWritableNow } from "./feature-state";
+import { AlertKind, AppFlowCards } from "./app-flow";
+import { ReachabilityReporter } from "./reachability";
 
 // Gentle on purpose: an appliance that refuses us (other controller, wrong key)
 // shouldn't be hammered.
@@ -25,6 +27,7 @@ interface AppApi {
   getDevice(id: string): DeviceConfig | undefined;
   connectionStatus: ConnectionStatusStore;
   findMdnsAddress(haId: string): { address: string; via?: string } | null;
+  flow: AppFlowCards;
 }
 
 const RUNNING_STATES = new Set(["Run", "DelayedStart", "Pause", "ActionRequired"]);
@@ -587,6 +590,8 @@ export interface EventTriggerSpec {
   /** Fires `<triggerKey>Trigger` on the driver. */
   triggerKey: string;
   tokens?: (featureName: string) => Record<string, unknown>;
+  // Also fires the app-wide card; events missing from the eventMap count as a problem.
+  alert?: AlertKind;
 }
 
 // Logged only: not an error, and left for the user to dismiss on the appliance.
@@ -610,6 +615,13 @@ export class ApplianceDevice extends Homey.Device {
   private stopped = false;
   private readonly eventStates = new Map<string, unknown>();
   private readonly lastTriggeredValues = new Map<string, unknown>();
+  private readonly reachability = new ReachabilityReporter<ConnectionReason>(
+    (reachable, reason) => this.app.flow.reachabilityChanged(this, reachable, reason),
+    {
+      setTimeout: (fn, ms) => this.homey.setTimeout(fn, ms),
+      clearTimeout: (handle) => this.homey.clearTimeout(handle as NodeJS.Timeout),
+    },
+  );
 
   async onInit(): Promise<void> {
     this.stopped = false;
@@ -750,6 +762,7 @@ export class ApplianceDevice extends Homey.Device {
       this.reconnectAttempts = 0;
       this.connectedAt = Date.now();
       this.setAvailable().catch(this.error);
+      this.reachability.connected();
       const address = client.address ?? undefined;
       this.log(`[conn] connected via ${address ?? "?"}`);
       this.app.connectionStatus.setState(this.haId, "connected", { address });
@@ -818,6 +831,7 @@ export class ApplianceDevice extends Homey.Device {
     this.log(`[conn] unavailable: ${reason} (${detail || "-"}); retry in ${delay / 1000}s`);
     this.app.connectionStatus.setState(this.haId, "unavailable", { reason, detail });
     this.setUnavailable(this.homey.__(`device.unavailable.${reason}`)).catch(this.error);
+    this.reachability.unavailable(reason);
     this.scheduleReconnect(delay);
   }
 
@@ -906,6 +920,9 @@ export class ApplianceDevice extends Homey.Device {
       this.log(`[event] ${featureName} ignored`);
       return;
     }
+    const code = featureName.split(".").pop() ?? featureName;
+    const alert = spec ? spec.alert : "problem";
+    if (alert) this.app.flow.alert(alert, this, code);
     if (spec) {
       const trigger = this.driverTrigger(spec.triggerKey);
       if (trigger) {
@@ -915,7 +932,6 @@ export class ApplianceDevice extends Homey.Device {
         this.error(`event ${featureName} mapped to unknown trigger ${spec.triggerKey}`);
       }
     } else if (driver.errorOccurredTrigger) {
-      const code = featureName.split(".").pop() ?? featureName;
       driver.errorOccurredTrigger.trigger(this, { error_code: code }, {}).catch(this.error);
     }
     this.acknowledgeEvent();
@@ -1328,6 +1344,7 @@ export class ApplianceDevice extends Homey.Device {
   async onUninit(): Promise<void> {
     this.stopped = true;
     this.connectionGeneration++;
+    this.reachability.stop();
     this.clearReconnect();
     this.clearValueRefresh();
     this.client?.close();
@@ -1338,6 +1355,7 @@ export class ApplianceDevice extends Homey.Device {
     this.app.connectionStatus.forget(this.haId);
     this.stopped = true;
     this.connectionGeneration++;
+    this.reachability.stop();
     this.clearReconnect();
     this.clearValueRefresh();
     this.client?.close();

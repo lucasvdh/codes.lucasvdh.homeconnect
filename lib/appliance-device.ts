@@ -221,6 +221,11 @@ const CAPABILITY_MAP: Record<string, CapabilityMapEntry> = {
     capability: "measure_temperature",
     decode: decodeNumber,
   },
+  // Some ovens (e.g. Siemens HS658GXS6) report this without the "Cavity.001" segment.
+  "Cooking.Oven.Status.CurrentCavityTemperature": {
+    capability: "measure_temperature",
+    decode: decodeNumber,
+  },
   // SetpointTemperature is deliberately a Flow action (oven_set_target_temperature), not a
   // capability: it only means something while a program is selected.
   "Cooking.Oven.Status.Cavity.001.MeatprobePlugged": {
@@ -228,6 +233,10 @@ const CAPABILITY_MAP: Record<string, CapabilityMapEntry> = {
     decode: decodeBool,
   },
   "Cooking.Oven.Status.Cavity.001.CurrentMeatprobeTemperature": {
+    capability: "homeconnect_meat_probe_temp",
+    decode: decodeNumber,
+  },
+  "Cooking.Oven.Status.CurrentMeatprobeTemperature": {
     capability: "homeconnect_meat_probe_temp",
     decode: decodeNumber,
   },
@@ -665,15 +674,20 @@ export class ApplianceDevice extends Homey.Device {
   private async syncCapabilities(): Promise<void> {
     const declared = new Set<string>(this.driver.manifest.capabilities ?? []);
 
+    const usableCapabilities = new Set<string>();
     for (const [featureName, entry] of Object.entries(CAPABILITY_MAP)) {
-      if (!declared.has(entry.capability)) continue;
-      const feature = this.findFeature(featureName, this.capabilitySyncFeatures);
-      const usable = feature != null;
-      const has = this.hasCapability(entry.capability);
+      if (this.findFeature(featureName, this.capabilitySyncFeatures) != null) {
+        usableCapabilities.add(entry.capability);
+      }
+    }
+    for (const capability of new Set(Object.values(CAPABILITY_MAP).map((e) => e.capability))) {
+      if (!declared.has(capability)) continue;
+      const usable = usableCapabilities.has(capability);
+      const has = this.hasCapability(capability);
       if (usable && !has) {
-        await this.addCapability(entry.capability).catch(this.error);
+        await this.addCapability(capability).catch(this.error);
       } else if (!usable && has) {
-        await this.removeCapability(entry.capability).catch(this.error);
+        await this.removeCapability(capability).catch(this.error);
       }
     }
 
